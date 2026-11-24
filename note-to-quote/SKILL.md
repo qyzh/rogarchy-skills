@@ -1,7 +1,7 @@
 ---
 name: note-to-quote
 description: Pilih gagasan dari note atau rangkuman untuk menjadi quote singkat yang dapat berdiri sendiri. Gunakan untuk quote card, teks Instagram Stories, atau memilih kutipan pembicara; bedakan rumusan editorial, calon kutipan, dan kutipan yang telah diperiksa pada sumber asli. Hasil berupa teks beserta konteks dan atribusi.
-version: 1.0.0
+version: 1.0.1
 author: qyzh, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]

@@ -1,7 +1,7 @@
 ---
 name: omarchy-agent-usage
 description: "Token usage, quota/limit %, per-day x per-model breakdowns, pay-as-you-go cost simulation (Artificial Analysis prices), cache-hit / token-per-prompt / cost-per-task metrics and weekly reports for local AI agents on Omarchy (Hermes, Claude Code, Codex, OpenCode, grok, agy). Triggers: cek penggunaan token, berapa token terpakai, kuota atau limit habis, agent mana paling boros, simulasi biaya, biaya pay-as-you-go, cache hit ratio, token per prompt, cost per task, laporan mingguan, track usage per hari."
-version: 0.3.0
+version: 0.3.1
 author: qyzh, Hermes Agent
 license: MIT
 platforms: [linux]
@@ -46,7 +46,7 @@ Local files: `references/task-signal.local.md` (template `references/task-signal
 Resolve each variable once, before the first step that needs it: the env var if set and non-empty; else its `KEY=value` line in `${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env` (written by `rogarchy-setup`; read it as data, never `source` it; the last matching line wins); else the default. A missing file or line means the default. Kind: `setting` = setup asks for it; `advanced` = setup keeps the default unless the user asks; `secret` = env var only, never in `config.env` or chat. In a shell, `rs_get` does the same lookup:
 
 ```bash
-rs_get() { v=$(printenv "$1"); [ -n "$v" ] || v=$(sed -n "s/[[:space:]]*\$//; s/^$1=//p" "${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env" 2>/dev/null | tail -n 1); printf '%s\n' "${v:-$2}"; }
+rs_get() { _rs_v=$(printenv "$1" || :); [ -n "$_rs_v" ] || _rs_v=$(sed -n "s/[[:space:]]*\$//; s/^$1=//p" "${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env" 2>/dev/null | tail -n 1 || :); printf '%s\n' "${_rs_v:-$2}"; }
 rs_get OMARCHY_PATH /usr/share/omarchy
 ```
 

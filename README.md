@@ -9,27 +9,27 @@ A personal collection of agent skills in `SKILL.md` format. One repo, one folder
 
 | Skill | Description | Version | Extra folders |
 |---|---|---|---|
-| [`blog-post`](blog-post/README.md) | Writes one cited blog post: research first, draft second, score third. | 0.2.0 | `references/`, `templates/` |
-| [`bmlink`](bmlink/README.md) | Saves a URL as one row in a Markdown bookmark table. No per-link notes. | 1.0.0 | - |
-| [`dither-data-viz`](dither-data-viz/README.md) | Makes dithered (Bayer) charts on canvas with real HTML labels. Outputs `index.html` and one PNG per canvas. 5 card designs (A–E), default B. | 0.4.0 | `scripts/`, `templates/`, `design-options/` |
-| [`kamus`](kamus/README.md) | Saves one term as one definition note in a kamus (dictionary) folder, with the meaning verified against KBBI/Wiktionary. | 1.0.0 | `references/` (optional, local) |
-| [`note-to-quote`](note-to-quote/README.md) | Picks one idea from a note or summary and turns it into a short quote, with context and attribution. | 1.0.0 | `references/` |
-| [`omarchy-agent-usage`](omarchy-agent-usage/README.md) | History and reports of local AI agent token usage on Omarchy: per day × per model, quota, cost simulation, metrics. Linux/Omarchy only. | 0.3.0 | `references/`, `scripts/`, `tests/` |
+| [`blog-post`](blog-post/README.md) | Writes one cited blog post: research first, draft second, score third. | 0.2.1 | `references/`, `templates/` |
+| [`bmlink`](bmlink/README.md) | Saves a URL as one row in a Markdown bookmark table. No per-link notes. | 1.0.1 | - |
+| [`dither-data-viz`](dither-data-viz/README.md) | Makes dithered (Bayer) charts on canvas with real HTML labels. Outputs `index.html` and one PNG per canvas. 5 card designs (A–E), default B. | 0.4.1 | `scripts/`, `templates/`, `design-options/` |
+| [`kamus`](kamus/README.md) | Saves one term as one definition note in a kamus (dictionary) folder, with the meaning verified against KBBI/Wiktionary. | 1.0.1 | `references/` (optional, local) |
+| [`note-to-quote`](note-to-quote/README.md) | Picks one idea from a note or summary and turns it into a short quote, with context and attribution. | 1.0.1 | `references/` |
+| [`omarchy-agent-usage`](omarchy-agent-usage/README.md) | History and reports of local AI agent token usage on Omarchy: per day × per model, quota, cost simulation, metrics. Linux/Omarchy only. | 0.3.1 | `references/`, `scripts/`, `tests/` |
 | [`rogarchy-setup`](rogarchy-setup/README.md) | Sets up or checks the skills in this repo: symlinks into agents, the `config.env` settings file, a report of missing requirements. Runs only when asked. | 0.1.0 | - |
-| [`ytsum`](ytsum/README.md) | Turns one YouTube URL into one Markdown summary file that stays faithful to the video. | 3.0.0 | `scripts/` |
+| [`ytsum`](ytsum/README.md) | Turns one YouTube URL into one Markdown summary file that stays faithful to the video. | 3.0.1 | `scripts/` |
 
 Runtime requirements:
 
 - `dither-data-viz`: Node.js, Python 3, and Chrome/Chromium (set via `CHROME_BIN` if not on `PATH`) for PNG export.
 - `omarchy-agent-usage`: Linux with Omarchy (the `omarchy-agent-usage-*` wrappers) and Python 3 (standard library). Internet is optional (prices from the free Artificial Analysis Data API, needs `ARTIFICIAL_ANALYSIS_API_KEY`; without a key there are no network calls; `--offline` uses the cache/seed).
 - `ytsum`: `yt-dlp`, Python 3, and the `youtube-content` skill (to fetch transcripts).
-- `bmlink`, `blog-post`, `note-to-quote`, `kamus`: no scripts. Some skills name other skills in `related_skills`; those are optional and not included in this repo.
+- `bmlink`, `blog-post`, `note-to-quote`, `kamus`, `rogarchy-setup`: no scripts. Some skills name other skills in `related_skills`; those are optional and not included in this repo.
 - Output locations can be set through environment variables or the settings file `~/.config/rogarchy-skills/config.env` (see [Setup](#setup); the env var wins, and the default is used when neither is set):
   - `bmlink`: `BMLINK_FILE` (default `$HOME/bookmarks/linksaved.md`), `BMLINK_TZ` (default: system timezone).
   - `ytsum`: `YTSUM_OUTPUT_DIR` (default `$HOME/ytsum`), `YTSUM_SCRATCH_DIR` (default `${TMPDIR:-/tmp}/ytsum-scratch`).
   - `kamus`: `KAMUS_DIR` (default `$HOME/kamus`).
   - `blog-post`: `OUT` (default `$HOME/blog-posts`).
-  - `omarchy-agent-usage`: `OMARCHY_USAGE_DATA` (default `~/.local/state/omarchy/agents/usage-history`), `ARTIFICIAL_ANALYSIS_API_KEY`, `OMARCHY_USAGE_PRICING_CACHE`, `OMARCHY_USAGE_PRICING_SEED`, `OMARCHY_TASKS_FILE`, `OMARCHY_PATH`.
+  - `omarchy-agent-usage`: `OMARCHY_USAGE_DATA` (default `${XDG_STATE_HOME:-~/.local/state}/omarchy/agents/usage-history`), `ARTIFICIAL_ANALYSIS_API_KEY`, `OMARCHY_USAGE_PRICING_CACHE`, `OMARCHY_USAGE_PRICING_SEED`, `OMARCHY_TASKS_FILE`, `OMARCHY_PATH`.
 - All skills use the author `qyzh, Hermes Agent`.
 
 ## Supporting skills
@@ -67,7 +67,7 @@ The easiest way: symlink `rogarchy-setup` into your agent (see Install below), t
 
 ## Install (symlink)
 
-This repo is the source of truth. Don't copy skill contents; create symlinks so that updating is just `git pull`.
+This repo is the source of truth. Don't copy skill contents; create symlinks so that updating is just `git pull`. The commands below skip any entry that already exists (a folder, a file, or a link, even a broken one) and never replace it; remove a stale entry yourself first if you want it relinked.
 
 ```bash
 git clone <repo-url> <path-to-repo>
@@ -81,11 +81,13 @@ mkdir -p ~/.hermes/profiles/<profile>/skills
 # all skills at once
 for d in <path-to-repo>/*/; do
   [ -f "$d/SKILL.md" ] || continue
-  ln -sfn "${d%/}" ~/.hermes/profiles/<profile>/skills/"$(basename "$d")"
+  t=~/.hermes/profiles/<profile>/skills/"$(basename "$d")"
+  [ -e "$t" ] || [ -L "$t" ] || ln -s "${d%/}" "$t"
 done
 
 # one skill
-ln -sfn <path-to-repo>/<skill-name> ~/.hermes/profiles/<profile>/skills/<skill-name>
+t=~/.hermes/profiles/<profile>/skills/<skill-name>
+[ -e "$t" ] || [ -L "$t" ] || ln -s <path-to-repo>/<skill-name> "$t"
 ```
 
 ### Other agents
@@ -98,11 +100,13 @@ mkdir -p <agent-skills-dir>
 # all skills at once
 for d in <path-to-repo>/*/; do
   [ -f "$d/SKILL.md" ] || continue
-  ln -sfn "${d%/}" <agent-skills-dir>/"$(basename "$d")"
+  t=<agent-skills-dir>/"$(basename "$d")"
+  [ -e "$t" ] || [ -L "$t" ] || ln -s "${d%/}" "$t"
 done
 
 # one skill
-ln -sfn <path-to-repo>/<skill-name> <agent-skills-dir>/<skill-name>
+t=<agent-skills-dir>/<skill-name>
+[ -e "$t" ] || [ -L "$t" ] || ln -s <path-to-repo>/<skill-name> "$t"
 ```
 
 ## Update

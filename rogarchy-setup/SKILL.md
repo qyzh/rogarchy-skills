@@ -14,7 +14,7 @@ metadata:
 
 # rogarchy-setup
 
-Set up the skills of this repo, or check how they are set up. This is a guided procedure, not a script: explore, show a draft, get a "yes", then write. Talk to the user in English.
+Set up the skills of this repo, or check how they are set up. You do the work yourself with ordinary shell commands, in a fixed order: look around first, show the user every planned change, and change nothing until they say "yes". Talk to the user in English.
 
 Two modes:
 
@@ -23,8 +23,8 @@ Two modes:
 
 ## Hard rules
 
-- Write only three kinds of thing: symlinks inside the agent skill folders the user picked, the settings file `config.env`, and `.local.md` copies the user confirmed. Nothing else.
-- Never overwrite. A target that already exists and is not a symlink into this repo is reported, never replaced. No `ln -f`, no `rm`, no `cp` without `-n`.
+- Write only these: symlinks inside the agent skill folders the user picked (and `mkdir -p` of those folders), the settings file `config.env` (with `mkdir -p` of its folder, a timestamped backup `config.env.bak.<time>` and a `mktemp` temp file beside it), and `.local.md` copies the user confirmed. Nothing else.
+- Never overwrite. A target that already exists and is not a symlink into this repo is reported, never replaced. No `ln -f`, no `rm`, no `cp` without `-n`; backups get a new timestamped name each time. The only file replaced is `config.env` itself, by `mv` of a confirmed temp file; if `config.env` is a symlink, the link stays and its target file is replaced.
 - Never edit shell profiles (`~/.bashrc`, `~/.zshrc`, ...) or agent env files (`~/.hermes/.env`, ...). Print the line for the user to add instead.
 - Secrets (Kind `secret`) are env-only. Never ask for them, never write them anywhere, never print their values: report only `set` or `not set`. If the user pastes a key into chat, do not repeat or store it, and suggest they rotate it.
 - Never write inside the repo except confirmed `.local.md` copies (gitignored). `config.env` must live outside the repo; refuse a path inside it.
@@ -62,6 +62,7 @@ Local files: `references/x.local.md` (template `references/x.example.md`).
 
 - `Requires:` names commands (check with `command -v`) and skills (look for `<target>/<name>/SKILL.md` in the install targets). Other text on the line (platform notes, "or" alternatives) is informational; report it as written. `none` means nothing.
 - `Local files:` lists personal files, each with its template. `none` means nothing.
+- A variable declared by several skills (e.g. `OMARCHY_USAGE_DATA`) is one setting: ask it once and write it once, in the block of the first of those skills in alphabetical order.
 - The table lists variables, or the section says `Variables: none.` Kind is `setting` (ask), `advanced` (keep the default unless the user wants to change it) or `secret` (env only, see Hard rules). Defaults are shell expressions; expand them in the user's shell to show the effective value.
 - A skill with no such section: report `no config section` and skip its config.
 - A skill whose frontmatter `platforms:` excludes this OS (`uname -s`: Linux → `linux`, Darwin → `macos`) is not offered for install and is marked `skipped (platform)`.
@@ -71,9 +72,9 @@ Local files: `references/x.local.md` (template `references/x.example.md`).
 Resolve a variable and its source (never use this for `secret` variables):
 
 ```bash
-rs_src() { v=$(printenv "$1"); if [ -n "$v" ]; then printf 'env\t%s\n' "$v"; return; fi
-  v=$(sed -n "s/[[:space:]]*\$//; s/^$1=//p" "${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env" 2>/dev/null | tail -n 1)
-  if [ -n "$v" ]; then printf 'config\t%s\n' "$v"; else printf 'default\t%s\n' "$2"; fi; }
+rs_src() { _rs_v=$(printenv "$1" || :); if [ -n "$_rs_v" ]; then printf 'env\t%s\n' "$_rs_v"; return 0; fi
+  _rs_v=$(sed -n "s/[[:space:]]*\$//; s/^$1=//p" "${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env" 2>/dev/null | tail -n 1 || :)
+  if [ -n "$_rs_v" ]; then printf 'config\t%s\n' "$_rs_v"; else printf 'default\t%s\n' "$2"; fi; }
 rs_src YTSUM_OUTPUT_DIR "$HOME/ytsum"
 ```
 
@@ -134,9 +135,10 @@ Ask one group at a time, in English. Use the agent's multiple-choice question to
   - `skip (platform)`
 - **Settings file**: the full proposed file and a unified diff against the current one (`diff -u`; "new file" if absent). Build it like this:
   - First line `# rogarchy-skills config v1`, then a comment saying env vars override these values and the file is read as data.
-  - One block per skill (`# <skill>` comment), with a line for each `setting` variable and each `advanced` variable the user changed. Write values as literal absolute paths: expand `$HOME`, `~` and `${...}` before writing, because nothing expands them later.
+  - One block per skill (`# <skill>` comment), with a line for each `setting` variable and each `advanced` variable the user changed. A shared key goes only in the block of the first skill (alphabetical) that declares it. Write values as literal absolute paths: expand `$HOME`, `~` and `${...}` before writing, because nothing expands them later.
   - Keep every existing line the user wrote, including unknown keys and comments, unless the user asked to change that key. Replace a key in place; never write the same key twice.
   - Never write a `secret` variable.
+  - If `config.env` is a symlink, say so in the draft: "config.env is a link to `<realpath>`; that file will be updated, the link stays." If the link is broken or its target is inside `<repo>`, stop and report instead.
 - **Local files**: each `cp -n "<template>" "<local>"` the user agreed to.
 
 ### 4. Confirm
@@ -149,14 +151,14 @@ Apply only what the confirmed draft lists:
 
 1. **Symlinks**: `mkdir -p "<target>"`, then for each `link` line, `[ -e "<target>/<skill>" ] || [ -L "<target>/<skill>" ] || ln -s "<repo>/<skill>" "<target>/<skill>"`.
 2. **Settings file**, only if the diff is not empty:
-   - `mkdir -p` its folder.
-   - If the file exists, `cp -p config.env config.env.bak`.
-   - Write the new content to `config.env.tmp` in the same folder, `chmod 600` it, then `mv` it over `config.env`.
+   - `mkdir -p` its folder. Let `F` be the file to update: `config.env`, or its `realpath` if it is a symlink (as shown in the draft).
+   - If `F` exists, back it up without overwriting an older backup: `cp -p -n "$F" "$F.bak.$(date +%Y%m%d-%H%M%S)"`.
+   - `tmp=$(mktemp "$(dirname "$F")/config.env.XXXXXX")` (created with mode 600), write the new content to `"$tmp"`, then `mv "$tmp" "$F"`. Never write through a fixed temp name.
 3. **Local files**: `cp -n "<template>" "<local>"`.
 
 ### 6. Verify and report
 
-Run check mode again and show its tables. Then list what was written: the symlinks made, the settings file path (and `.bak`), the local files created. Also list what was skipped and why, the secrets still not set, and the missing requirements, with the command or skill to install. Setup never installs packages or third-party skills.
+Run check mode again and show its tables. Then list what was written: the symlinks made, the settings file path (and its `.bak.<time>` backup), the local files created. Also list what was skipped and why, the secrets still not set, and the missing requirements, with the command or skill to install. Setup never installs packages or third-party skills.
 
 ## Re-running
 

@@ -63,4 +63,4 @@ note-to-quote/
 
 ---
 
-Version 1.0.0 · MIT License · [Repo README](../README.md)
+Version 1.0.1 · MIT License · [Repo README](../README.md) · 1.0.1: config section for rogarchy-setup; vault-rules template

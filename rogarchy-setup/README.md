@@ -31,7 +31,7 @@ The skill is meant to run only when you ask for it. Claude Code honors `disable-
 ## Requirements
 
 - Linux or macOS with a POSIX shell (`ln`, `sed`, `diff`, `realpath`).
-- An agent that reads `SKILL.md` folders, with terminal access. Tested targets:
+- An agent that reads `SKILL.md` folders, with terminal access. Supported targets (only Hermes Agent is tested; the others follow the same symlink layout but are untested):
   - Hermes Agent (`~/.hermes/skills`, `~/.hermes/profiles/<profile>/skills`)
   - Claude Code (`~/.claude/skills`)
   - the shared `~/.agents/skills` folder
@@ -65,7 +65,8 @@ The file format:
 Safety rules:
 
 - Setup shows a diff before writing.
-- It keeps a `config.env.bak` copy and sets the file to mode `600`.
+- Before replacing the file it saves a timestamped backup (`config.env.bak.<date-time>`, never overwriting an older one). It writes through a fresh `mktemp` file (mode `600`) and moves it into place.
+- If `config.env` is a symlink (e.g. from a dotfiles repo), setup says so in the draft and updates the file the link points to; the link stays.
 - It keeps any lines you added yourself.
 - It never puts secrets in the file.
 

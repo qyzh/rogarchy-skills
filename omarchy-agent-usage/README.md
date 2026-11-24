@@ -35,11 +35,11 @@ The skill does not run `omarchy-agent-usage-update` unless asked, because that c
 
 | Variable | Meaning | Default |
 |---|---|---|
-| `OMARCHY_USAGE_DATA` | Data folder (snapshots, CSVs, reports) | `~/.local/state/omarchy/agents/usage-history` |
+| `OMARCHY_USAGE_DATA` | Data folder (snapshots, CSVs, reports) | `${XDG_STATE_HOME:-~/.local/state}/omarchy/agents/usage-history` |
 | `ARTIFICIAL_ANALYSIS_API_KEY` | Free Artificial Analysis Data API key ([get one here](https://artificialanalysis.ai/api-key-management-redirect)). Env var only, never write it to a file | (empty: no network calls) |
-| `OMARCHY_USAGE_PRICING_CACHE` | Cache of prices fetched from the API (reused for 24 hours) | `~/.cache/omarchy-agent-usage/pricing.json` |
+| `OMARCHY_USAGE_PRICING_CACHE` | Cache of prices fetched from the API (reused for 24 hours) | `${XDG_CACHE_HOME:-~/.cache}/omarchy-agent-usage/pricing.json` |
 | `OMARCHY_USAGE_PRICING_SEED` | Optional read-only local price seed (not in the repo) | `references/pricing.json` (gitignored) |
-| `OMARCHY_TASKS_FILE` | Task signal file (`tasks.jsonl`) | `~/.local/state/omarchy/agents/tasks.jsonl` |
+| `OMARCHY_TASKS_FILE` | Task signal file (`tasks.jsonl`) | `${XDG_STATE_HOME:-~/.local/state}/omarchy/agents/tasks.jsonl` |
 | `OMARCHY_PATH` | Omarchy install location | `/usr/share/omarchy` |
 
 For tests, point all of them at a temporary folder.
@@ -101,4 +101,4 @@ Source: [Artificial Analysis (artificialanalysis.ai)](https://artificialanalysis
 
 ---
 
-Version 0.3.0 · MIT License · [Repo README](../README.md)
+Version 0.3.1 · MIT License · [Repo README](../README.md) · 0.3.1: reads settings from config.env too; task-signal template

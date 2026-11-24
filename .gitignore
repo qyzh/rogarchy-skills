@@ -16,5 +16,5 @@ omarchy-agent-usage/references/task-signal.local.md
 
 # rogarchy-setup writes its settings outside the repo; never commit a copy
 config.env
-config.env.bak
-config.env.tmp
+config.env.bak*
+config.env.??????

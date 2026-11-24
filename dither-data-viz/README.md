@@ -40,7 +40,7 @@ Usage cards need `daily_by_model.csv` and `cost_by_model.csv` (and `cost_daily.c
 
 | Variable | Meaning | Default |
 |---|---|---|
-| `CHROME_BIN` | Chrome/Chromium path for `export.mjs` | looked up on `PATH` |
+| `CHROME_BIN` | Chrome/Chromium path for `export.mjs` | auto-detect (common install paths, then `PATH`) |
 | `OMARCHY_USAGE_DATA` | Usage CSV data folder for `build_donut_card.py`; the `--data-dir` option takes priority | the Omarchy usage history directory, `${XDG_STATE_HOME:-~/.local/state}/omarchy/agents/usage-history` |
 
 The values above can also be stored in the settings file `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (via [`rogarchy-setup`](../rogarchy-setup/README.md)); the env var still wins, then that file, then the default.
@@ -96,4 +96,4 @@ The dither engine (`scripts/dither.js`, `design-options/dither.js`) is adapted f
 
 ---
 
-Version 0.4.0 · MIT License · [Repo README](../README.md)
+Version 0.4.1 · MIT License · [Repo README](../README.md) · 0.4.1: reads settings from config.env too; default data dir honors `XDG_STATE_HOME`

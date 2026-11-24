@@ -20,7 +20,7 @@ this template.
 
 ## Check
 
-- `grep -c '"agent": "<agent>"' "$OMARCHY_TASKS_FILE"` > 0 after one session.
+- `grep -c '"agent": "<agent>"' "$(rs_get OMARCHY_TASKS_FILE "${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/agents/tasks.jsonl")"` > 0 after one session (`rs_get`: see the skill's Prerequisites / Config; it resolves env var, then config.env, then the default).
 - Hook errors go to `tasklog-errors.log` next to `tasks.jsonl`.
 
 ## How to remove

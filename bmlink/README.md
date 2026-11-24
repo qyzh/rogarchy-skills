@@ -64,4 +64,4 @@ bmlink/
 
 ---
 
-Version 1.0.0 · MIT License · [Repo README](../README.md)
+Version 1.0.1 · MIT License · [Repo README](../README.md) · 1.0.1: reads settings from config.env too

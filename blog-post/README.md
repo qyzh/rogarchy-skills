@@ -77,4 +77,4 @@ Adapted from [AgriciDaniel/claude-blog](https://github.com/AgriciDaniel/claude-b
 
 ---
 
-Version 0.2.0 · MIT License · [Repo README](../README.md)
+Version 0.2.1 · MIT License · [Repo README](../README.md) · 0.2.1: reads `OUT` from config.env too
