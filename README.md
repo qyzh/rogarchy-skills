@@ -1,133 +1,133 @@
 # rogarchy-skills
 
-Koleksi pribadi skill agent dalam format `SKILL.md`. Satu repo, satu folder per skill.
+A personal collection of agent skills in `SKILL.md` format. One repo, one folder per skill.
 
-> Skill di repo ini **hanya diuji di Hermes Agent**. Agent lain yang membaca
-> folder skill berformat `SKILL.md` seharusnya bisa memakainya, tetapi belum diuji.
+> The skills in this repo are **tested only on Hermes Agent**. Other agents that read
+> `SKILL.md` skill folders should be able to use them, but this is untested.
 
-## Daftar skill
+## Skills
 
-| Skill | Deskripsi | Versi | Folder tambahan |
+| Skill | Description | Version | Extra folders |
 |---|---|---|---|
-| [`blog-post`](blog-post/README.md) | Menulis satu blog post bersitasi: riset dulu, draf kedua, penilaian ketiga. | 0.2.0 | `references/`, `templates/` |
-| [`bmlink`](bmlink/README.md) | Menyimpan URL sebagai satu baris di tabel Markdown bookmark. Tanpa catatan per link. | 1.0.0 | - |
-| [`dither-data-viz`](dither-data-viz/README.md) | Membuat grafik ber-dither (Bayer) di canvas dengan label HTML asli. Keluarannya `index.html` dan satu PNG per canvas. Ada 5 desain kartu (A–E), default B. | 0.4.0 | `scripts/`, `templates/`, `design-options/` |
-| [`kamus`](kamus/README.md) | Menyimpan satu istilah sebagai satu note definisi di folder kamus, dengan arti yang diverifikasi ke KBBI/Wiktionary. | 1.0.0 | `references/` (opsional, lokal) |
-| [`note-to-quote`](note-to-quote/README.md) | Memilih satu gagasan dari note atau rangkuman menjadi quote singkat, lengkap dengan konteks dan atribusi. | 1.0.0 | `references/` |
-| [`omarchy-agent-usage`](omarchy-agent-usage/README.md) | Riwayat dan laporan pemakaian token agent AI lokal di Omarchy: per hari × per model, kuota, simulasi biaya, metrik. Hanya Linux/Omarchy. | 0.3.0 | `references/`, `scripts/`, `tests/` |
-| [`rogarchy-setup`](rogarchy-setup/README.md) | Menyiapkan atau memeriksa skill di repo ini: symlink ke agent, berkas pengaturan `config.env`, laporan kebutuhan yang kurang. Hanya jalan bila diminta. | 0.1.0 | - |
-| [`ytsum`](ytsum/README.md) | Mengubah satu URL YouTube menjadi satu file rangkuman Markdown yang setia pada isi video. | 3.0.0 | `scripts/` |
+| [`blog-post`](blog-post/README.md) | Writes one cited blog post: research first, draft second, score third. | 0.2.0 | `references/`, `templates/` |
+| [`bmlink`](bmlink/README.md) | Saves a URL as one row in a Markdown bookmark table. No per-link notes. | 1.0.0 | - |
+| [`dither-data-viz`](dither-data-viz/README.md) | Makes dithered (Bayer) charts on canvas with real HTML labels. Outputs `index.html` and one PNG per canvas. 5 card designs (A–E), default B. | 0.4.0 | `scripts/`, `templates/`, `design-options/` |
+| [`kamus`](kamus/README.md) | Saves one term as one definition note in a kamus (dictionary) folder, with the meaning verified against KBBI/Wiktionary. | 1.0.0 | `references/` (optional, local) |
+| [`note-to-quote`](note-to-quote/README.md) | Picks one idea from a note or summary and turns it into a short quote, with context and attribution. | 1.0.0 | `references/` |
+| [`omarchy-agent-usage`](omarchy-agent-usage/README.md) | History and reports of local AI agent token usage on Omarchy: per day × per model, quota, cost simulation, metrics. Linux/Omarchy only. | 0.3.0 | `references/`, `scripts/`, `tests/` |
+| [`rogarchy-setup`](rogarchy-setup/README.md) | Sets up or checks the skills in this repo: symlinks into agents, the `config.env` settings file, a report of missing requirements. Runs only when asked. | 0.1.0 | - |
+| [`ytsum`](ytsum/README.md) | Turns one YouTube URL into one Markdown summary file that stays faithful to the video. | 3.0.0 | `scripts/` |
 
-Kebutuhan runtime:
+Runtime requirements:
 
-- `dither-data-viz`: Node.js, Python 3, dan Chrome/Chromium (diatur lewat `CHROME_BIN` bila tidak ada di `PATH`) untuk ekspor PNG.
-- `omarchy-agent-usage`: Linux dengan Omarchy (wrapper `omarchy-agent-usage-*`) dan Python 3 (pustaka standar). Internet opsional (harga dari Data API gratis Artificial Analysis, perlu `ARTIFICIAL_ANALYSIS_API_KEY`; tanpa kunci tidak ada panggilan jaringan; `--offline` memakai cache/seed).
-- `ytsum`: `yt-dlp`, Python 3, dan skill `youtube-content` (untuk mengambil transkrip).
-- `bmlink`, `blog-post`, `note-to-quote`, `kamus`: tidak ada skrip. Sebagian skill menyebut skill lain di `related_skills`; skill itu opsional dan tidak disertakan di repo ini.
-- Lokasi keluaran bisa diatur lewat environment variable atau berkas pengaturan `~/.config/rogarchy-skills/config.env` (lihat [Setup](#setup); env var menang, default dipakai bila keduanya tidak diset):
-  - `bmlink`: `BMLINK_FILE` (default `$HOME/bookmarks/linksaved.md`), `BMLINK_TZ` (default zona waktu sistem).
+- `dither-data-viz`: Node.js, Python 3, and Chrome/Chromium (set via `CHROME_BIN` if not on `PATH`) for PNG export.
+- `omarchy-agent-usage`: Linux with Omarchy (the `omarchy-agent-usage-*` wrappers) and Python 3 (standard library). Internet is optional (prices from the free Artificial Analysis Data API, needs `ARTIFICIAL_ANALYSIS_API_KEY`; without a key there are no network calls; `--offline` uses the cache/seed).
+- `ytsum`: `yt-dlp`, Python 3, and the `youtube-content` skill (to fetch transcripts).
+- `bmlink`, `blog-post`, `note-to-quote`, `kamus`: no scripts. Some skills name other skills in `related_skills`; those are optional and not included in this repo.
+- Output locations can be set through environment variables or the settings file `~/.config/rogarchy-skills/config.env` (see [Setup](#setup); the env var wins, and the default is used when neither is set):
+  - `bmlink`: `BMLINK_FILE` (default `$HOME/bookmarks/linksaved.md`), `BMLINK_TZ` (default: system timezone).
   - `ytsum`: `YTSUM_OUTPUT_DIR` (default `$HOME/ytsum`), `YTSUM_SCRATCH_DIR` (default `${TMPDIR:-/tmp}/ytsum-scratch`).
   - `kamus`: `KAMUS_DIR` (default `$HOME/kamus`).
   - `blog-post`: `OUT` (default `$HOME/blog-posts`).
   - `omarchy-agent-usage`: `OMARCHY_USAGE_DATA` (default `~/.local/state/omarchy/agents/usage-history`), `ARTIFICIAL_ANALYSIS_API_KEY`, `OMARCHY_USAGE_PRICING_CACHE`, `OMARCHY_USAGE_PRICING_SEED`, `OMARCHY_TASKS_FILE`, `OMARCHY_PATH`.
-- Semua skill memakai author `qyzh, Hermes Agent`.
+- All skills use the author `qyzh, Hermes Agent`.
 
-## Skill pendukung
+## Supporting skills
 
-Beberapa skill merujuk skill lain yang **tidak ada di repo ini**. Pasang terpisah di agent Anda bila perlu.
+Some skills refer to other skills that are **not in this repo**. Install them separately in your agent if needed.
 
-| Skill pendukung | Status | Dipakai oleh |
+| Supporting skill | Status | Used by |
 |---|---|---|
-| `grounded-citations` | Wajib | `blog-post` (ledger sumber, render dan verifikasi sitasi) |
-| `humanizer` | Wajib | `blog-post` (perapian prosa) |
-| `youtube-content` | Wajib | `ytsum` (mengambil transkrip) |
-| `omarchy-plugin-authoring` | Hanya rute | `omarchy-agent-usage` (tujuan alih untuk membuat plugin tampilan usage) |
-| `content-brief-curation` | Hanya rute | `blog-post` (tujuan alih untuk brief aset sosial) |
-| `academic-research-writer` | Hanya rute | `blog-post` (tujuan alih untuk makalah akademik) |
-| `web-article-to-vault` | Hanya rute | `blog-post`, `bmlink` (tujuan alih untuk menyimpan artikel) |
+| `grounded-citations` | Required | `blog-post` (source ledger, rendering and verifying citations) |
+| `humanizer` | Required | `blog-post` (prose cleanup) |
+| `youtube-content` | Required | `ytsum` (fetching transcripts) |
+| `omarchy-plugin-authoring` | Route only | `omarchy-agent-usage` (handoff target for building a usage display plugin) |
+| `content-brief-curation` | Route only | `blog-post` (handoff target for social asset briefs) |
+| `academic-research-writer` | Route only | `blog-post` (handoff target for academic papers) |
+| `web-article-to-vault` | Route only | `blog-post`, `bmlink` (handoff target for saving articles) |
 
-"Hanya rute" berarti skill hanya disebut sebagai tujuan alih untuk permintaan di luar cakupan; skill tetap berjalan tanpanya.
+"Route only" means the skill is only named as a handoff target for out-of-scope requests; the skill still works without it.
 
-## Struktur
+## Structure
 
 ```
-<nama-skill>/
-├── SKILL.md        # wajib, untuk agent
-├── README.md       # wajib, untuk manusia
-├── references/     # opsional
-├── templates/      # opsional
-└── scripts/        # opsional
+<skill-name>/
+├── SKILL.md        # required, for the agent
+├── README.md       # required, for humans
+├── references/     # optional
+├── templates/      # optional
+└── scripts/        # optional
 ```
 
-Nama folder **harus** sama dengan field `name:` di frontmatter `SKILL.md`.
+The folder name **must** match the `name:` field in the `SKILL.md` frontmatter.
 
 ## Setup
 
-Cara termudah: symlink `rogarchy-setup` ke agent Anda (lihat Install di bawah), lalu jalankan `/rogarchy-setup` di agent. Skill itu menautkan skill lain ke folder skill agent, menulis pengaturan ke `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env`, dan bisa membuat berkas `.local.md` dari templatnya. Semua perubahan ditampilkan dulu dan baru ditulis setelah Anda setuju. `/rogarchy-setup check` hanya melaporkan status. Detail: [rogarchy-setup/README.md](rogarchy-setup/README.md).
+The easiest way: symlink `rogarchy-setup` into your agent (see Install below), then run `/rogarchy-setup` in the agent. It links the other skills into the agent's skill folder, writes settings to `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env`, and can create `.local.md` files from their templates. Every change is shown first and written only after you agree. `/rogarchy-setup check` only reports status. Details: [rogarchy-setup/README.md](rogarchy-setup/README.md).
 
 ## Install (symlink)
 
-Repo ini sumber kebenaran. Jangan menyalin isi skill; buat symlink supaya update cukup `git pull`.
+This repo is the source of truth. Don't copy skill contents; create symlinks so that updating is just `git pull`.
 
 ```bash
-git clone <repo-url> <path-ke-repo>
+git clone <repo-url> <path-to-repo>
 ```
 
 ### Hermes Agent
 
 ```bash
-mkdir -p ~/.hermes/profiles/<profil>/skills
+mkdir -p ~/.hermes/profiles/<profile>/skills
 
-# semua skill sekaligus
-for d in <path-ke-repo>/*/; do
+# all skills at once
+for d in <path-to-repo>/*/; do
   [ -f "$d/SKILL.md" ] || continue
-  ln -sfn "${d%/}" ~/.hermes/profiles/<profil>/skills/"$(basename "$d")"
+  ln -sfn "${d%/}" ~/.hermes/profiles/<profile>/skills/"$(basename "$d")"
 done
 
-# satu skill
-ln -sfn <path-ke-repo>/<nama-skill> ~/.hermes/profiles/<profil>/skills/<nama-skill>
+# one skill
+ln -sfn <path-to-repo>/<skill-name> ~/.hermes/profiles/<profile>/skills/<skill-name>
 ```
 
-### Agent lain
+### Other agents
 
-Ganti tujuan dengan direktori skills milik agent tersebut.
+Replace the target with that agent's skills directory.
 
 ```bash
-mkdir -p <direktori-skills-agent>
+mkdir -p <agent-skills-dir>
 
-# semua skill sekaligus
-for d in <path-ke-repo>/*/; do
+# all skills at once
+for d in <path-to-repo>/*/; do
   [ -f "$d/SKILL.md" ] || continue
-  ln -sfn "${d%/}" <direktori-skills-agent>/"$(basename "$d")"
+  ln -sfn "${d%/}" <agent-skills-dir>/"$(basename "$d")"
 done
 
-# satu skill
-ln -sfn <path-ke-repo>/<nama-skill> <direktori-skills-agent>/<nama-skill>
+# one skill
+ln -sfn <path-to-repo>/<skill-name> <agent-skills-dir>/<skill-name>
 ```
 
 ## Update
 
 ```bash
-cd <path-ke-repo> && git pull
+cd <path-to-repo> && git pull
 ```
 
-Semua symlink otomatis menunjuk versi baru.
+All symlinks point to the new version automatically.
 
-## Menambah skill baru
+## Adding a new skill
 
-1. Buat folder `<nama-skill>/` di root repo.
-2. Isi `SKILL.md` dengan frontmatter `name` yang sama persis dengan nama folder.
-3. Tambah `references/`, `templates/`, atau `scripts/` bila perlu.
-4. Di `SKILL.md`, tulis bagian `## Prerequisites / Config` dengan format yang sama seperti skill lain (baris `Requires:`, baris `Local files:`, tabel `Variable | Meaning | Default | Kind` atau `Variables: none.`), supaya `rogarchy-setup` bisa membacanya. Berkas pribadi: `references/<nama>.local.md` (gitignored) dengan templat `references/<nama>.example.md`.
-5. Tulis `<nama-skill>/README.md` untuk manusia dengan bagian yang sama seperti skill lain: Apa ini, Kapan dipakai / tidak dipakai, Kebutuhan, Konfigurasi, Contoh pemakaian, Isi folder, dan baris versi, lisensi, tautan ke `../README.md`. Jangan mengubah isi `SKILL.md` untuk keperluan ini.
-6. Bila mengadaptasi karya orang lain, tambahkan entri di `THIRD_PARTY_NOTICES.md` (sumber, berkas, hak cipta, teks lisensi) dan bagian "Kredit" di README skill.
-7. Tambah skill ke tabel di README root (nama berupa tautan ke README skill) dan ke "Skill pendukung" bila memakai skill di luar repo.
-8. Commit, lalu symlink ke direktori skills agent.
+1. Create a folder `<skill-name>/` at the repo root.
+2. Write `SKILL.md` with a frontmatter `name` that exactly matches the folder name.
+3. Add `references/`, `templates/`, or `scripts/` if needed.
+4. In `SKILL.md`, write a `## Prerequisites / Config` section in the same format as the other skills (a `Requires:` line, a `Local files:` line, a `Variable | Meaning | Default | Kind` table or `Variables: none.`), so that `rogarchy-setup` can read it. Personal files: `references/<name>.local.md` (gitignored) with the template `references/<name>.example.md`.
+5. Write `<skill-name>/README.md` for humans with the same sections as the other skills: What it is, When to use / not use, Requirements, Configuration, Usage examples, Folder contents, and the version, license, and `../README.md` link line. Don't change `SKILL.md` for this.
+6. If you adapt someone else's work, add an entry to `THIRD_PARTY_NOTICES.md` (source, files, copyright, license text) and a "Credits" section in the skill's README.
+7. Add the skill to the table in the root README (the name links to the skill's README) and to "Supporting skills" if it uses skills outside the repo.
+8. Commit, then symlink it into the agent's skills directory.
 
-## Lisensi
+## License
 
-Karya sendiri: MIT © qyzh, lihat [LICENSE](LICENSE). Bagian yang diadaptasi dari pihak ketiga tetap berlisensi aslinya, lihat [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Ini atribusi open source yang umum, bukan nasihat hukum.
+Own work: MIT © qyzh, see [LICENSE](LICENSE). Parts adapted from third parties keep their original licenses, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). This is common open source attribution, not legal advice.
 
-## Rilis
+## Releases
 
-Versi per skill ditandai dengan tag `<nama-skill>/vX.Y.Z` (mis. `blog-post/v0.2.0`).
+Each skill's version is tagged `<skill-name>/vX.Y.Z` (e.g. `blog-post/v0.2.0`).

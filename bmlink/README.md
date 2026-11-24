@@ -1,67 +1,67 @@
 # bmlink
 
-## Apa ini
+## What it is
 
-Skill untuk menyimpan satu URL sebagai satu baris di satu tabel Markdown bookmark. Setiap baris memuat judul, link, domain, tag, catatan, dan tanggal simpan. Skill tidak mengambil isi artikel dan tidak membuat catatan per link.
+A skill for saving one URL as one row in a single Markdown bookmark table. Each row holds the title, link, domain, tags, note, and save date. The skill does not fetch article content and does not create per-link notes.
 
-## Kapan dipakai / tidak dipakai
+## When to use / not use
 
-Dipakai bila:
+Use it when:
 
-- Pengguna menjalankan `/bmlink` atau meminta menyimpan link ke daftar bookmark.
-- Tidak ada URL di pesan: agent meminta pengguna mengirim link.
+- The user runs `/bmlink` or asks to save a link to their bookmark list.
+- There is no URL in the message: the agent asks the user to send the link.
 
-Tidak dipakai untuk:
+Don't use it for:
 
-- Catatan bookmark per link (`bookmark-link`).
-- Menyimpan link beserta isinya atau dengan rute berkategori (`discord-link-save`).
-- Mengarsipkan artikel penuh (`web-article-to-vault`).
+- Per-link bookmark notes (`bookmark-link`).
+- Saving a link together with its content or with categorized routing (`discord-link-save`).
+- Archiving full articles (`web-article-to-vault`).
 
-## Kebutuhan
+## Requirements
 
-- Alat runtime: tidak ada skrip. Agent memakai `date` dan akses tulis ke berkas.
-- Skill di luar repo ini: tidak ada yang wajib. `bookmark-link`, `discord-link-save`, dan `web-article-to-vault` hanya disebut sebagai tujuan alih (hanya rute) dan terdaftar di `related_skills`.
+- Runtime tools: no scripts. The agent uses `date` and write access to files.
+- Skills outside this repo: none required. `bookmark-link`, `discord-link-save`, and `web-article-to-vault` are only named as handoff targets (route only) and listed in `related_skills`.
 
-## Konfigurasi
+## Configuration
 
-| Variabel | Arti | Default |
+| Variable | Meaning | Default |
 |---|---|---|
-| `BMLINK_FILE` | Path tabel bookmark | `$HOME/bookmarks/linksaved.md` |
-| `BMLINK_TZ` | Zona waktu untuk tanggal simpan | zona waktu sistem |
+| `BMLINK_FILE` | Path of the bookmark table | `$HOME/bookmarks/linksaved.md` |
+| `BMLINK_TZ` | Timezone for the save date | system timezone |
 
-Berkas dan folder induknya dibuat saat simpan pertama. File yang disebut pengguna di permintaan lebih diutamakan. Bila lokasi default bukan tempat tabel Anda, set `BMLINK_FILE`; kalau tidak, tabel baru dibuat di lokasi default.
+The file and its parent folder are created on the first save. A file the user names in the request takes priority. If the default location is not where your table lives, set `BMLINK_FILE`; otherwise a new table is created at the default location.
 
-Nilai di atas juga bisa disimpan di berkas pengaturan `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (lewat [`rogarchy-setup`](../rogarchy-setup/README.md)); env var tetap menang, lalu berkas itu, lalu default.
+The values above can also be stored in the settings file `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (via [`rogarchy-setup`](../rogarchy-setup/README.md)); the env var still wins, then that file, then the default.
 
-## Contoh pemakaian
+## Usage examples
 
 ```text
-/bmlink https://example.com/artikel #ai #tools -- baca nanti
+/bmlink https://example.com/artikel #ai #tools -- read later
 ```
 
-Satu baris ditambahkan ke tabel:
+One row is added to the table:
 
 ```markdown
 | Title | Link | Domain | Tags | Note | Saved on |
 |---|---|---|---|---|---|
-| Artikel | https://example.com/artikel | example.com | #ai #tools | baca nanti | 2026-10-29 |
+| Artikel | https://example.com/artikel | example.com | #ai #tools | read later | 2026-10-29 |
 ```
 
-Tag dan catatan hanya diisi dari yang Anda tulis; tidak pernah ditebak. Agent membaca ulang baris itu untuk memastikan tiap sel benar.
+Tags and notes are filled only from what you write; they are never guessed. The agent rereads the row to make sure each cell is right.
 
 ```text
 /bmlink https://www.example.com/artikel/?utm_source=x
 ```
 
-Bila URL itu sudah ada (dibandingkan setelah normalisasi: huruf kecil, tanpa `www.`, fragmen, garis miring akhir, dan parameter pelacak), tidak ada baris baru dan agent memberi tahu bahwa link sudah tersimpan.
+If that URL is already saved (compared after normalization: lowercase, without `www.`, the fragment, a trailing slash, and tracking parameters), no row is added and the agent says the link is already saved.
 
-## Isi folder
+## Folder contents
 
 ```
 bmlink/
-└── SKILL.md    # instruksi untuk agent
+└── SKILL.md    # instructions for the agent
 ```
 
 ---
 
-Versi 1.0.0 · Lisensi MIT · [README repo](../README.md)
+Version 1.0.0 · MIT License · [Repo README](../README.md)

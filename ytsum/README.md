@@ -1,68 +1,68 @@
 # ytsum
 
-## Apa ini
+## What it is
 
-Skill yang mengubah satu URL YouTube menjadi satu file rangkuman Markdown yang setia pada isi video. Metadata diambil dengan `yt-dlp`, transkrip dengan skill `youtube-content`, lalu rangkuman ditulis dalam bahasa video dengan frontmatter YAML. Video panjang dipecah per 5 menit lewat skrip pembantu.
+A skill that turns one YouTube URL into one Markdown summary file that stays faithful to the video. Metadata comes from `yt-dlp`, the transcript from the `youtube-content` skill, and the summary is written in the video's language with YAML frontmatter. Long videos are split into 5-minute blocks by a helper script.
 
-## Kapan dipakai / tidak dipakai
+## When to use / not use
 
-Dipakai bila:
+Use it when:
 
-- Anda memberi URL YouTube dan ingin rangkumannya **disimpan sebagai file**.
+- You give a YouTube URL and want its summary **saved as a file**.
 
-Tidak dipakai (alihkan ke `youtube-content`) bila:
+Don't use it (hand off to `youtube-content`) when:
 
-- Anda hanya ingin rangkuman di chat.
-- Anda meminta transkrip mentah.
+- You only want a summary in chat.
+- You ask for the raw transcript.
 
-Agent juga berhenti bila video sudah pernah diringkas (`video_id` atau nama file sudah ada), `yt-dlp` gagal, atau caption dinonaktifkan.
+The agent also stops if the video was already summarized (the `video_id` or filename already exists), `yt-dlp` fails, or captions are disabled.
 
-## Kebutuhan
+## Requirements
 
-| Kebutuhan | Status | Fungsi |
+| Requirement | Status | Purpose |
 |---|---|---|
-| `yt-dlp` | **Wajib** | Metadata video (id, kreator, tanggal unggah, durasi, judul). |
-| Python 3 | **Wajib** | Menjalankan `fetch_transcript.py` dan `scripts/transcript_chapters.py`. |
-| Skill `youtube-content` (di luar repo) | **Wajib** | Menyediakan `scripts/fetch_transcript.py` untuk mengambil transkrip. Juga tujuan alih untuk permintaan chat-saja atau transkrip mentah. |
+| `yt-dlp` | **Required** | Video metadata (id, creator, upload date, duration, title). |
+| Python 3 | **Required** | Runs `fetch_transcript.py` and `scripts/transcript_chapters.py`. |
+| `youtube-content` skill (outside this repo) | **Required** | Provides `scripts/fetch_transcript.py` to fetch the transcript. Also the handoff target for chat-only or raw transcript requests. |
 
-Platform: Linux dan macOS (sesuai frontmatter).
+Platforms: Linux and macOS (per the frontmatter).
 
-## Konfigurasi
+## Configuration
 
-| Variabel | Arti | Default |
+| Variable | Meaning | Default |
 |---|---|---|
-| `YTSUM_OUTPUT_DIR` | Folder tempat rangkuman ditulis | `$HOME/ytsum` |
-| `YTSUM_SCRATCH_DIR` | Folder sementara untuk transkrip dan potongan | `${TMPDIR:-/tmp}/ytsum-scratch` |
+| `YTSUM_OUTPUT_DIR` | Folder where summaries are written | `$HOME/ytsum` |
+| `YTSUM_SCRATCH_DIR` | Temporary folder for transcripts and chunks | `${TMPDIR:-/tmp}/ytsum-scratch` |
 
-Folder keluaran yang disebut di permintaan lebih diutamakan. File sementara dihapus di akhir proses.
+An output folder named in the request takes priority. Temporary files are deleted at the end of the run.
 
-Nilai di atas juga bisa disimpan di berkas pengaturan `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (lewat [`rogarchy-setup`](../rogarchy-setup/README.md)); env var tetap menang, lalu berkas itu, lalu default.
+The values above can also be stored in the settings file `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (via [`rogarchy-setup`](../rogarchy-setup/README.md)); the env var still wins, then that file, then the default.
 
-## Contoh pemakaian
+## Usage examples
 
 ```text
 /ytsum https://www.youtube.com/watch?v=<video_id>
 ```
 
-Hasil: satu file `<kreator> - <judul>_<tanggal unggah>.md` di folder keluaran, berisi frontmatter (`title`, `creator`, `video_id`, `upload_date`, `summary_date`, `source`, `language`), paragraf pembuka, definisi istilah, bagian tematik `##`, dan poin penting. Agent melaporkan path file.
+Result: one file `<creator> - <title>_<upload date>.md` in the output folder, with frontmatter (`title`, `creator`, `video_id`, `upload_date`, `summary_date`, `source`, `language`), an opening paragraph, term definitions, thematic `##` sections, and key points. The agent reports the file path.
 
-Memeriksa transkrip video panjang secara manual (opsional):
+Checking a long video's transcript by hand (optional):
 
 ```bash
-python3 ytsum/scripts/transcript_chapters.py transkrip.txt --minutes 5 > potongan.txt
+python3 ytsum/scripts/transcript_chapters.py transcript.txt --minutes 5 > chunks.txt
 ```
 
-Skrip membaca transkrip berstempel waktu (`M:SS` atau `H:MM:SS` per baris) dan mencetak blok `## mulai–selesai`. Opsi `--index` dan `--json` tersedia. Selalu alihkan keluarannya ke file.
+The script reads a timestamped transcript (`M:SS` or `H:MM:SS` per line) and prints `## start–end` blocks. The `--index` and `--json` options are available. Always redirect its output to a file.
 
-## Isi folder
+## Folder contents
 
 ```
 ytsum/
-├── SKILL.md                       # instruksi untuk agent
+├── SKILL.md                       # instructions for the agent
 └── scripts/
-    └── transcript_chapters.py     # membagi transkrip berstempel waktu menjadi blok per N menit
+    └── transcript_chapters.py     # splits a timestamped transcript into N-minute blocks
 ```
 
 ---
 
-Versi 3.0.0 · Lisensi MIT · [README repo](../README.md)
+Version 3.0.0 · MIT License · [Repo README](../README.md)

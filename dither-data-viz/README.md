@@ -1,99 +1,99 @@
 # dither-data-viz
 
-## Apa ini
+## What it is
 
-Skill untuk membuat grafik ber-dither (pola Bayer) di canvas, dengan label, legenda, dan keterangan berupa HTML asli. Keluarannya `index.html` yang bisa dibuka lewat `file://` plus satu PNG opak per canvas grafik. Untuk kartu pemakaian/pangsa model ada 5 desain (A–E); bila tidak disebut, agent bertanya dulu, dan default-nya B "Ledger First".
+A skill for making dithered (Bayer pattern) charts on canvas, with labels, legends, and captions as real HTML. The output is an `index.html` that opens over `file://` plus one opaque PNG per chart canvas. For usage / model-share cards there are 5 designs (A–E); if none is named, the agent asks first, and the default is B "Ledger First".
 
-## Kapan dipakai / tidak dipakai
+## When to use / not use
 
-Dipakai bila:
+Use it when:
 
-- Anda ingin grafik dither/Bayer/grainy di canvas sebagai HTML dan PNG.
-- Datanya bagian dari keseluruhan (default, donat), deret waktu, skor (radar), tren mini, atau progres 0–1.
-- Anda meminta kartu pemakaian token/kuota/biaya agent (desain A–E).
+- You want dither/Bayer/grainy charts on canvas as HTML and PNG.
+- The data is parts of a whole (default, donut), a time series, scores (radar), a mini trend, or 0–1 progress.
+- You ask for an agent token usage / quota / cost card (designs A–E).
 
-Tidak dipakai (alihkan) untuk:
+Don't use it (hand off) for:
 
-| Permintaan | Skill |
+| Request | Skill |
 |---|---|
-| Graf node–edge / jaringan / wikilink | `graph-visualization` |
-| Grafik 3D / three.js | `threejs-data-viz` |
-| Gambar infografik | `baoyu-infographic` |
-| Laporan HTML Chart.js biasa | `html-data-report` |
+| Node–edge graphs / networks / wikilinks | `graph-visualization` |
+| 3D charts / three.js | `threejs-data-viz` |
+| Infographic images | `baoyu-infographic` |
+| Plain Chart.js HTML reports | `html-data-report` |
 
-Aturan tegasnya: hanya tanda Bayer di canvas (tanpa Chart.js, CDN, SVG `<pattern>`), teks tidak dipanggang ke bitmap, dan nilai tidak pernah dikarang (sel kosong tetap `null`).
+The hard rules: only Bayer marks on canvas (no Chart.js, CDN, SVG `<pattern>`), text is never baked into the bitmap, and values are never invented (empty cells stay `null`).
 
-## Kebutuhan
+## Requirements
 
-| Kebutuhan | Status | Fungsi |
+| Requirement | Status | Purpose |
 |---|---|---|
-| Node.js 22+ | **Wajib** | Menjalankan `scripts/export.mjs`. |
-| Chrome/Chromium | **Wajib** | Ekspor PNG headless. Set `CHROME_BIN` bila tidak ada di `PATH`. |
-| Python 3 | Wajib untuk kartu B | Menjalankan `scripts/build_donut_card.py`. |
-| `web-design-guidelines` (di luar repo) | Dipanggil saat audit | Audit fokus, kontras, reduced-motion, dan nama aksesibel. |
-| [`omarchy-agent-usage`](../omarchy-agent-usage/README.md) (repo ini) | Hanya untuk kartu pemakaian | Menyediakan `visual-preferences.md` (gaya bawaan kartu) dan CSV biaya. Hanya Linux/Omarchy. |
-| `graph-visualization`, `threejs-data-viz`, `baoyu-infographic`, `html-data-report` | Hanya rute | Tujuan alih untuk permintaan di luar cakupan. |
+| Node.js 22+ | **Required** | Runs `scripts/export.mjs`. |
+| Chrome/Chromium | **Required** | Headless PNG export. Set `CHROME_BIN` if it is not on `PATH`. |
+| Python 3 | Required for card B | Runs `scripts/build_donut_card.py`. |
+| `web-design-guidelines` (outside this repo) | Called during the audit | Audits focus, contrast, reduced motion, and accessible names. |
+| [`omarchy-agent-usage`](../omarchy-agent-usage/README.md) (this repo) | Only for usage cards | Provides `visual-preferences.md` (the cards' default style) and the cost CSVs. Linux/Omarchy only. |
+| `graph-visualization`, `threejs-data-viz`, `baoyu-infographic`, `html-data-report` | Route only | Handoff targets for out-of-scope requests. |
 
-Kartu pemakaian membutuhkan `daily_by_model.csv` dan `cost_by_model.csv` (serta `cost_daily.csv` untuk menandai hari berbiaya parsial).
+Usage cards need `daily_by_model.csv` and `cost_by_model.csv` (and `cost_daily.csv` to flag days with partial cost).
 
-## Konfigurasi
+## Configuration
 
-| Variabel | Arti | Default |
+| Variable | Meaning | Default |
 |---|---|---|
-| `CHROME_BIN` | Path Chrome/Chromium untuk `export.mjs` | dicari di `PATH` |
-| `OMARCHY_USAGE_DATA` | Folder data CSV pemakaian untuk `build_donut_card.py`; opsi `--data-dir` lebih diutamakan | direktori riwayat usage Omarchy, `${XDG_STATE_HOME:-~/.local/state}/omarchy/agents/usage-history` |
+| `CHROME_BIN` | Chrome/Chromium path for `export.mjs` | looked up on `PATH` |
+| `OMARCHY_USAGE_DATA` | Usage CSV data folder for `build_donut_card.py`; the `--data-dir` option takes priority | the Omarchy usage history directory, `${XDG_STATE_HOME:-~/.local/state}/omarchy/agents/usage-history` |
 
-Nilai di atas juga bisa disimpan di berkas pengaturan `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (lewat [`rogarchy-setup`](../rogarchy-setup/README.md)); env var tetap menang, lalu berkas itu, lalu default.
+The values above can also be stored in the settings file `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (via [`rogarchy-setup`](../rogarchy-setup/README.md)); the env var still wins, then that file, then the default.
 
-## Contoh pemakaian
+## Usage examples
 
 ```text
-Buat grafik dither area dari data traffic mingguan ini: Sen 120, Sel 98, Rab 143.
+Make a dithered area chart from this weekly traffic data: Mon 120, Tue 98, Wed 143.
 ```
 
-Hasil: folder berisi `index.html`, `dither.js`, `scripts/export.mjs`, dan satu PNG bernama dari `spec.name`. Jalankan `node ./scripts/export.mjs index.html` dari folder keluaran untuk mengekspor PNG.
+Result: a folder with `index.html`, `dither.js`, `scripts/export.mjs`, and one PNG named after `spec.name`. Run `node ./scripts/export.mjs index.html` from the output folder to export the PNGs.
 
 ```text
-Buat kartu pangsa token per model untuk 2026-01-01 sampai 2026-01-06.
+Make a token share per model card for 2026-01-01 to 2026-01-06.
 ```
 
-Karena desain belum disebut, agent menawarkan opsi A–E (B direkomendasikan; galeri ada di `design-options/index.html`). Untuk B:
+Because no design was named, the agent offers options A–E (B recommended; the gallery is in `design-options/index.html`). For B:
 
 ```bash
-python3 scripts/build_donut_card.py --data-dir <folder-csv> --start 2026-01-01 --end 2026-01-06 --out <folder-keluaran>
+python3 scripts/build_donut_card.py --data-dir <csv-folder> --start 2026-01-01 --end 2026-01-06 --out <output-folder>
 ```
 
-Hasilnya kartu 1080×1920 gelap: tabel ledger 10 teratas + "Lainnya", satu donat kecil (satu-satunya PNG yang diekspor), strip KPI, total biaya, dan catatan kaki. Agent juga menangkap kartu penuh sebagai PNG.
+The result is a dark 1080×1920 card: a ledger table of the top 10 plus "Lainnya" (Other), one small donut (the only exported PNG), a KPI strip, the total cost, and a footnote. The agent also captures the full card as a PNG.
 
-## Isi folder
+## Folder contents
 
 ```
 dither-data-viz/
-├── SKILL.md                          # instruksi untuk agent
+├── SKILL.md                          # instructions for the agent
 ├── scripts/
-│   ├── dither.js                     # mesin dither (globalThis.Dither): area, pie, radar, spark, meter
-│   ├── export.mjs                    # ekspor PNG tiap canvas via Chromium headless
-│   └── build_donut_card.py           # pembangun kartu "Ledger First" (B) dari CSV pemakaian
+│   ├── dither.js                     # dither engine (globalThis.Dither): area, pie, radar, spark, meter
+│   ├── export.mjs                    # exports each canvas as PNG via headless Chromium
+│   └── build_donut_card.py           # builds the "Ledger First" (B) card from usage CSVs
 ├── templates/
-│   └── page.html                     # kerangka halaman untuk grafik umum (window.CHARTS / window.CHART)
+│   └── page.html                     # page skeleton for general charts (window.CHARTS / window.CHART)
 └── design-options/
-    ├── index.html                    # galeri 5 desain
-    ├── dither.js                     # salinan mesin untuk pratinjau mandiri
-    ├── option-a-donut-refined.html   # A: donat besar, legenda 2 kolom, banner biaya
-    ├── option-b-ledger-first.html    # B: tabel ledger sebagai hero (default)
-    ├── option-c-cost-banner.html     # C: total biaya raksasa, cincin pangsa biaya
-    ├── option-d-split-agent.html     # D: donat + legenda, panel per agent
-    └── option-e-dense-dashboard.html # E: grid padat 12 tanda dither
+    ├── index.html                    # gallery of the 5 designs
+    ├── dither.js                     # engine copy for standalone previews
+    ├── option-a-donut-refined.html   # A: large donut, 2-column legend, cost banner
+    ├── option-b-ledger-first.html    # B: ledger table as the hero (default)
+    ├── option-c-cost-banner.html     # C: giant total cost, cost share ring
+    ├── option-d-split-agent.html     # D: donut + legend, per-agent panel
+    └── option-e-dense-dashboard.html # E: dense grid of 12 dither marks
 ```
 
-Angka di file pratinjau adalah data contoh (fiktif, rentang 2026-01-01..06); jangan dipakai ulang untuk data Anda.
+The numbers in the preview files are sample data (fictional, range 2026-01-01..06); don't reuse them for your data.
 
-## Kredit
+## Credits
 
-Kartu penggunaan memuat harga turunan dari [Artificial Analysis](https://artificialanalysis.ai/) ("Source: Artificial Analysis (artificialanalysis.ai)" ada di footer kartu). Kartu atau grafik yang dibagikan ke publik juga wajib menampilkan logo Artificial Analysis (syarat Data Platform Terms; logo tidak disertakan di repo).
+Usage cards carry prices derived from [Artificial Analysis](https://artificialanalysis.ai/) ("Source: Artificial Analysis (artificialanalysis.ai)" is in the card footer). Cards or charts shared publicly must also show the Artificial Analysis logo (a Data Platform Terms requirement; the logo is not included in the repo).
 
-Mesin dither (`scripts/dither.js`, `design-options/dither.js`) diadaptasi dari [DeepanshuMishraa/dither-kit-rs](https://github.com/DeepanshuMishraa/dither-kit-rs) (MIT OR Apache-2.0; di sini memakai MIT), ditulis ulang ke JavaScript. Teks lisensi dan hak cipta asli ada di [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
+The dither engine (`scripts/dither.js`, `design-options/dither.js`) is adapted from [DeepanshuMishraa/dither-kit-rs](https://github.com/DeepanshuMishraa/dither-kit-rs) (MIT OR Apache-2.0; MIT is used here), rewritten in JavaScript. The original license text and copyright are in [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
 
 ---
 
-Versi 0.4.0 · Lisensi MIT · [README repo](../README.md)
+Version 0.4.0 · MIT License · [Repo README](../README.md)

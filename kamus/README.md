@@ -1,46 +1,50 @@
 # kamus
 
-## Apa ini
+## What it is
 
-Skill untuk menyimpan satu istilah sebagai satu note definisi di folder kamus Anda. Format note tetap (frontmatter `type/status/topics`, bagian "Bedakan dengan kata mirip", "Contoh", "Catatan"), dan arti diverifikasi ke sumber seperti KBBI atau Wiktionary, tidak dikarang dari bentuk kata.
+A skill for saving one term as one definition note in your kamus (dictionary) folder. The note format is fixed (frontmatter `type/status/topics`, and the sections "Bedakan dengan kata mirip" (distinguish from similar words), "Contoh" (example), "Catatan" (notes)), and the meaning is verified against a source such as KBBI or Wiktionary, not invented from the shape of the word.
 
-## Kapan dipakai / tidak dipakai
+## When to use / not use
 
-Dipakai bila:
+Use it when:
 
-- Pengguna meminta "simpan kata X", "tambah istilah", atau "definisi ...", atau menyebut kamus.
-- Pengguna memberi kata asing atau istilah yang ingin dicatat sebagai entri kamus.
+- The user asks to "simpan kata X" (save word X), "tambah istilah" (add a term), or "definisi ..." (definition ...), or mentions the kamus.
+- The user gives a foreign word or term they want recorded as a kamus entry.
 
-Tidak dipakai untuk:
+Don't use it for:
 
-- Ringkasan video (`ytsum`).
-- Konsep lintas sumber (gunakan concept note).
-- Kamus di folder lain: path yang disebut pengguna diutamakan.
+- Video summaries (`ytsum`).
+- Concepts across sources (use a concept note).
+- A kamus in another folder: the path the user names takes priority.
 
-## Kebutuhan
+## Requirements
 
-- Alat runtime: tidak ada skrip. Agent memakai akses baca/tulis berkas dan akses web untuk memeriksa arti.
-- Skill di luar repo ini: tidak ada yang wajib. `ytsum` (di repo ini) hanya disebut sebagai tujuan alih dan terdaftar di `related_skills`. Format note cocok untuk vault Obsidian (wikilink `[[Istilah]]`), tetapi Obsidian tidak wajib.
+- Runtime tools: no scripts. The agent uses file read/write access and web access to check meanings.
+- Skills outside this repo: none required. `ytsum` (in this repo) is only named as a handoff target and listed in `related_skills`. The note format suits an Obsidian vault (wikilinks `[[Istilah]]`), but Obsidian is not required.
 
-## Konfigurasi
+## Configuration
 
-| Variabel | Arti | Default |
+| Variable | Meaning | Default |
 |---|---|---|
-| `KAMUS_DIR` | Folder tempat note kamus disimpan | `$HOME/kamus` |
+| `KAMUS_DIR` | Folder where kamus notes are saved | `$HOME/kamus` |
 
-Folder dibuat saat penyimpanan pertama. Folder yang disebut pengguna di permintaan lebih diutamakan. Bila folder default bukan tempat kamus Anda, set `KAMUS_DIR`.
+The folder is created on the first save. A folder the user names in the request takes priority. If the default folder is not where your kamus lives, set `KAMUS_DIR`.
 
-Aturan khusus vault Anda (misalnya "jangan sentuh Index/MOC") bisa ditaruh di `kamus/references/vault-rules.local.md` (templat: `vault-rules.example.md`). Agent membacanya bila ada; file `*.local.md` diabaikan git, jadi tidak ikut terpublikasi.
+Rules specific to your vault (for example "don't touch the Index/MOC") can go in `kamus/references/vault-rules.local.md` (template: `vault-rules.example.md`). The agent reads it if it exists; `*.local.md` files are ignored by git, so they are not published.
 
-Nilai di atas juga bisa disimpan di berkas pengaturan `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (lewat [`rogarchy-setup`](../rogarchy-setup/README.md)); env var tetap menang, lalu berkas itu, lalu default.
+The values above can also be stored in the settings file `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (via [`rogarchy-setup`](../rogarchy-setup/README.md)); the env var still wins, then that file, then the default.
 
-## Contoh pemakaian
+## Usage examples
+
+The skill targets Indonesian terms and writes Indonesian notes, so the example prompt and note stay in Indonesian.
 
 ```text
 simpan kata "hakikat" ke kamus
 ```
 
-Agent memeriksa duplikat, memverifikasi arti, lalu menulis `$KAMUS_DIR/Hakikat.md`:
+("save the word "hakikat" to the kamus")
+
+The agent checks for duplicates, verifies the meaning, then writes `$KAMUS_DIR/Hakikat.md`:
 
 ```markdown
 ---
@@ -66,19 +70,19 @@ topics: [filsafat]
 Sumber: <URL KBBI>. Ejaan alternatif: ...
 ```
 
-Bila file sudah ada, agent melaporkan isinya dan bertanya dulu sebelum menimpa. Setelah menulis, agent membaca ulang file dan memastikan setiap wikilink menunjuk ke file yang ada.
+If the file already exists, the agent reports its contents and asks before overwriting. After writing, the agent rereads the file and makes sure every wikilink points to a file that exists.
 
-## Isi folder
+## Folder contents
 
 ```
 kamus/
-├── SKILL.md                         # instruksi untuk agent
-├── README.md                        # dokumen ini
+├── SKILL.md                         # instructions for the agent
+├── README.md                        # this document
 └── references/
-    ├── vault-rules.example.md       # templat aturan vault (salin ke vault-rules.local.md)
-    └── vault-rules.local.md         # opsional, lokal, tidak masuk git
+    ├── vault-rules.example.md       # vault rules template (copy to vault-rules.local.md)
+    └── vault-rules.local.md         # optional, local, not in git
 ```
 
 ---
 
-Versi 1.0.0 · Lisensi MIT · [README repo](../README.md)
+Version 1.0.0 · MIT License · [Repo README](../README.md)

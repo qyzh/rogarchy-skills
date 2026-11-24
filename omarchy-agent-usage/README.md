@@ -1,104 +1,104 @@
 # omarchy-agent-usage
 
-## Apa ini
+## What it is
 
-Skill yang membaca pemakaian token agent AI lokal di Omarchy (Hermes, Claude Code, Codex, OpenCode, grok, agy) lalu menyusunnya menjadi riwayat dan laporan: token per hari × per model, persentase kuota/limit, simulasi biaya pay-as-you-go, metrik (cache hit, token per prompt, cost per task), dan ringkasan mingguan. Semua data ditulis ke folder data di luar folder skill. Harga berasal dari Artificial Analysis (lihat Kredit).
+A skill that reads the token usage of local AI agents on Omarchy (Hermes, Claude Code, Codex, OpenCode, grok, agy) and builds history and reports from it: tokens per day × per model, quota/limit percentage, pay-as-you-go cost simulation, metrics (cache hit, tokens per prompt, cost per task), and weekly summaries. All data is written to a data folder outside the skill folder. Prices come from Artificial Analysis (see Credits).
 
-**Hanya Linux dengan Omarchy.** Skill membaca wrapper `omarchy-agent-usage-*` dan store lokal agent; tanpa Omarchy skill ini tidak berguna.
+**Linux with Omarchy only.** The skill reads the `omarchy-agent-usage-*` wrappers and the agents' local stores; without Omarchy this skill is of no use.
 
-## Kapan dipakai / tidak dipakai
+## When to use / not use
 
-Dipakai bila Anda meminta:
+Use it when you ask to:
 
-- Cek token yang terpakai, kuota atau limit habis, agent mana yang paling boros.
-- Menyimpan riwayat pemakaian per hari, laporan minggu ini.
-- Simulasi biaya bila pemakaian dibayar per token, cache hit ratio, token per prompt, cost per task.
+- Check tokens used, whether a quota or limit is used up, which agent uses the most.
+- Keep a per-day usage history, or get this week's report.
+- Simulate the cost if usage were paid per token, cache hit ratio, tokens per prompt, cost per task.
 
-Tidak dipakai bila:
+Don't use it when:
 
-- Anda ingin membuat plugin Omarchy yang menampilkan usage (pakai `omarchy-plugin-authoring`).
-- Anda butuh dashboard billing cloud provider. Skill ini hanya membaca store lokal.
+- You want to build an Omarchy plugin that displays usage (use `omarchy-plugin-authoring`).
+- You need a cloud provider billing dashboard. This skill only reads local stores.
 
-Skill tidak menjalankan `omarchy-agent-usage-update` kecuali diminta, karena perintah itu bisa mengganti akun yang sedang login.
+The skill does not run `omarchy-agent-usage-update` unless asked, because that command can switch the account that is logged in.
 
-## Kebutuhan
+## Requirements
 
-| Kebutuhan | Status | Fungsi |
+| Requirement | Status | Purpose |
 |---|---|---|
-| Linux + Omarchy | **Wajib** | Menyediakan wrapper `omarchy-agent-usage-*` di `$OMARCHY_PATH/bin`. |
-| Python 3 | **Wajib** | Menjalankan skrip di `scripts/`. Hanya pustaka standar. |
-| Akses internet + `ARTIFICIAL_ANALYSIS_API_KEY` | Opsional | Mengambil harga dari Data API gratis Artificial Analysis. Tanpa kunci tidak ada panggilan jaringan; skill memakai cache/seed. |
-| `omarchy-plugin-authoring` (di luar repo) | Hanya rute | Tujuan alih untuk membuat plugin tampilan usage. |
-| [`dither-data-viz`](../dither-data-viz/README.md) (repo ini) | Opsional | Membuat kartu/grafik dari CSV keluaran skill ini. |
+| Linux + Omarchy | **Required** | Provides the `omarchy-agent-usage-*` wrappers in `$OMARCHY_PATH/bin`. |
+| Python 3 | **Required** | Runs the scripts in `scripts/`. Standard library only. |
+| Internet access + `ARTIFICIAL_ANALYSIS_API_KEY` | Optional | Fetches prices from the free Artificial Analysis Data API. Without a key there are no network calls; the skill uses the cache/seed. |
+| `omarchy-plugin-authoring` (outside this repo) | Route only | Handoff target for building a usage display plugin. |
+| [`dither-data-viz`](../dither-data-viz/README.md) (this repo) | Optional | Makes cards/charts from this skill's output CSVs. |
 
-## Konfigurasi
+## Configuration
 
-| Variabel | Arti | Default |
+| Variable | Meaning | Default |
 |---|---|---|
-| `OMARCHY_USAGE_DATA` | Folder data (snapshot, CSV, laporan) | `~/.local/state/omarchy/agents/usage-history` |
-| `ARTIFICIAL_ANALYSIS_API_KEY` | Kunci Data API gratis Artificial Analysis ([ambil di sini](https://artificialanalysis.ai/api-key-management-redirect)). Hanya dari env var, jangan ditulis ke file | (kosong: tanpa panggilan jaringan) |
-| `OMARCHY_USAGE_PRICING_CACHE` | Cache harga hasil fetch API (dipakai ulang 24 jam) | `~/.cache/omarchy-agent-usage/pricing.json` |
-| `OMARCHY_USAGE_PRICING_SEED` | Seed harga lokal opsional, read-only (tidak ikut repo) | `references/pricing.json` (gitignored) |
-| `OMARCHY_TASKS_FILE` | File sinyal task (`tasks.jsonl`) | `~/.local/state/omarchy/agents/tasks.jsonl` |
-| `OMARCHY_PATH` | Lokasi instalasi Omarchy | `/usr/share/omarchy` |
+| `OMARCHY_USAGE_DATA` | Data folder (snapshots, CSVs, reports) | `~/.local/state/omarchy/agents/usage-history` |
+| `ARTIFICIAL_ANALYSIS_API_KEY` | Free Artificial Analysis Data API key ([get one here](https://artificialanalysis.ai/api-key-management-redirect)). Env var only, never write it to a file | (empty: no network calls) |
+| `OMARCHY_USAGE_PRICING_CACHE` | Cache of prices fetched from the API (reused for 24 hours) | `~/.cache/omarchy-agent-usage/pricing.json` |
+| `OMARCHY_USAGE_PRICING_SEED` | Optional read-only local price seed (not in the repo) | `references/pricing.json` (gitignored) |
+| `OMARCHY_TASKS_FILE` | Task signal file (`tasks.jsonl`) | `~/.local/state/omarchy/agents/tasks.jsonl` |
+| `OMARCHY_PATH` | Omarchy install location | `/usr/share/omarchy` |
 
-Untuk tes, arahkan semuanya ke folder sementara.
+For tests, point all of them at a temporary folder.
 
-Nilai di atas juga bisa disimpan di berkas pengaturan `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (lewat [`rogarchy-setup`](../rogarchy-setup/README.md)), kecuali `ARTIFICIAL_ANALYSIS_API_KEY` yang hanya dari env var; env var tetap menang, lalu berkas itu, lalu default.
+The values above can also be stored in the settings file `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (via [`rogarchy-setup`](../rogarchy-setup/README.md)), except `ARTIFICIAL_ANALYSIS_API_KEY`, which comes from the env var only; the env var still wins, then that file, then the default.
 
-## Contoh pemakaian
+## Usage examples
 
 ```text
-Berapa token yang kupakai minggu ini, dan kalau dibayar per token jadinya berapa?
+How many tokens did I use this week, and what would it cost if paid per token?
 ```
 
-Menjalankan pipeline secara manual (dari folder repo):
+Running the pipeline by hand (from the repo folder):
 
 ```bash
 S=omarchy-agent-usage/scripts
-python3 $S/collect.py --all             # scan + snapshot + CSV + biaya + metrik + mingguan
-python3 $S/collect.py --report --all --offline   # bangun ulang dari snapshot, tanpa scan dan network
-python3 $S/cost.py 2026-01-01           # pecahan biaya per model untuk satu tanggal
-python3 $S/weekly.py                    # ringkasan minggu berjalan
+python3 $S/collect.py --all             # scan + snapshot + CSV + cost + metrics + weekly
+python3 $S/collect.py --report --all --offline   # rebuild from snapshots, no scan and no network
+python3 $S/cost.py 2026-01-01           # per-model cost breakdown for one date
+python3 $S/weekly.py                    # summary of the current week
 ```
 
-Menjalankan tes (tidak menyentuh state asli, network dimatikan):
+Running the tests (they don't touch real state; network is disabled):
 
 ```bash
 cd omarchy-agent-usage && python3 -m unittest discover -s tests -v
 ```
 
-Untuk tracking harian, pasang job terjadwal tanpa LLM yang menjalankan `collect.py --all`; langkahnya ada di SKILL.md bagian "Jadwal harian".
+For daily tracking, set up a scheduled job without an LLM that runs `collect.py --all`; the steps are in SKILL.md, section "Jadwal harian" (daily schedule).
 
-## Isi folder
+## Folder contents
 
 ```
 omarchy-agent-usage/
-├── SKILL.md                       # instruksi untuk agent
+├── SKILL.md                       # instructions for the agent
 ├── references/
-│   ├── collector-internals.md     # signature scanner, komposisi scan per agent
-│   ├── pricing-sources.md         # sumber harga AA, pemetaan model, successor, proxy
-│   ├── pricing.json               # seed harga lokal opsional (gitignored, tidak ada di repo)
-│   ├── task-signal.md             # skema tasks.jsonl, dedupe, contoh hook generik
-│   ├── task-signal.example.md     # templat catatan hook mesin (salin ke task-signal.local.md)
-│   ├── task-signal.local.md       # catatan hook mesin Anda (opsional, gitignored)
-│   └── visual-preferences.md      # gaya bawaan kartu/grafik usage
+│   ├── collector-internals.md     # scanner signatures, per-agent scan composition
+│   ├── pricing-sources.md         # AA price sources, model mapping, successors, proxies
+│   ├── pricing.json               # optional local price seed (gitignored, not in the repo)
+│   ├── task-signal.md             # tasks.jsonl schema, dedupe, generic hook examples
+│   ├── task-signal.example.md     # template for this machine's hook notes (copy to task-signal.local.md)
+│   ├── task-signal.local.md       # your machine's hook notes (optional, gitignored)
+│   └── visual-preferences.md      # default style for usage cards/charts
 ├── scripts/
-│   ├── common.py                  # path, IO atomik, merge snapshot, pembaca task
-│   ├── collect.py                 # kolektor: snapshot + CSV + report + cek paritas
-│   ├── cost.py                    # simulasi biaya pay-as-you-go
-│   ├── metrics.py                 # metrik dashboard
-│   ├── weekly.py                  # ringkasan mingguan
-│   └── tasklog.py                 # tulis/baca tasks.jsonl
-└── tests/                         # tes unittest + fixture (termasuk pembaca config.env)
+│   ├── common.py                  # paths, atomic IO, snapshot merge, task reader
+│   ├── collect.py                 # collector: snapshot + CSV + report + parity check
+│   ├── cost.py                    # pay-as-you-go cost simulation
+│   ├── metrics.py                 # dashboard metrics
+│   ├── weekly.py                  # weekly summary
+│   └── tasklog.py                 # write/read tasks.jsonl
+└── tests/                         # unittest tests + fixtures (including the config.env reader)
 ```
 
-## Kredit
+## Credits
 
-Sebagian kecil kode di `scripts/collect.py` (regex dan predikat pendeteksi billing) disalin dari wrapper `omarchy-agent-usage-*` milik [Omarchy](https://github.com/omacom/omarchy) (MIT, © David Heinemeier Hansson); lihat [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). Tidak berafiliasi dengan atau didukung oleh Omarchy/Basecamp.
+A small part of the code in `scripts/collect.py` (the billing detection regexes and predicates) is copied from the `omarchy-agent-usage-*` wrappers of [Omarchy](https://github.com/omacom/omarchy) (MIT, © David Heinemeier Hansson); see [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). Not affiliated with or endorsed by Omarchy/Basecamp.
 
-Source: [Artificial Analysis (artificialanalysis.ai)](https://artificialanalysis.ai/). Harga token diambil lewat Data API gratis mereka memakai kunci Anda sendiri (`ARTIFICIAL_ANALYSIS_API_KEY`), disimpan di cache lokal, dan tidak ikut di repo ini. Setiap laporan biaya mencantumkan "Source: Artificial Analysis (artificialanalysis.ai)" dengan tautan, "Based on data from Artificial Analysis", dan "Created by omarchy-agent-usage, not by Artificial Analysis. Artificial Analysis does not endorse this report/tool". Kartu atau grafik yang dibagikan ke publik juga wajib menampilkan logo Artificial Analysis (syarat Data Platform Terms; logo tidak disertakan di repo). Rincian sumber ada di [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md); pemakaian API tunduk pada syarat Artificial Analysis. Ini bukan nasihat hukum.
+Source: [Artificial Analysis (artificialanalysis.ai)](https://artificialanalysis.ai/). Token prices are fetched through their free Data API with your own key (`ARTIFICIAL_ANALYSIS_API_KEY`), stored in a local cache, and not included in this repo. Every cost report includes "Source: Artificial Analysis (artificialanalysis.ai)" with a link, "Based on data from Artificial Analysis", and "Created by omarchy-agent-usage, not by Artificial Analysis. Artificial Analysis does not endorse this report/tool". Cards or charts shared publicly must also show the Artificial Analysis logo (a Data Platform Terms requirement; the logo is not included in the repo). Source details are in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md); API use is subject to Artificial Analysis's terms. This is not legal advice.
 
 ---
 
-Versi 0.3.0 · Lisensi MIT · [README repo](../README.md)
+Version 0.3.0 · MIT License · [Repo README](../README.md)

@@ -1,33 +1,35 @@
 # note-to-quote
 
-## Apa ini
+## What it is
 
-Skill untuk memilih satu gagasan dari satu note atau rangkuman, lalu menjadikannya satu quote singkat yang bisa berdiri sendiri, lengkap dengan konteks dan atribusi. Skill membedakan tiga jenis teks: rumusan editorial, calon kutipan, dan kutipan yang sudah diperiksa pada sumber asli. Keluarannya teks; desain gambar dan publikasi di luar cakupan.
+A skill for picking one idea from a single note or summary and turning it into one short quote that can stand on its own, with context and attribution. The skill distinguishes three kinds of text: an editorial rewording, a candidate quote, and a quote checked against the original source. The output is text; image design and publishing are out of scope.
 
-## Kapan dipakai / tidak dipakai
+## When to use / not use
 
-Dipakai bila:
+Use it when:
 
-- Anda ingin quote card, teks Instagram Stories, atau pilihan kutipan pembicara dari sebuah note atau rangkuman.
-- Anda perlu tahu apakah kalimatnya olahan editorial, calon kutipan, atau kutipan terverifikasi.
+- You want a quote card, Instagram Stories text, or a choice of speaker quotes from a note or summary.
+- You need to know whether a sentence is an editorial rewording, a candidate quote, or a verified quote.
 
-Tidak dipakai untuk:
+Don't use it for:
 
-- Membuat gambar atau mendesain frame (pakai skill desain gambar di agent Anda).
-- Menerbitkan atau memposting.
-- Mencari benang merah lintas banyak note; satu note menghasilkan satu keluaran terpisah, dan banyak note hanya diproses bila diminta.
+- Making images or designing frames (use an image design skill in your agent).
+- Publishing or posting.
+- Finding a common thread across many notes; one note produces one separate output, and multiple notes are processed only when asked.
 
-## Kebutuhan
+## Requirements
 
-- Alat runtime: tidak ada. Skill ini tidak punya skrip.
-- Skill di luar repo ini: tidak ada. `related_skills` kosong. Untuk visual Story, SKILL.md hanya menyarankan skill desain gambar milik agent Anda (tidak wajib).
-- Untuk kutipan asli, agent butuh materi sumber yang benar-benar tersedia (rekaman dengan lokasinya, transkrip yang andal, atau teks asli dengan halaman/paragraf). Tanpa itu, hasilnya tetap berstatus calon kutipan.
+- Runtime tools: none. This skill has no scripts.
+- Skills outside this repo: none. `related_skills` is empty. For Story visuals, SKILL.md only suggests your agent's own image design skill (not required).
+- For an original quote, the agent needs source material that is actually available (a recording with its location, a reliable transcript, or the original text with page/paragraph). Without it, the result stays a candidate quote.
 
-## Konfigurasi
+## Configuration
 
-Tidak ada. Bahasa default Indonesia dan audiens default pembaca awam; keduanya bisa diubah di permintaan. Bila Anda meminta hasil disimpan, ikuti lokasi yang Anda sebut. Aturan vault pribadi bisa ditaruh di `references/vault-rules.local.md` (templat: `vault-rules.example.md`; [`rogarchy-setup`](../rogarchy-setup/README.md) bisa membuatnya).
+None. The default language is Indonesian and the default audience is general readers; both can be changed in the request. If you ask for the result to be saved, it follows the location you name. Personal vault rules can go in `references/vault-rules.local.md` (template: `vault-rules.example.md`; [`rogarchy-setup`](../rogarchy-setup/README.md) can create it).
 
-## Contoh pemakaian
+## Usage examples
+
+The skill targets Indonesian content, so the example prompts below stay in Indonesian (an English gloss follows each one).
 
 ```text
 Baca note-to-quote/SKILL.md dan gunakan untuk note ini.
@@ -35,26 +37,30 @@ Pilih satu quote terkuat, jelaskan alasan pemilihannya,
 dan sertakan konteks serta sumbernya.
 ```
 
-Hasil: satu quote utama (default editorial, berlabel "Diolah dari catatan …"), perbandingan singkat kandidat dengan skor 0–2 per kriteria, alasan pemilihan, konteks, kredit publik, caption atau teks pendamping, dan peta sumber internal. Bila note belum cukup utuh, hasilnya `perlu-lengkapi` beserta bahan yang kurang.
+("Read note-to-quote/SKILL.md and use it for this note. Pick the single strongest quote, explain why you chose it, and include its context and source.")
+
+Result: one main quote (editorial by default, labeled "Diolah dari catatan …", "Adapted from notes …"), a short comparison of candidates scored 0–2 per criterion, the reason for the choice, context, public credit, a caption or companion text, and an internal source map. If the note is not complete enough, the result is `perlu-lengkapi` ("needs completing") with the missing material listed.
 
 ```text
 Saya mau kutipan asli pembicaranya, bukan rumusan ulang.
 ```
 
-Agent memakai alur verifikasi pada sumber asli. Bila belum bisa diverifikasi, kalimat ditampilkan sebagai calon kutipan berlabel "Belum diverifikasi", bukan diganti diam-diam dengan rumusan editorial.
+("I want the speaker's original quote, not a rewording.")
 
-## Isi folder
+The agent uses the verification flow against the original source. If it can't be verified yet, the sentence is shown as a candidate quote labeled "Belum diverifikasi" ("Not yet verified"), not silently replaced with an editorial rewording.
+
+## Folder contents
 
 ```
 note-to-quote/
-├── SKILL.md                       # instruksi untuk agent
+├── SKILL.md                       # instructions for the agent
 └── references/
-    ├── output-template.md         # template hasil (bagian A–D: pemilihan, teks card, caption, peta sumber)
-    ├── vault-rules.example.md     # templat aturan vault (salin ke vault-rules.local.md)
-    ├── vault-rules.local.md       # aturan vault pribadi Anda (opsional, gitignored)
-    └── examples.md                # contoh: quote editorial, calon kutipan, kutipan berantai, penolakan bahan belum lengkap
+    ├── output-template.md         # output template (sections A–D: selection, card text, caption, source map)
+    ├── vault-rules.example.md     # vault rules template (copy to vault-rules.local.md)
+    ├── vault-rules.local.md       # your personal vault rules (optional, gitignored)
+    └── examples.md                # examples: editorial quote, candidate quote, chained quote, rejecting incomplete material
 ```
 
 ---
 
-Versi 1.0.0 · Lisensi MIT · [README repo](../README.md)
+Version 1.0.0 · MIT License · [Repo README](../README.md)

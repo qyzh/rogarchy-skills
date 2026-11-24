@@ -1,80 +1,80 @@
 # blog-post
 
-## Apa ini
+## What it is
 
-Skill untuk menulis satu blog post Markdown yang bersitasi. Urutannya: riset dulu (paket riset dengan peta sikap pro/kontra dan blok *Balance*), lalu draf, lalu penilaian dengan rubrik. Skill ini berhenti di satu post; tidak menerbitkan, commit, atau memposting.
+A skill for writing one cited Markdown blog post. The order is research first (a research packet with a pro/con stance map and a *Balance* block), then the draft, then scoring against a rubric. The skill stops at one post; it does not publish, commit, or post.
 
-## Kapan dipakai / tidak dipakai
+## When to use / not use
 
-Dipakai bila:
+Use it when:
 
-- Pengguna meminta blog post, artikel, atau penjelasan bersumber untuk dipublikasikan.
-- Pengguna ingin statistik terkini dan celah dari kompetitor, lalu draf yang bisa disunting.
+- The user asks for a blog post, article, or sourced explainer for publication.
+- The user wants current statistics and gaps left by competitors, then an editable draft.
 
-Tidak dipakai untuk:
+Don't use it for:
 
-- Makalah akademik (`academic-research-writer`).
-- Catatan YouTube (`ytsum` / `youtube-content`).
-- Menyimpan URL yang sudah ada ke vault (`web-article-to-vault`).
-- Brief aset sosial (`content-brief-curation`).
-- Tugas koding yang kebetulan memuat kata "blog".
+- Academic papers (`academic-research-writer`).
+- YouTube notes (`ytsum` / `youtube-content`).
+- Saving an existing URL to a vault (`web-article-to-vault`).
+- Social asset briefs (`content-brief-curation`).
+- Coding tasks that happen to contain the word "blog".
 
-## Kebutuhan
+## Requirements
 
-Skill di luar repo ini (pasang terpisah):
+Skills outside this repo (install separately):
 
-| Skill | Status | Fungsi |
+| Skill | Status | Purpose |
 |---|---|---|
-| `grounded-citations` | **Wajib** | Pencatatan sumber (`sources.py`), render sitasi `[n]`, dan `verify`. |
-| `humanizer` | **Wajib** | Perapian prosa sebelum verifikasi. |
-| `content-brief-curation` | Hanya rute | Disebut sebagai tujuan alih untuk brief aset sosial. |
-| `academic-research-writer` | Hanya rute | Disebut sebagai tujuan alih untuk makalah akademik. |
-| `web-article-to-vault` | Hanya rute | Disebut sebagai tujuan alih untuk menyimpan artikel. |
-| `youtube-content` | Hanya rute | Disebut (bersama `ytsum`, yang ada di repo ini) sebagai tujuan alih untuk catatan YouTube. |
+| `grounded-citations` | **Required** | Source logging (`sources.py`), rendering `[n]` citations, and `verify`. |
+| `humanizer` | **Required** | Prose cleanup before verification. |
+| `content-brief-curation` | Route only | Named as the handoff target for social asset briefs. |
+| `academic-research-writer` | Route only | Named as the handoff target for academic papers. |
+| `web-article-to-vault` | Route only | Named as the handoff target for saving articles. |
+| `youtube-content` | Route only | Named (together with `ytsum`, which is in this repo) as the handoff target for YouTube notes. |
 
-Alat runtime: Python (untuk `sources.py` milik `grounded-citations`), `curl`, dan akses pencarian web dari agent. Skill ini sendiri tidak punya skrip.
+Runtime tools: Python (for the `sources.py` of `grounded-citations`), `curl`, and web search access from the agent. The skill itself has no scripts.
 
-## Konfigurasi
+## Configuration
 
-| Variabel | Arti | Default |
+| Variable | Meaning | Default |
 |---|---|---|
-| `OUT` | Folder keluaran draf, paket riset, dan ledger sumber | `$HOME/blog-posts` |
+| `OUT` | Output folder for drafts, research packets, and source ledgers | `$HOME/blog-posts` |
 
-Path absolut yang disebut pengguna di permintaan lebih diutamakan daripada `OUT`. Skill tidak menulis ke vault catatan kecuali pengguna menyebut vault itu.
+An absolute path the user names in the request takes priority over `OUT`. The skill does not write into a notes vault unless the user names that vault.
 
-Nilai di atas juga bisa disimpan di berkas pengaturan `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (lewat [`rogarchy-setup`](../rogarchy-setup/README.md)); env var tetap menang, lalu berkas itu, lalu default.
+The values above can also be stored in the settings file `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (via [`rogarchy-setup`](../rogarchy-setup/README.md)); the env var still wins, then that file, then the default.
 
-## Contoh pemakaian
+## Usage examples
 
 ```text
-Tulis blog post tentang dampak caching HTTP pada Core Web Vitals, dalam bahasa Indonesia.
+Write a blog post about the impact of HTTP caching on Core Web Vitals, in Indonesian.
 ```
 
-Agent melakukan pra-pemeriksaan, merencanakan kueri pendukung dan kontra, lalu menulis paket riset dan **berhenti** untuk persetujuan. Setelah dilanjutkan, hasilnya `<slug>_<tanggal>.md` berisi jawaban singkat, isi, bagian "When it doesn't hold" / "Kapan ini tidak berlaku", dan daftar sumber, ditambah `_research-<slug>-<tanggal>.md` dan `.sources-<slug>-<tanggal>.json`. Skor riset (≥70) dan skor draf (≥80) dilaporkan di chat.
+The agent runs the pre-flight check, plans supporting and counter queries, then writes the research packet and **stops** for approval. Once resumed, the result is `<slug>_<date>.md` with a short answer, the body, a "When it doesn't hold" / "Kapan ini tidak berlaku" section, and the source list, plus `_research-<slug>-<date>.md` and `.sources-<slug>-<date>.json`. The research score (≥70) and draft score (≥80) are reported in chat.
 
 ```text
-Tulis post tentang Rust untuk backend dev pemula, sampai selesai.
+Write a post about Rust for beginner backend devs, write-through.
 ```
 
-Kata "sampai selesai" membuat agent tidak berhenti di antara fase.
+"Write-through" (or the Indonesian "tulis sampai selesai", "write until done") makes the agent not stop between phases.
 
-## Isi folder
+## Folder contents
 
 ```
 blog-post/
-├── SKILL.md                      # instruksi untuk agent
+├── SKILL.md                      # instructions for the agent
 ├── references/
-│   ├── research-quality.md       # tingkat sumber, pra-pemeriksaan, format peta sikap dan blok Balance, rubrik riset
-│   ├── voice-personal.example.md # templat gaya personal (salin ke voice-personal.local.md)
-│   └── voice-personal.local.md   # gaya personal Anda (opsional, gitignored)
+│   ├── research-quality.md       # source tiers, pre-flight check, stance map and Balance block format, research rubric
+│   ├── voice-personal.example.md # personal voice template (copy to voice-personal.local.md)
+│   └── voice-personal.local.md   # your personal voice (optional, gitignored)
 └── templates/
-    └── post.md                   # kerangka draf (jawaban singkat, isi, Kapan ini tidak berlaku, Sources)
+    └── post.md                   # draft skeleton (short answer, body, When it doesn't hold, Sources)
 ```
 
-## Kredit
+## Credits
 
-Diadaptasi dari [AgriciDaniel/claude-blog](https://github.com/AgriciDaniel/claude-blog) (MIT): disiplin riset dan kutipan, serta `references/research-quality.md` (yang juga merujuk [last30days-skill](https://github.com/mvanhorn/last30days-skill), MIT). Teks lisensi dan hak cipta asli ada di [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
+Adapted from [AgriciDaniel/claude-blog](https://github.com/AgriciDaniel/claude-blog) (MIT): the research and citation discipline, and `references/research-quality.md` (which also draws on [last30days-skill](https://github.com/mvanhorn/last30days-skill), MIT). The original license text and copyright are in [../THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
 
 ---
 
-Versi 0.2.0 · Lisensi MIT · [README repo](../README.md)
+Version 0.2.0 · MIT License · [Repo README](../README.md)
