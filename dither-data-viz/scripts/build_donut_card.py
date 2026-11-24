@@ -12,13 +12,47 @@ Biaya ditulis tepat 2 desimal ($168.23, $0.00).
 """
 from __future__ import annotations
 
-import argparse, csv, html, json, shutil, sys
+import argparse, csv, html, json, os, shutil, sys
 from collections import defaultdict
 from datetime import date, timedelta
 from pathlib import Path
 
 SKILL = Path(__file__).resolve().parents[1]
 TONES = ["green", "blue", "purple", "orange", "pink", "red", "grey"]
+
+
+def setting(var):
+    """Env var if non-empty, else the last `var=value` line of the rogarchy-skills
+    config file (${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env), else None.
+    The file is read as data, never sourced: values are literal."""
+    value = os.environ.get(var)
+    if value:
+        return value
+    base = os.environ.get("XDG_CONFIG_HOME") or str(Path.home() / ".config")
+    try:
+        text = (Path(base) / "rogarchy-skills" / "config.env").read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+    found = None
+    for raw in text.splitlines():
+        line = raw.rstrip()
+        if not line or line.lstrip().startswith("#"):
+            continue
+        key, sep, val = line.partition("=")
+        if sep and key == var:
+            found = val
+    return found or None
+
+
+def default_data_dir():
+    """--data-dir is handled by the caller; then OMARCHY_USAGE_DATA (env, then
+    config.env); then ${XDG_STATE_HOME:-~/.local/state}/omarchy/agents/usage-history."""
+    value = setting("OMARCHY_USAGE_DATA")
+    if value:
+        return Path(value).expanduser()
+    state = os.environ.get("XDG_STATE_HOME")
+    base = Path(state).expanduser() if state else Path.home() / ".local" / "state"
+    return base / "omarchy" / "agents" / "usage-history"
 
 
 def days_between(start, end):
@@ -53,9 +87,7 @@ def main():
     ap.add_argument("--title", default=None)
     args = ap.parse_args()
 
-    import os
-    data = Path(args.data_dir or os.environ.get(
-        "OMARCHY_USAGE_DATA", "~/.local/state/omarchy/agents/usage-history")).expanduser()
+    data = Path(args.data_dir).expanduser() if args.data_dir else default_data_dir()
     if args.start > args.end:
         sys.exit(f"build_donut_card: --start {args.start} is after --end {args.end}")
     for name in ("daily_by_model.csv", "cost_by_model.csv"):

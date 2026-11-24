@@ -50,6 +50,7 @@ class Base(unittest.TestCase):
             "OMARCHY_USAGE_PRICING_CACHE": str(self.tmp / "cache" / "pricing.json"),
             "OMARCHY_USAGE_PRICING_SEED": str(FIX / "pricing_seed.json"),
             "OMARCHY_TASKS_FILE": str(FIX / "tasks.jsonl"),
+            "XDG_CONFIG_HOME": str(self.tmp / "config"),   # never read the real config.env
         })
         self.env.start()
         os.environ.pop("ARTIFICIAL_ANALYSIS_API_KEY", None)   # restored by env.stop()

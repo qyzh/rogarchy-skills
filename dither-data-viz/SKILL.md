@@ -43,6 +43,25 @@ each a standalone file over `file://`).
   asks for a test.
 - PNGs are composited onto `#0c0c0e`: opaque, non-blank, > 1 KB.
 
+## Prerequisites / Config
+
+Requires: commands `node` (22+), `python3`, and Chrome/Chromium (`chromium`, `google-chrome`, or `CHROME_BIN`).
+Local files: none.
+
+| Variable | Meaning | Default | Kind |
+|---|---|---|---|
+| `CHROME_BIN` | Chrome/Chromium executable for the PNG export | auto-detect (common install paths, then `PATH`) | advanced |
+| `OMARCHY_USAGE_DATA` | Usage data dir for usage-data cards (shared with `omarchy-agent-usage`) | `${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/agents/usage-history` | advanced |
+
+Resolve each variable once, before the first step that needs it: the env var if set and non-empty; else its `KEY=value` line in `${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env` (written by `rogarchy-setup`; read it as data, never `source` it; the last matching line wins); else the default. A missing file or line means the default. Kind: `setting` = setup asks for it; `advanced` = setup keeps the default unless the user asks; `secret` = env var only, never in `config.env` or chat. In a shell, `rs_get` does the same lookup:
+
+```bash
+rs_get() { v=$(printenv "$1"); [ -n "$v" ] || v=$(sed -n "s/[[:space:]]*\$//; s/^$1=//p" "${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env" 2>/dev/null | tail -n 1); printf '%s\n' "${v:-$2}"; }
+rs_get CHROME_BIN ""
+```
+
+The scripts resolve these themselves in the same order (`scripts/export.mjs`, `scripts/build_donut_card.py`).
+
 ## When to Use
 
 - User wants a dithered / Bayer / grainy canvas chart as HTML plus PNG.
@@ -149,10 +168,10 @@ Option B. Use this for usage/share requests once B is chosen or defaulted
   (`cost_daily.csv` `partial=1`) the total cost and TOTAL row say INCOMPLETE
   and the footnote names those days; any cost from models with no non-cache
   tokens is disclosed in the footnote.
-- **Data dir:** `--data-dir` wins; otherwise the env var `OMARCHY_USAGE_DATA`
-  (folder holding `daily_by_model.csv`, `cost_by_model.csv`, `cost_daily.csv`);
-  otherwise the Omarchy usage-history directory
-  `~/.local/state/omarchy/agents/usage-history`.
+- **Data dir:** `--data-dir` wins; otherwise `OMARCHY_USAGE_DATA` (env var,
+  then `config.env`; folder holding `daily_by_model.csv`, `cost_by_model.csv`,
+  `cost_daily.csv`); otherwise the Omarchy usage-history directory
+  `${XDG_STATE_HOME:-~/.local/state}/omarchy/agents/usage-history`.
 - **Builder:** `python3 scripts/build_donut_card.py --data-dir <dir> --start
   YYYY-MM-DD --end YYYY-MM-DD --out <folder>` copies `dither.js` and
   `export.mjs` and writes a self-contained `index.html` (no template; own
@@ -228,8 +247,8 @@ Paths are relative to this skill root. The output folder receives `./dither.js`,
    The script opens the page in headless Chromium at 540×960, DPR 2, forces
    `prefers-reduced-motion: reduce`, waits for paint, composites each chart
    canvas onto `#0c0c0e` (fill, then `drawImage`), and writes `<name>.png`
-   beside `index.html`. Requires Node 22+; set `CHROME_BIN` if Chromium is not
-   on `PATH`.
+   beside `index.html`. Requires Node 22+; set `CHROME_BIN` (env var or
+   `config.env`) if Chromium is not found.
 
 6. **Audit.** Load `web-design-guidelines` and audit the shipped HTML. Fix
    focus, contrast, reduced-motion, and accessible-name issues.

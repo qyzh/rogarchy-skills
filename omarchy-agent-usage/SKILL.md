@@ -29,11 +29,34 @@ biaya agent AI di mesin ini, atau sebelum membangun riwayat usage.
 `omarchy-plugin-authoring`), atau dashboard billing cloud provider. Skill ini
 membaca store LOKAL agent dan record Omarchy.
 
+## Prerequisites / Config
+
+Requires: commands `python3`; Omarchy wrappers `<OMARCHY_PATH>/bin/omarchy-agent-usage-*` (Linux + Omarchy only).
+Local files: `references/task-signal.local.md` (template `references/task-signal.example.md`).
+
+| Variable | Meaning | Default | Kind |
+|---|---|---|---|
+| `OMARCHY_USAGE_DATA` | Data dir (snapshots, CSV, reports) | `${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/agents/usage-history` | setting |
+| `OMARCHY_USAGE_PRICING_CACHE` | Runtime price cache | `${XDG_CACHE_HOME:-$HOME/.cache}/omarchy-agent-usage/pricing.json` | advanced |
+| `OMARCHY_USAGE_PRICING_SEED` | Optional read-only local price seed | `<skill-dir>/references/pricing.json` | advanced |
+| `OMARCHY_TASKS_FILE` | Task signal file | `${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/agents/tasks.jsonl` | advanced |
+| `OMARCHY_PATH` | Omarchy install | `/usr/share/omarchy` | advanced |
+| `ARTIFICIAL_ANALYSIS_API_KEY` | Free Artificial Analysis Data API key (prices) | none: no network calls | secret |
+
+Resolve each variable once, before the first step that needs it: the env var if set and non-empty; else its `KEY=value` line in `${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env` (written by `rogarchy-setup`; read it as data, never `source` it; the last matching line wins); else the default. A missing file or line means the default. Kind: `setting` = setup asks for it; `advanced` = setup keeps the default unless the user asks; `secret` = env var only, never in `config.env` or chat. In a shell, `rs_get` does the same lookup:
+
+```bash
+rs_get() { v=$(printenv "$1"); [ -n "$v" ] || v=$(sed -n "s/[[:space:]]*\$//; s/^$1=//p" "${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env" 2>/dev/null | tail -n 1); printf '%s\n' "${v:-$2}"; }
+rs_get OMARCHY_PATH /usr/share/omarchy
+```
+
+The scripts resolve these themselves in the same order (`scripts/common.py`); the API key is read from the env var only (`scripts/cost.py`).
+
 ## Quick snapshot (satu agent)
 
 ```bash
 omarchy-agent-usage-claude      # atau hermes, codex, opencode, grok, ... -> satu JSON record di stdout
-ls "${OMARCHY_PATH:-/usr/share/omarchy}"/bin/omarchy-agent-usage-* | grep -v -- '-update$'   # daftar agent
+ls "$(rs_get OMARCHY_PATH /usr/share/omarchy)"/bin/omarchy-agent-usage-* | grep -v -- '-update$'   # daftar agent
 ```
 
 - Wrapper per agent tidak mengubah state, tapi sebagian memanggil API limit
@@ -89,7 +112,7 @@ Semua output ada di **data dir**, bukan di folder skill (folder skill boleh
 di-sync/ditimpa; data jangan ikut):
 
 ```
-${OMARCHY_USAGE_DATA:-~/.local/state/omarchy/agents/usage-history}/
+<OMARCHY_USAGE_DATA>/            (resolved; see Prerequisites / Config)
   snapshots/<tanggal>.json     snapshots/archive/ (tidak dibaca)   archive/ (data lama)
   daily.csv  daily_by_model.csv  report.md
   cost_daily.csv  cost_by_model.csv  cost_report.md
@@ -97,12 +120,12 @@ ${OMARCHY_USAGE_DATA:-~/.local/state/omarchy/agents/usage-history}/
   weekly.csv  report_week.md  cron.log
 ```
 
-Env:
+Env (nilai dan default: tabel di Prerequisites / Config):
 - `OMARCHY_USAGE_DATA` — data dir.
-- `OMARCHY_USAGE_PRICING_CACHE` — default `~/.cache/omarchy-agent-usage/pricing.json`.
+- `OMARCHY_USAGE_PRICING_CACHE` — cache harga runtime.
 - `OMARCHY_USAGE_PRICING_SEED` — seed harga lokal opsional, read-only (default `references/pricing.json`, gitignored; boleh tidak ada).
 - `ARTIFICIAL_ANALYSIS_API_KEY` — kunci Data API gratis Artificial Analysis. **Hanya dari env var**; jangan tulis ke file, jangan minta user menempelkannya di chat. Tanpa kunci: tidak ada panggilan jaringan (pakai cache/seed) dan satu baris petunjuk dicetak. Kunci gratis: https://artificialanalysis.ai/api-key-management-redirect
-- `OMARCHY_TASKS_FILE` — task signal file (default `~/.local/state/omarchy/agents/tasks.jsonl`).
+- `OMARCHY_TASKS_FILE` — task signal file.
 - `OMARCHY_PATH` — install Omarchy.
 
 **Tes: arahkan semuanya ke dir temp.**
@@ -258,7 +281,7 @@ Output: `metrics_daily.csv`, `metrics_by_agent.csv`, `metrics_report.md`.
 
 ## Task signal
 
-`~/.local/state/omarchy/agents/tasks.jsonl` (append-only). Tulis dengan
+`OMARCHY_TASKS_FILE` (default `~/.local/state/omarchy/agents/tasks.jsonl`; append-only). Tulis dengan
 `omarchy-tasklog record --agent <a> --status ok|partial|fail [--session ID]`
 (shim di `~/.local/bin`, memanggil `scripts/tasklog.py`).
 `tasklog.py summary` menampilkan jumlah task per hari setelah dedupe sesi; tidak

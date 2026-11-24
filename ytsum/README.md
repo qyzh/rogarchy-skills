@@ -36,6 +36,8 @@ Platform: Linux dan macOS (sesuai frontmatter).
 
 Folder keluaran yang disebut di permintaan lebih diutamakan. File sementara dihapus di akhir proses.
 
+Nilai di atas juga bisa disimpan di berkas pengaturan `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (lewat [`rogarchy-setup`](../rogarchy-setup/README.md)); env var tetap menang, lalu berkas itu, lalu default.
+
 ## Contoh pemakaian
 
 ```text

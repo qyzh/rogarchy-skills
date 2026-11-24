@@ -15,6 +15,13 @@ metadata:
 
 Pilih satu gagasan kuat dari satu note, kemudian hasilkan satu quote utama dengan makna dan sumber yang jelas. Topik tiap note boleh berbeda. Kualitas quote ditentukan oleh kekhususan insight dan ketepatan makna, bukan sekadar terdengar bijak.
 
+## Prerequisites / Config
+
+Requires: none.
+Local files: `references/vault-rules.local.md` (template `references/vault-rules.example.md`).
+
+Variables: none.
+
 ## Pemakaian dan default
 
 ```text

@@ -42,6 +42,8 @@ Alat runtime: Python (untuk `sources.py` milik `grounded-citations`), `curl`, da
 
 Path absolut yang disebut pengguna di permintaan lebih diutamakan daripada `OUT`. Skill tidak menulis ke vault catatan kecuali pengguna menyebut vault itu.
 
+Nilai di atas juga bisa disimpan di berkas pengaturan `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (lewat [`rogarchy-setup`](../rogarchy-setup/README.md)); env var tetap menang, lalu berkas itu, lalu default.
+
 ## Contoh pemakaian
 
 ```text

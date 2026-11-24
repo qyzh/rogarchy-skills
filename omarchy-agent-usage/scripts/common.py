@@ -1,6 +1,9 @@
 """Shared helpers for the omarchy-agent-usage scripts (stdlib only).
 
-Paths are resolved at CALL time (not import time) so env overrides work:
+Each setting below resolves at CALL time (not import time): env var if set and
+non-empty, else its `KEY=value` line in the rogarchy-skills config file
+(${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env), else the default.
+ARTIFICIAL_ANALYSIS_API_KEY is a secret: env only, never read from that file.
   OMARCHY_USAGE_DATA           data dir (default ${XDG_STATE_HOME:-~/.local/state}/omarchy/agents/usage-history)
   OMARCHY_USAGE_PRICING_CACHE  runtime price cache (default ${XDG_CACHE_HOME:-~/.cache}/omarchy-agent-usage/pricing.json)
   OMARCHY_USAGE_PRICING_SEED   read-only seed (default <skill>/references/pricing.json)
@@ -36,13 +39,43 @@ def warn(msg: str) -> None:
 
 # --- paths -------------------------------------------------------------------
 
-def _env_path(var: str) -> Path | None:
+def config_file() -> Path:
+    """The shared rogarchy-skills settings file (may not exist)."""
+    base = os.environ.get("XDG_CONFIG_HOME") or str(Path.home() / ".config")
+    return Path(base) / "rogarchy-skills" / "config.env"
+
+
+def setting(var: str) -> str | None:
+    """Env var if non-empty, else the last `var=value` line of config.env, else None.
+
+    config.env is read as data, never sourced: values are literal (no `$` expansion,
+    no quote stripping); `#` lines and blank lines are skipped; an empty value is unset."""
     value = os.environ.get(var)
+    if value:
+        return value
+    try:
+        text = config_file().read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+    found = None
+    for raw in text.splitlines():
+        line = raw.rstrip()
+        if not line or line.lstrip().startswith("#"):
+            continue
+        key, sep, val = line.partition("=")
+        if sep and key == var:
+            found = val
+    return found or None
+
+
+def _env_path(var: str) -> Path | None:
+    value = setting(var)
     return Path(value).expanduser() if value else None
 
 
 def _xdg(var: str, fallback: str) -> Path:
-    return _env_path(var) or (Path.home() / fallback)
+    value = os.environ.get(var)
+    return Path(value).expanduser() if value else (Path.home() / fallback)
 
 
 def data_dir(create: bool = True) -> Path:
@@ -75,7 +108,7 @@ def tasks_path() -> Path:
 
 
 def omarchy_path() -> Path:
-    return Path(os.environ.get("OMARCHY_PATH") or "/usr/share/omarchy")
+    return Path(setting("OMARCHY_PATH") or "/usr/share/omarchy")
 
 
 def bin_dir() -> Path:

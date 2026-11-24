@@ -30,7 +30,9 @@ Tidak dipakai untuk:
 
 Folder dibuat saat penyimpanan pertama. Folder yang disebut pengguna di permintaan lebih diutamakan. Bila folder default bukan tempat kamus Anda, set `KAMUS_DIR`.
 
-Aturan khusus vault Anda (misalnya "jangan sentuh Index/MOC") bisa ditaruh di `kamus/references/vault-rules.local.md`. Agent membacanya bila ada; file `*.local.md` diabaikan git, jadi tidak ikut terpublikasi.
+Aturan khusus vault Anda (misalnya "jangan sentuh Index/MOC") bisa ditaruh di `kamus/references/vault-rules.local.md` (templat: `vault-rules.example.md`). Agent membacanya bila ada; file `*.local.md` diabaikan git, jadi tidak ikut terpublikasi.
+
+Nilai di atas juga bisa disimpan di berkas pengaturan `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (lewat [`rogarchy-setup`](../rogarchy-setup/README.md)); env var tetap menang, lalu berkas itu, lalu default.
 
 ## Contoh pemakaian
 
@@ -73,6 +75,7 @@ kamus/
 ├── SKILL.md                         # instruksi untuk agent
 ├── README.md                        # dokumen ini
 └── references/
+    ├── vault-rules.example.md       # templat aturan vault (salin ke vault-rules.local.md)
     └── vault-rules.local.md         # opsional, lokal, tidak masuk git
 ```
 

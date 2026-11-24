@@ -15,6 +15,7 @@ Koleksi pribadi skill agent dalam format `SKILL.md`. Satu repo, satu folder per 
 | [`kamus`](kamus/README.md) | Menyimpan satu istilah sebagai satu note definisi di folder kamus, dengan arti yang diverifikasi ke KBBI/Wiktionary. | 1.0.0 | `references/` (opsional, lokal) |
 | [`note-to-quote`](note-to-quote/README.md) | Memilih satu gagasan dari note atau rangkuman menjadi quote singkat, lengkap dengan konteks dan atribusi. | 1.0.0 | `references/` |
 | [`omarchy-agent-usage`](omarchy-agent-usage/README.md) | Riwayat dan laporan pemakaian token agent AI lokal di Omarchy: per hari × per model, kuota, simulasi biaya, metrik. Hanya Linux/Omarchy. | 0.3.0 | `references/`, `scripts/`, `tests/` |
+| [`rogarchy-setup`](rogarchy-setup/README.md) | Menyiapkan atau memeriksa skill di repo ini: symlink ke agent, berkas pengaturan `config.env`, laporan kebutuhan yang kurang. Hanya jalan bila diminta. | 0.1.0 | - |
 | [`ytsum`](ytsum/README.md) | Mengubah satu URL YouTube menjadi satu file rangkuman Markdown yang setia pada isi video. | 3.0.0 | `scripts/` |
 
 Kebutuhan runtime:
@@ -23,7 +24,7 @@ Kebutuhan runtime:
 - `omarchy-agent-usage`: Linux dengan Omarchy (wrapper `omarchy-agent-usage-*`) dan Python 3 (pustaka standar). Internet opsional (harga dari Data API gratis Artificial Analysis, perlu `ARTIFICIAL_ANALYSIS_API_KEY`; tanpa kunci tidak ada panggilan jaringan; `--offline` memakai cache/seed).
 - `ytsum`: `yt-dlp`, Python 3, dan skill `youtube-content` (untuk mengambil transkrip).
 - `bmlink`, `blog-post`, `note-to-quote`, `kamus`: tidak ada skrip. Sebagian skill menyebut skill lain di `related_skills`; skill itu opsional dan tidak disertakan di repo ini.
-- Lokasi keluaran bisa diatur lewat environment variable (default dipakai bila tidak diset):
+- Lokasi keluaran bisa diatur lewat environment variable atau berkas pengaturan `~/.config/rogarchy-skills/config.env` (lihat [Setup](#setup); env var menang, default dipakai bila keduanya tidak diset):
   - `bmlink`: `BMLINK_FILE` (default `$HOME/bookmarks/linksaved.md`), `BMLINK_TZ` (default zona waktu sistem).
   - `ytsum`: `YTSUM_OUTPUT_DIR` (default `$HOME/ytsum`), `YTSUM_SCRATCH_DIR` (default `${TMPDIR:-/tmp}/ytsum-scratch`).
   - `kamus`: `KAMUS_DIR` (default `$HOME/kamus`).
@@ -59,6 +60,10 @@ Beberapa skill merujuk skill lain yang **tidak ada di repo ini**. Pasang terpisa
 ```
 
 Nama folder **harus** sama dengan field `name:` di frontmatter `SKILL.md`.
+
+## Setup
+
+Cara termudah: symlink `rogarchy-setup` ke agent Anda (lihat Install di bawah), lalu jalankan `/rogarchy-setup` di agent. Skill itu menautkan skill lain ke folder skill agent, menulis pengaturan ke `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env`, dan bisa membuat berkas `.local.md` dari templatnya. Semua perubahan ditampilkan dulu dan baru ditulis setelah Anda setuju. `/rogarchy-setup check` hanya melaporkan status. Detail: [rogarchy-setup/README.md](rogarchy-setup/README.md).
 
 ## Install (symlink)
 
@@ -113,10 +118,11 @@ Semua symlink otomatis menunjuk versi baru.
 1. Buat folder `<nama-skill>/` di root repo.
 2. Isi `SKILL.md` dengan frontmatter `name` yang sama persis dengan nama folder.
 3. Tambah `references/`, `templates/`, atau `scripts/` bila perlu.
-4. Tulis `<nama-skill>/README.md` untuk manusia dengan bagian yang sama seperti skill lain: Apa ini, Kapan dipakai / tidak dipakai, Kebutuhan, Konfigurasi, Contoh pemakaian, Isi folder, dan baris versi, lisensi, tautan ke `../README.md`. Jangan mengubah isi `SKILL.md` untuk keperluan ini.
-5. Bila mengadaptasi karya orang lain, tambahkan entri di `THIRD_PARTY_NOTICES.md` (sumber, berkas, hak cipta, teks lisensi) dan bagian "Kredit" di README skill.
-6. Tambah skill ke tabel di README root (nama berupa tautan ke README skill) dan ke "Skill pendukung" bila memakai skill di luar repo.
-7. Commit, lalu symlink ke direktori skills agent.
+4. Di `SKILL.md`, tulis bagian `## Prerequisites / Config` dengan format yang sama seperti skill lain (baris `Requires:`, baris `Local files:`, tabel `Variable | Meaning | Default | Kind` atau `Variables: none.`), supaya `rogarchy-setup` bisa membacanya. Berkas pribadi: `references/<nama>.local.md` (gitignored) dengan templat `references/<nama>.example.md`.
+5. Tulis `<nama-skill>/README.md` untuk manusia dengan bagian yang sama seperti skill lain: Apa ini, Kapan dipakai / tidak dipakai, Kebutuhan, Konfigurasi, Contoh pemakaian, Isi folder, dan baris versi, lisensi, tautan ke `../README.md`. Jangan mengubah isi `SKILL.md` untuk keperluan ini.
+6. Bila mengadaptasi karya orang lain, tambahkan entri di `THIRD_PARTY_NOTICES.md` (sumber, berkas, hak cipta, teks lisensi) dan bagian "Kredit" di README skill.
+7. Tambah skill ke tabel di README root (nama berupa tautan ke README skill) dan ke "Skill pendukung" bila memakai skill di luar repo.
+8. Commit, lalu symlink ke direktori skills agent.
 
 ## Lisensi
 

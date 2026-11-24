@@ -17,10 +17,20 @@ Save links to the user's single Markdown bookmark table. Keep each save compact 
 
 ## Prerequisites / Config
 
-| Variable | Meaning | Default |
-|---|---|---|
-| `BMLINK_FILE` | Path of the single Markdown bookmark table | `$HOME/bookmarks/linksaved.md` |
-| `BMLINK_TZ` | Timezone used for the save date | system timezone |
+Requires: none.
+Local files: none.
+
+| Variable | Meaning | Default | Kind |
+|---|---|---|---|
+| `BMLINK_FILE` | Path of the single Markdown bookmark table | `$HOME/bookmarks/linksaved.md` | setting |
+| `BMLINK_TZ` | Timezone used for the save date | system timezone | advanced |
+
+Resolve each variable once, before the first step that needs it: the env var if set and non-empty; else its `KEY=value` line in `${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env` (written by `rogarchy-setup`; read it as data, never `source` it; the last matching line wins); else the default. A missing file or line means the default. Kind: `setting` = setup asks for it; `advanced` = setup keeps the default unless the user asks; `secret` = env var only, never in `config.env` or chat. In a shell, `rs_get` does the same lookup:
+
+```bash
+rs_get() { v=$(printenv "$1"); [ -n "$v" ] || v=$(sed -n "s/[[:space:]]*\$//; s/^$1=//p" "${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env" 2>/dev/null | tail -n 1); printf '%s\n' "${v:-$2}"; }
+rs_get BMLINK_FILE "$HOME/bookmarks/linksaved.md"
+```
 
 If the user names another file in the request, use that. Create the file and its parent directory on first save.
 
@@ -34,9 +44,9 @@ Do not use for: per-link bookmark notes (use `bookmark-link`), saving a link wit
 
 ## Procedure
 
-1. Use the destination `${BMLINK_FILE:-$HOME/bookmarks/linksaved.md}` (see Prerequisites / Config). Do not substitute another file or location unless the user says so.
+1. Use the destination: the resolved `BMLINK_FILE` (see Prerequisites / Config). Do not substitute another file or location unless the user says so.
 2. Capture the URL exactly as provided. Use its hostname as the domain; use a supplied title if available, otherwise a concise readable label from the URL. Do not open suspicious links or shorteners just to identify them. Take tags (`#word`, space-separated) and the note (text after `--`) only from what the user supplied; leave those cells empty otherwise. Never infer them.
-3. Get the save date with `date +%F` (or `TZ="$BMLINK_TZ" date +%F` when `BMLINK_TZ` is set); do not guess it from context. Check for duplicates by comparing normalized URLs against the Link column: lowercase the host, drop `www.`, the fragment, a trailing slash, and tracking params (`utm_*`, `fbclid`, `gclid`). If a match exists, do not add a row; tell the user it is already saved. Store the original URL as provided, not the normalized form.
+3. Get the save date with `date +%F` (or `TZ="<resolved BMLINK_TZ>" date +%F` when `BMLINK_TZ` resolves to a value); do not guess it from context. Check for duplicates by comparing normalized URLs against the Link column: lowercase the host, drop `www.`, the fragment, a trailing slash, and tracking params (`utm_*`, `fbclid`, `gclid`). If a match exists, do not add a row; tell the user it is already saved. Store the original URL as provided, not the normalized form.
 4. Create the parent directory and file if missing. Use this table format:
 
 ```markdown

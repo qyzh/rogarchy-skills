@@ -19,9 +19,19 @@ Satu istilah = satu note definisi di folder kamus milik user (`KAMUS_DIR`). Skil
 
 ## Prerequisites / Config
 
-| Variable | Meaning | Default |
-|---|---|---|
-| `KAMUS_DIR` | Folder tempat note kamus disimpan | `$HOME/kamus` |
+Requires: none.
+Local files: `references/vault-rules.local.md` (template `references/vault-rules.example.md`).
+
+| Variable | Meaning | Default | Kind |
+|---|---|---|---|
+| `KAMUS_DIR` | Folder tempat note kamus disimpan | `$HOME/kamus` | setting |
+
+Resolve each variable once, before the first step that needs it: the env var if set and non-empty; else its `KEY=value` line in `${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env` (written by `rogarchy-setup`; read it as data, never `source` it; the last matching line wins); else the default. A missing file or line means the default. Kind: `setting` = setup asks for it; `advanced` = setup keeps the default unless the user asks; `secret` = env var only, never in `config.env` or chat. In a shell, `rs_get` does the same lookup:
+
+```bash
+rs_get() { v=$(printenv "$1"); [ -n "$v" ] || v=$(sed -n "s/[[:space:]]*\$//; s/^$1=//p" "${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env" 2>/dev/null | tail -n 1); printf '%s\n' "${v:-$2}"; }
+rs_get KAMUS_DIR "$HOME/kamus"
+```
 
 Bila user menyebut folder lain di permintaan, pakai itu. Buat folder pada penyimpanan pertama bila belum ada.
 
@@ -36,7 +46,7 @@ When NOT to use: ringkasan video → `ytsum`; konsep lintas sumber → concept n
 
 ## Workflow
 
-1. **Resolve path.** Target: `${KAMUS_DIR:-$HOME/kamus}/<Istilah>.md` (lihat Prerequisites / Config). Nama file = istilah, huruf pertama kapital, spasi diperbolehkan. Jangan buat subfolder baru.
+1. **Resolve path.** Target: `<KAMUS_DIR yang sudah di-resolve>/<Istilah>.md` (lihat Prerequisites / Config). Nama file = istilah, huruf pertama kapital, spasi diperbolehkan. Jangan buat subfolder baru.
 2. **Cek duplikat.** List folder kamus. Bila file sudah ada, laporkan isinya dan tanya apakah mau diperbarui — jangan diam-diam menimpa.
 3. **Verifikasi arti.** Cari makna di KBBI (`kbbi.kemdikdasmen.go.id` atau `kbbi.web.id`) untuk kata Indonesia; untuk kata asing pakai Wiktionary atau kamus resmi. Jangan mengarang arti dari bentuk kata. Bila sumber tidak ditemukan, tanyakan ke user atau tulis status jelas di `## Catatan` bahwa definisi belum terverifikasi.
 4. **Tulis file** memakai template di bawah, isi semua bagian.

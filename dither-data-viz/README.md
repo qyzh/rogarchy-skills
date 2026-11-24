@@ -41,7 +41,9 @@ Kartu pemakaian membutuhkan `daily_by_model.csv` dan `cost_by_model.csv` (serta 
 | Variabel | Arti | Default |
 |---|---|---|
 | `CHROME_BIN` | Path Chrome/Chromium untuk `export.mjs` | dicari di `PATH` |
-| `OMARCHY_USAGE_DATA` | Folder data CSV pemakaian untuk `build_donut_card.py`; opsi `--data-dir` lebih diutamakan | direktori riwayat usage Omarchy, `~/.local/state/omarchy/agents/usage-history` |
+| `OMARCHY_USAGE_DATA` | Folder data CSV pemakaian untuk `build_donut_card.py`; opsi `--data-dir` lebih diutamakan | direktori riwayat usage Omarchy, `${XDG_STATE_HOME:-~/.local/state}/omarchy/agents/usage-history` |
+
+Nilai di atas juga bisa disimpan di berkas pengaturan `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (lewat [`rogarchy-setup`](../rogarchy-setup/README.md)); env var tetap menang, lalu berkas itu, lalu default.
 
 ## Contoh pemakaian
 

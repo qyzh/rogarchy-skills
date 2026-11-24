@@ -13,3 +13,8 @@ omarchy-agent-usage/references/task-signal.local.md
 
 # personal setup (the repo ships generic versions; skills read these if present)
 *.local.md
+
+# rogarchy-setup writes its settings outside the repo; never commit a copy
+config.env
+config.env.bak
+config.env.tmp

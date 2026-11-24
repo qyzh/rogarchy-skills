@@ -6,7 +6,9 @@
  *   node scripts/export.mjs <index.html>
  *
  * Env:
- *   CHROME_BIN  Path to Chrome/Chromium when it is not on PATH.
+ *   CHROME_BIN  Path to Chrome/Chromium when it is not on PATH. Env var first,
+ *               then the CHROME_BIN= line of the rogarchy-skills config file
+ *               (${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env).
  *
  * The script launches headless Chromium, emulates a 540x960 mobile viewport at
  * DPR 2 with prefers-reduced-motion: reduce, waits for the page to report
@@ -16,8 +18,8 @@
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { constants as fsConstants } from 'node:fs';
-import { access, mkdtemp, rm, stat, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { access, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { homedir, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -51,12 +53,34 @@ function slug(value, fallback = 'chart') {
   return s || fallback;
 }
 
+// Env var if non-empty, else the last `name=value` line of config.env, else ''.
+// The file is read as data, never sourced: values are literal.
+async function setting(name) {
+  if (process.env[name]) return process.env[name];
+  const base = process.env.XDG_CONFIG_HOME || join(homedir(), '.config');
+  let text;
+  try {
+    text = await readFile(join(base, 'rogarchy-skills', 'config.env'), 'utf8');
+  } catch {
+    return '';
+  }
+  let found = '';
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trimEnd();
+    if (!line || line.trimStart().startsWith('#')) continue;
+    const eq = line.indexOf('=');
+    if (eq > 0 && line.slice(0, eq) === name) found = line.slice(eq + 1);
+  }
+  return found;
+}
+
 async function findBrowser() {
-  if (process.env.CHROME_BIN) {
-    await access(process.env.CHROME_BIN, fsConstants.X_OK).catch(() => {
-      throw new Error(`CHROME_BIN is not executable: ${process.env.CHROME_BIN}`);
+  const chromeBin = await setting('CHROME_BIN');
+  if (chromeBin) {
+    await access(chromeBin, fsConstants.X_OK).catch(() => {
+      throw new Error(`CHROME_BIN is not executable: ${chromeBin}`);
     });
-    return process.env.CHROME_BIN;
+    return chromeBin;
   }
 
   const candidates = process.platform === 'darwin'

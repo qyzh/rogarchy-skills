@@ -29,10 +29,24 @@ Do not use for: academic papers (`academic-research-writer`), YouTube notes
 (`web-article-to-vault`), or a social-asset brief (`content-brief-curation`).
 Do not load this merely because the word "blog" appears in a coding task.
 
-## Prerequisites
+## Prerequisites / Config
 
-- Output directory: user-supplied absolute path wins. If none, use
-  `$HOME/blog-posts/` and create it if missing.
+Requires: skills `grounded-citations`, `humanizer`.
+Local files: `references/voice-personal.local.md` (template `references/voice-personal.example.md`).
+
+| Variable | Meaning | Default | Kind |
+|---|---|---|---|
+| `OUT` | Output directory for posts, research packets and ledgers | `$HOME/blog-posts` | setting |
+
+Resolve each variable once, before the first step that needs it: the env var if set and non-empty; else its `KEY=value` line in `${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env` (written by `rogarchy-setup`; read it as data, never `source` it; the last matching line wins); else the default. A missing file or line means the default. Kind: `setting` = setup asks for it; `advanced` = setup keeps the default unless the user asks; `secret` = env var only, never in `config.env` or chat. In a shell, `rs_get` does the same lookup:
+
+```bash
+rs_get() { v=$(printenv "$1"); [ -n "$v" ] || v=$(sed -n "s/[[:space:]]*\$//; s/^$1=//p" "${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env" 2>/dev/null | tail -n 1); printf '%s\n' "${v:-$2}"; }
+OUT="$(rs_get OUT "$HOME/blog-posts")"
+```
+
+- Output directory: user-supplied absolute path wins. If none, use the
+  resolved `OUT` and create it if missing.
 - Never write into an Obsidian vault unless the user names that vault.
 - `skill_view` `grounded-citations` before research. `skill_view` `humanizer`
   before the prose pass.
@@ -178,7 +192,7 @@ Do not publish, commit, or post.
 ## Quick Reference
 
 ```bash
-OUT="${OUT:-$HOME/blog-posts}"
+OUT="$(rs_get OUT "$HOME/blog-posts")"   # rs_get: see Prerequisites / Config
 S="<grounded-citations-dir>/scripts/sources.py"   # folder of the grounded-citations skill
 L="$OUT/.sources-<slug>-<date>.json"     # per-post ledger, created by add
 D="$OUT/<slug>_<date>.md"

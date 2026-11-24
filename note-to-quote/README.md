@@ -25,7 +25,7 @@ Tidak dipakai untuk:
 
 ## Konfigurasi
 
-Tidak ada. Bahasa default Indonesia dan audiens default pembaca awam; keduanya bisa diubah di permintaan. Bila Anda meminta hasil disimpan, ikuti lokasi yang Anda sebut.
+Tidak ada. Bahasa default Indonesia dan audiens default pembaca awam; keduanya bisa diubah di permintaan. Bila Anda meminta hasil disimpan, ikuti lokasi yang Anda sebut. Aturan vault pribadi bisa ditaruh di `references/vault-rules.local.md` (templat: `vault-rules.example.md`; [`rogarchy-setup`](../rogarchy-setup/README.md) bisa membuatnya).
 
 ## Contoh pemakaian
 
@@ -50,6 +50,7 @@ note-to-quote/
 ├── SKILL.md                       # instruksi untuk agent
 └── references/
     ├── output-template.md         # template hasil (bagian A–D: pemilihan, teks card, caption, peta sumber)
+    ├── vault-rules.example.md     # templat aturan vault (salin ke vault-rules.local.md)
     ├── vault-rules.local.md       # aturan vault pribadi Anda (opsional, gitignored)
     └── examples.md                # contoh: quote editorial, calon kutipan, kutipan berantai, penolakan bahan belum lengkap
 ```

@@ -31,6 +31,8 @@ Tidak dipakai untuk:
 
 Berkas dan folder induknya dibuat saat simpan pertama. File yang disebut pengguna di permintaan lebih diutamakan. Bila lokasi default bukan tempat tabel Anda, set `BMLINK_FILE`; kalau tidak, tabel baru dibuat di lokasi default.
 
+Nilai di atas juga bisa disimpan di berkas pengaturan `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (lewat [`rogarchy-setup`](../rogarchy-setup/README.md)); env var tetap menang, lalu berkas itu, lalu default.
+
 ## Contoh pemakaian
 
 ```text

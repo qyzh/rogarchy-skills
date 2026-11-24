@@ -44,6 +44,8 @@ Skill tidak menjalankan `omarchy-agent-usage-update` kecuali diminta, karena per
 
 Untuk tes, arahkan semuanya ke folder sementara.
 
+Nilai di atas juga bisa disimpan di berkas pengaturan `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (lewat [`rogarchy-setup`](../rogarchy-setup/README.md)), kecuali `ARTIFICIAL_ANALYSIS_API_KEY` yang hanya dari env var; env var tetap menang, lalu berkas itu, lalu default.
+
 ## Contoh pemakaian
 
 ```text
@@ -78,6 +80,7 @@ omarchy-agent-usage/
 │   ├── pricing-sources.md         # sumber harga AA, pemetaan model, successor, proxy
 │   ├── pricing.json               # seed harga lokal opsional (gitignored, tidak ada di repo)
 │   ├── task-signal.md             # skema tasks.jsonl, dedupe, contoh hook generik
+│   ├── task-signal.example.md     # templat catatan hook mesin (salin ke task-signal.local.md)
 │   ├── task-signal.local.md       # catatan hook mesin Anda (opsional, gitignored)
 │   └── visual-preferences.md      # gaya bawaan kartu/grafik usage
 ├── scripts/
@@ -87,7 +90,7 @@ omarchy-agent-usage/
 │   ├── metrics.py                 # metrik dashboard
 │   ├── weekly.py                  # ringkasan mingguan
 │   └── tasklog.py                 # tulis/baca tasks.jsonl
-└── tests/                         # tes unittest + fixture
+└── tests/                         # tes unittest + fixture (termasuk pembaca config.env)
 ```
 
 ## Kredit

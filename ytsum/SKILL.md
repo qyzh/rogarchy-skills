@@ -17,14 +17,22 @@ One YouTube URL becomes one faithful markdown summary in the output directory. S
 
 ## Prerequisites / Config
 
-Needs `yt-dlp`, Python 3 and the `youtube-content` skill (its `fetch_transcript.py` helper).
+Requires: commands `yt-dlp`, `python3`; skills `youtube-content` (its `fetch_transcript.py` helper).
+Local files: none.
 
-| Variable | Meaning | Default |
-|---|---|---|
-| `YTSUM_OUTPUT_DIR` | Where summary files are written | `$HOME/ytsum` |
-| `YTSUM_SCRATCH_DIR` | Temporary transcripts and chunks | `${TMPDIR:-/tmp}/ytsum-scratch` |
+| Variable | Meaning | Default | Kind |
+|---|---|---|---|
+| `YTSUM_OUTPUT_DIR` | Where summary files are written | `$HOME/ytsum` | setting |
+| `YTSUM_SCRATCH_DIR` | Temporary transcripts and chunks | `${TMPDIR:-/tmp}/ytsum-scratch` | advanced |
 
-Below, `$OUT` means `${YTSUM_OUTPUT_DIR:-$HOME/ytsum}` and `$SCRATCH` means `${YTSUM_SCRATCH_DIR:-${TMPDIR:-/tmp}/ytsum-scratch}`. If the user names another output folder in the request, use that instead. `<skill-dir>` is the folder holding this `SKILL.md`; `<youtube-content-dir>` is the folder of the `youtube-content` skill.
+Resolve each variable once, before the first step that needs it: the env var if set and non-empty; else its `KEY=value` line in `${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env` (written by `rogarchy-setup`; read it as data, never `source` it; the last matching line wins); else the default. A missing file or line means the default. Kind: `setting` = setup asks for it; `advanced` = setup keeps the default unless the user asks; `secret` = env var only, never in `config.env` or chat. In a shell, `rs_get` does the same lookup:
+
+```bash
+rs_get() { v=$(printenv "$1"); [ -n "$v" ] || v=$(sed -n "s/[[:space:]]*\$//; s/^$1=//p" "${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env" 2>/dev/null | tail -n 1); printf '%s\n' "${v:-$2}"; }
+OUT="$(rs_get YTSUM_OUTPUT_DIR "$HOME/ytsum")"; SCRATCH="$(rs_get YTSUM_SCRATCH_DIR "${TMPDIR:-/tmp}/ytsum-scratch")"
+```
+
+Below, `$OUT` means the resolved `YTSUM_OUTPUT_DIR` and `$SCRATCH` the resolved `YTSUM_SCRATCH_DIR`; use the resolved absolute paths in every later command. If the user names another output folder in the request, use that instead. `<skill-dir>` is the folder holding this `SKILL.md`; `<youtube-content-dir>` is the folder of the `youtube-content` skill.
 
 ## Steps
 
