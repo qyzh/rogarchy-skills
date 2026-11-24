@@ -1,114 +1,92 @@
 # Task Signal — `tasks.jsonl`
 
-Sinyal tugas selesai untuk metrik **cost per task**.
+The task-completed signal for the **cost per task** metric.
 
-## Lokasi file
+## File location
 
 ```
 ~/.local/state/omarchy/agents/tasks.jsonl
 ```
 
-Append-only, satu JSON per baris. Override via env `OMARCHY_TASKS_FILE`
-(wajib saat tes).
+Append-only, one JSON object per line. Override via the env var `OMARCHY_TASKS_FILE` (required in tests).
 
-## Skema
+## Schema
 
 ```json
 {"ts":"2026-11-17T16:20:00+07:00","agent":"hermes","session":"local-9b07…","label":"hermes session","status":"ok"}
 ```
 
-| Field     | Wajib | Tipe    | Aturan |
-|-----------|-------|---------|--------|
-| `ts`      | ya    | string  | ISO 8601 (zona waktu disarankan; tanpa zona = waktu lokal). `Z` diterima |
-| `agent`   | ya    | string  | `hermes` \| `claude` \| `codex` \| `opencode` \| `agy` \| `grok` |
-| `session` | —     | string  | id sesi; **dipakai untuk dedupe** |
-| `label`   | —     | string  | bebas |
-| `status`  | ya    | string  | `ok` \| `partial` \| `fail` |
-| `turns`   | —     | integer | ≥ 1 |
+| Field     | Required | Type    | Rule |
+|-----------|----------|---------|------|
+| `ts`      | yes      | string  | ISO 8601 (a time zone is recommended; without one it is local time). `Z` is accepted |
+| `agent`   | yes      | string  | `hermes` \| `claude` \| `codex` \| `opencode` \| `agy` \| `grok` |
+| `session` | —        | string  | session id; **used for dedupe** |
+| `label`   | —        | string  | free text |
+| `status`  | yes      | string  | `ok` \| `partial` \| `fail` |
+| `turns`   | —        | integer | ≥ 1 |
 
-### Aturan
+### Rules
 
-- Append-only. Baris yang sudah ditulis tidak boleh dihapus atau diedit.
-- Baris cacat di-skip **dan dihitung** (tidak diam-diam diabaikan).
-- **Dedupe saat membaca** (`common.read_tasks`):
-  - satu task = satu (agent, session);
-  - pemenangnya baris dengan `ts` terbaru (status & tanggalnya yang dipakai);
-  - baris tanpa `session` = task sendiri-sendiri.
+- Append-only. A row already written must not be deleted or edited.
+- A malformed row is skipped **and counted** (never silently ignored).
+- **Dedupe when reading** (`common.read_tasks`):
+  - one task = one (agent, session);
+  - the winner is the row with the latest `ts` (its status and date are used);
+  - a row without `session` = a task of its own.
 
-  Dedupe diperlukan karena hook yang terpasang fire **per giliran**, bukan per
-  sesi.
-- Tanggal = hari LOKAL dari `ts` (`ts` dikonversi ke zona lokal dulu),
-  konsisten dengan bucket `local_day` di `collect.py`.
+  Dedupe is needed because installed hooks fire **per turn**, not per session.
+- The date = the LOCAL day of `ts` (`ts` is converted to the local zone first), consistent with the `local_day` bucket in `collect.py`.
 
-## Semantik
+## Semantics
 
-| Status    | Bobot |
-|-----------|------:|
-| `ok`      |   1.0 |
-| `partial` |   0.5 |
-| `fail`    |   0.0 |
+| Status    | Weight |
+|-----------|-------:|
+| `ok`      |    1.0 |
+| `partial` |    0.5 |
+| `fail`    |    0.0 |
 
-- **Cost per task (per agent-hari)** = biaya agent pada hari itu ÷ bobot task
-  agent itu. Biaya task gagal tetap dihitung (bobotnya 0 di penyebut).
-- **Agregat tanggal / periode** = Σ biaya ÷ Σ bobot **hanya atas agent-hari
-  yang punya baris task**. Agent tanpa task signal (saat ini Claude, Codex)
-  tidak ikut. Agent-hari tanpa data usage atau dengan token tak terharga
-  dikecualikan, dan dicantumkan di laporan.
-- Pemakaian yang seluruhnya model free = biaya $0 *diketahui* →
-  `0.0000 (free)`.
-- `n/a` selalu disertai alasan:
+- **Cost per task (per agent-day)** = the agent's cost on that day ÷ that agent's task weight. The cost of a failed task still counts (its weight is 0 in the denominator).
+- **Date / period aggregate** = Σ cost ÷ Σ weight **only over agent-days that have task rows**. Agents without a task signal (currently Claude, Codex) are left out. An agent-day with no usage data or with unpriced tokens is excluded, and listed in the report.
+- Usage that is entirely free models = a *known* cost of $0 → `0.0000 (free)`.
+- `n/a` always comes with a reason:
   - `n/a (no tasks)`
   - `n/a (all tasks failed, weight 0)`
   - `n/a (no usage data)`
   - `n/a (unpriced tokens)`
-- Granularitas: karena task = sesi, "cost per task" = **biaya per sesi**,
-  bukan per tugas semantik.
+- Granularity: because task = session, "cost per task" = **cost per session**, not per semantic task.
 
 ## CLI
 
 ```bash
-omarchy-tasklog record --agent hermes --label "fix tests" --status ok --session S1   # shim di ~/.local/bin
-python3 scripts/tasklog.py record --agent hermes --status ok                         # sama, langsung
+omarchy-tasklog record --agent hermes --label "fix tests" --status ok --session S1   # shim in ~/.local/bin
+python3 scripts/tasklog.py record --agent hermes --status ok                         # same, directly
 python3 scripts/tasklog.py summary [--days 7] [--agent hermes]
 python3 scripts/tasklog.py validate
 ```
 
-- `record`: append satu baris (default `status=ok`, `ts=now`); `--ts` divalidasi ISO 8601.
-- `summary`: jumlah task per agent/hari + bobot, **setelah dedupe sesi**
-  (mencetak berapa baris duplikat). **Tidak** menghitung biaya; cost per task
-  ada di `metrics.py`.
-- `validate`: cek semua baris mentah (tanpa dedupe), laporkan baris cacat
-  (nomor baris + alasan).
+- `record`: appends one row (default `status=ok`, `ts=now`); `--ts` is validated as ISO 8601.
+- `summary`: the number of tasks per agent/day + weight, **after session dedupe** (it prints how many duplicate rows there were). It does **not** compute cost; cost per task is in `metrics.py`.
+- `validate`: checks all raw rows (without dedupe) and reports malformed rows (line number + reason).
 - Stdlib only.
 
-## Penulis hook (contoh generik)
+## Hook writers (generic example)
 
-Setiap agent punya mekanisme hook sendiri; cek dokumentasi agent Anda. Pola
-umumnya sama:
+Each agent has its own hook mechanism; check your agent's documentation. The usual pattern is the same:
 
-1. Hook "akhir giliran/sesi" memanggil `omarchy-tasklog record --agent <a>
-   --status ok --session <ID sesi dari payload hook>`.
-2. Hook itu tidak boleh memblokir agent (`|| true`) dan tidak membaca kredensial.
-3. Banyak agent mengirim event ini **per giliran**, bukan per sesi. Satu sesi
-   bisa menulis puluhan baris; pembaca men-dedupe per (agent, sesi).
-4. Cek hasil: `grep -c '"agent": "<a>"' "$OMARCHY_TASKS_FILE"` > 0 setelah satu
-   sesi. Kegagalan hook sebaiknya dicatat ke `tasklog-errors.log` di folder yang
-   sama dengan `tasks.jsonl`.
+1. An "end of turn/session" hook calls `omarchy-tasklog record --agent <a> --status ok --session <session ID from the hook payload>`.
+2. The hook must not block the agent (`|| true`) and must not read credentials.
+3. Many agents send this event **per turn**, not per session. One session can write dozens of rows; the reader dedupes per (agent, session).
+4. Check the result: `grep -c '"agent": "<a>"' "$OMARCHY_TASKS_FILE"` > 0 after one session. Hook failures should preferably be logged to `tasklog-errors.log` in the same folder as `tasks.jsonl`.
 
-Catatan hook yang spesifik untuk mesin Anda (path, allowlist, cara mencabut)
-simpan di `references/task-signal.local.md`. File itu ada di `.gitignore`;
-agent diminta membacanya bila ada.
+Hook notes specific to your machine (paths, allowlist, how to revoke) go in `references/task-signal.local.md`. That file is in `.gitignore`; the agent is asked to read it if present.
 
-## Template belum diuji
+## Untested templates
 
-Hanya contoh. Cocokkan dulu dengan hook system agent yang asli. Semua template
-memanggil shim, tidak membaca kredensial, dan tidak memblokir agent kalau
-gagal.
+Examples only. Match them against the real agent's hook system first. All templates call the shim, don't read credentials, and don't block the agent if they fail.
 
-### Claude Code (`~/.claude/settings.json`, hook `Stop`)
+### Claude Code (`~/.claude/settings.json`, `Stop` hook)
 
-Claude Code mengirim payload JSON lewat stdin yang memuat `session_id`.
-`Stop` fire per giliran; dedupe di pembaca menanganinya.
+Claude Code sends a JSON payload on stdin that contains `session_id`. `Stop` fires per turn; the reader's dedupe handles it.
 
 ```jsonc
 {
@@ -121,5 +99,4 @@ Claude Code mengirim payload JSON lewat stdin yang memuat `session_id`.
 }
 ```
 
-Codex dan agy: belum ada mekanisme hook yang terverifikasi. Catat manual
-dengan `omarchy-tasklog record --agent codex …` bila perlu.
+Codex and agy: there is no verified hook mechanism yet. Record manually with `omarchy-tasklog record --agent codex …` if needed.

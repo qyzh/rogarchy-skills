@@ -1,36 +1,21 @@
-# Gaya tampilan visual bawaan
+# Default visual style
 
-Gaya bawaan skill untuk grafik/video data usage. Dipisah dari SKILL.md karena
-ini soal tampilan, bukan perilaku tool. Pengguna boleh meminta gaya lain; permintaan
-eksplisit mengalahkan bawaan ini.
+The skill's default style for usage-data charts/video. Kept apart from SKILL.md because it is about appearance, not tool behavior. The user may ask for another style; an explicit request beats these defaults.
 
-Kalau diminta grafik/video dari data usage:
+When a chart/video of usage data is requested:
 
-- Rasio mobile **9:16** (1080×1920), tema gelap.
-- Tampilkan **hanya** nama agent, token, dan prompt, dipecah per hari, tanpa
-  input/output/cache.
-- Gaya: bar kontras di latar gelap, tipografi terbaca di layar HP. Konsep yang
-  sama dipakai ulang untuk varian video.
+- Mobile ratio **9:16** (1080×1920), dark theme.
+- Show **only** the agent name, tokens, and prompts, split per day, without input/output/cache.
+- Style: high-contrast bars on a dark background, typography readable on a phone screen. The same concept is reused for video variants.
 
-**PNG = kartu informatif, bukan canvas-only.**
-- Bawaan: jangan keluarkan grafik saja. PNG harus capture seluruh kartu (judul
-  + chart + legenda + tabel angka + catatan kaki) via `Page.captureScreenshot`
-  clip 1080×1920 @ deviceScaleFactor 2, lalu di-downscale LANCZOS ke 1080×1920.
-- Jangan tulis label ke dalam bitmap.
+**PNG = an informative card, not canvas-only.**
+- Default: don't output the chart alone. The PNG must capture the whole card (title + chart + legend + number table + footnote) via `Page.captureScreenshot` clip 1080×1920 @ deviceScaleFactor 2, then be downscaled with LANCZOS to 1080×1920.
+- Never write labels into the bitmap.
 
-**Istilah:** pakai **token non-cache** (bukan "token segar") (= input non-cache + output).
+**Terminology:** use **non-cache tokens** (not "fresh tokens") (= non-cache input + output).
 
-**Biaya di grafik (kalau diminta):** ambil biaya per agent dari
-`cost_by_model.csv` (jumlahkan per agent untuk rentang tanggal grafik) di data
-dir. **Jangan** menghitung ulang "token non-cache × harga per 1M": `cost.py`
-memakai harga input, output, cache-hit dan cache-write terpisah, jadi angka
-inline akan berbeda dari `cost_report.md`.
-- Tampilkan kolom Biaya per agent + banner total di bawah chart.
-- Sertakan `fetched_at`, dan tandai `INCOMPLETE` bila laporan biaya begitu.
-- **Semua angka USD di kartu ditulis tepat 2 desimal** (`$168.23`, `$0.00`).
-  Jangan tampilkan 4–6 desimal dari CSV lama; format ulang saat membaca.
-- `cost_by_model.csv` menyimpan biaya **per model yang sudah dibulatkan 2 desimal**.
-  Menjumlahkannya bisa beda beberapa sen dari `cost_daily.csv` / `cost_report.md`
-  (cost.py menjumlahkan nilai mentah lalu membulatkan total). Untuk total kartu,
-  pakai angka resmi `cost_daily.csv`; selisihnya dibebankan ke agent berbiaya
-  terbesar agar baris tabel tetap berjumlah total.
+**Cost in charts (if requested):** take cost per agent from `cost_by_model.csv` (sum per agent over the chart's date range) in the data dir. Do **not** recompute "non-cache tokens × price per 1M": `cost.py` uses separate input, output, cache-hit and cache-write prices, so an inline number would differ from `cost_report.md`.
+- Show a cost-per-agent column + a total banner under the chart.
+- Include `fetched_at`, and mark `INCOMPLETE` if the cost report is.
+- **All USD amounts on the card are written with exactly 2 decimals** (`$168.23`, `$0.00`). Don't show the 4–6 decimals of old CSVs; reformat when reading.
+- `cost_by_model.csv` stores the cost **per model already rounded to 2 decimals**. Adding them up can differ by a few cents from `cost_daily.csv` / `cost_report.md` (cost.py adds the raw values, then rounds the total). For the card total, use the official `cost_daily.csv` figure; charge the difference to the highest-cost agent so the table rows still add up to the total.

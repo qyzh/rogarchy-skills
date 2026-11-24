@@ -1,43 +1,43 @@
-# Template Hasil Note → Quote
+# Note → Quote Output Template
 
-Bagian A dan D untuk pemilik konten. Bagian B dan C merupakan teks publik. Ganti petunjuk dalam kurung siku dengan hasil sebenarnya.
+Sections A and D are for the content owner. Sections B and C are public text. Replace the hints in square brackets with the real result. The public text (B, C) is written in Indonesian; the field labels and fixed values (`editorial`, `calon-kutipan`, `kutipan-terverifikasi`, `draft`, `belum-diverifikasi`, `diperiksa-pada-sumber`, `perlu-lengkapi`) stay as written.
 
-## A. Pemilihan — internal
+## A. Selection — internal
 
-- **Note:** [file/judul]
-- **Sumber asli:** [judul, pembicara/channel, URL/DOI bila tersedia]
-- **Jenis teks:** [editorial / calon-kutipan / kutipan-terverifikasi; tambah keterangan terjemahan bila relevan]
+- **Note:** [file/title]
+- **Sumber asli** (original source): [title, speaker/channel, URL/DOI if available]
+- **Jenis teks** (text type): [editorial / calon-kutipan / kutipan-terverifikasi; add a translation note if relevant]
 - **Status:** [draft / belum-diverifikasi / diperiksa-pada-sumber / perlu-lengkapi]
-- **Dasar pemeriksaan:** [note saja atau materi asli yang benar-benar diperiksa + lokasi]
-- **Audiens dan bahasa:** [pilihan user atau asumsi]
+- **Dasar pemeriksaan** (basis of checking): [the note only, or the original material actually checked + location]
+- **Audiens dan bahasa** (audience and language): [the user's choice or an assumption]
 
 | Kandidat | Dasar spesifik dalam note | Skor /10 | Keputusan |
 |---|---|---|---|
-| [Gagasan/kalimat] | [Heading/paragraf dan dukungan] | [Total] | [Pilih/simpan/tolak + alasan] |
+| [Idea/sentence] | [Heading/paragraph and support] | [Total] | [Pick/keep/reject + reason] |
 
-**Alasan memilih:** [Apa pembeda insight ini dan mengapa cocok berdiri sendiri.]
+**Alasan memilih** (why chosen): [What distinguishes this insight and why it stands alone well.]
 
-## B. Teks card/frame — untuk audiens
+## B. Card/frame text — for the audience
 
 **Quote utama:**
 
-[Satu atau dua kalimat. Untuk editorial, tanpa tanda kutip dan tanpa tanda tangan narasumber.]
+[One or two sentences. For editorial: no quotation marks and no speaker signature.]
 
-**Baris konteks:** [Jika diperlukan untuk menjaga makna; boleh dihilangkan bila benar-benar mandiri.]
+**Baris konteks** (context line): [If needed to keep the meaning; may be omitted when truly self-contained.]
 
-**Kredit publik pada card:** [Editorial: “Diolah dari catatan …”. Kutipan terverifikasi: nama pengucap + sumber singkat. Terjemahan diberi label.]
+**Kredit publik pada card** (public credit on the card): [Editorial: "Diolah dari catatan …". Verified quote: speaker name + short source. Translations get a label.]
 
-## C. Caption atau teks pendamping — untuk audiens
+## C. Caption or companion text — for the audience
 
-[Konteks singkat yang sesuai note, atribusi pembicara jika relevan, dan pembedaan kalimat olahan dari ucapan asli.]
+[Short context that matches the note, speaker attribution if relevant, and the distinction between the reworded sentence and the original statement.]
 
-Sumber: [judul dan URL/DOI lengkap bila tersedia]. [Jelaskan jika bahan hanya berupa note dan sumber asli belum diperiksa.]
+Sumber: [full title and URL/DOI if available]. [Explain if the material was only a note and the original source has not been checked.]
 
-## D. Jejak sumber — internal
+## D. Source trail — internal
 
-- **Heading/paragraf pendukung:** [Lokasi di note dan gagasan yang digunakan]
-- **Batas makna yang dipertahankan:** [Syarat, konteks, atribusi, atau ketidakpastian]
-- **Verifikasi:** [Apa yang sudah/belum diperiksa; lokasi sumber jika ada; teks asli bila menerjemahkan]
-- **Cadangan:** [Opsional, kandidat berbeda yang tidak dipilih]
+- **Heading/paragraph supporting:** [Location in the note and the idea used]
+- **Batas makna yang dipertahankan** (meaning limits kept): [Conditions, context, attribution, or uncertainty]
+- **Verifikasi:** [What has and has not been checked; source location if any; the original text when translating]
+- **Cadangan** (backup): [Optional, a different candidate that was not chosen]
 
-Untuk `calon-kutipan`, tampilkan teks kandidat dan konteksnya di bagian A/D dengan label “Belum diverifikasi”; jangan mengisi bagian B/C seolah sudah siap dipakai atas nama pembicara. Sebutkan bukti yang masih dibutuhkan. Untuk `perlu-lengkapi`, cukup jelaskan bahan yang kurang, tanpa quote buatan.
+For `calon-kutipan`, show the candidate text and its context in section A/D with the label "Belum diverifikasi"; do not fill sections B/C as if it were ready to use in the speaker's name. Name the evidence still needed. For `perlu-lengkapi`, just explain the missing material, with no invented quote.

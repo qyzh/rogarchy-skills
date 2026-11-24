@@ -1,25 +1,25 @@
-# Pemberitahuan Pihak Ketiga (Third-Party Notices)
+# Third-Party Notices
 
-Karya milik repo ini sendiri berlisensi MIT, hak cipta qyzh (lihat [LICENSE](LICENSE)).
-Beberapa bagian diadaptasi dari proyek lain. Bagian itu tetap di bawah lisensi aslinya;
-teks lisensi dan baris hak cipta asli disalin apa adanya (bahasa Inggris) di bawah ini.
+This repo's own work is licensed under MIT, copyright qyzh (see [LICENSE](LICENSE)).
+Some parts are adapted from other projects. Those parts stay under their original licenses;
+the original license texts and copyright lines are copied verbatim below.
 
-Dokumen ini praktik atribusi open source yang umum, bukan nasihat hukum.
+This document follows common open-source attribution practice; it is not legal advice.
 
-Catatan: sebagian isi repo ini diadaptasi dari karya pihak ketiga dan tetap berada di bawah
-lisensinya masing-masing (LICENSE berisi teks MIT polos untuk karya repo ini).
+Note: some of this repo's content is adapted from third-party work and remains under
+its own license (LICENSE holds the plain MIT text for this repo's own work).
 
 ---
 
 ## 1. claude-blog
 
-- Proyek: claude-blog, <https://github.com/AgriciDaniel/claude-blog>
+- Project: claude-blog, <https://github.com/AgriciDaniel/claude-blog>
 - Skill: `blog-post`
-- Bagian yang diadaptasi (bukan salinan utuh, disingkat dan ditulis ulang untuk agent lain):
-  disiplin riset dan kutipan di `blog-post/SKILL.md`, dan `blog-post/references/research-quality.md`
-  (berdasarkan `research-quality.md` upstream).
-- Hak cipta asli: `Copyright (c) 2025-2026 AgriciDaniel`
-- Lisensi: MIT
+- Adapted parts (not a full copy; shortened and rewritten for other agents):
+  the research and citation discipline in `blog-post/SKILL.md`, and `blog-post/references/research-quality.md`
+  (based on the upstream `research-quality.md`).
+- Original copyright: `Copyright (c) 2025-2026 AgriciDaniel`
+- License: MIT
 
 ```text
 MIT License
@@ -49,15 +49,15 @@ SOFTWARE.
 
 ## 2. last30days-skill
 
-claude-blog sendiri mengadaptasi rubrik kualitas riset dari proyek ini, dan
-`blog-post/references/research-quality.md` menyebutnya sebagai sumber.
+claude-blog itself adapted its research-quality rubric from this project, and
+`blog-post/references/research-quality.md` names it as a source.
 
-- Proyek: last30days-skill, <https://github.com/mvanhorn/last30days-skill>
+- Project: last30days-skill, <https://github.com/mvanhorn/last30days-skill>
 - Skill: `blog-post`
-- Bagian yang diadaptasi: gagasan rubrik kualitas riset di `blog-post/references/research-quality.md`
-  (diadaptasi, ditulis ulang).
-- Hak cipta asli: `Copyright (c) 2026 Matt Van Horn`
-- Lisensi: MIT
+- Adapted parts: the research-quality rubric idea in `blog-post/references/research-quality.md`
+  (adapted, rewritten).
+- Original copyright: `Copyright (c) 2026 Matt Van Horn`
+- License: MIT
 
 ```text
 MIT License
@@ -87,18 +87,18 @@ SOFTWARE.
 
 ## 3. dither-kit-rs
 
-- Proyek: dither-kit-rs, <https://github.com/DeepanshuMishraa/dither-kit-rs>
+- Project: dither-kit-rs, <https://github.com/DeepanshuMishraa/dither-kit-rs>
 - Skill: `dither-data-viz`
-- Bagian yang diadaptasi: mesin dither di `dither-data-viz/scripts/dither.js` dan salinannya
-  `dither-data-viz/design-options/dither.js`. Ini port ke JavaScript (diadaptasi, bukan salinan):
-  matriks Bayer 2/4/8, matriks halftone 4x4, noise berbasis hash, dan gagasan komponen
-  (grafik area, pie, radar, tombol, avatar, gradien, latar, meter, sparkline) mengikuti
-  `crates/dither-core` upstream. Kode kartu, template, dan skrip ekspor ditulis sendiri.
-- Hak cipta asli: `Copyright (c) 2026 Deepanshu Mishra`
-- Catatan: dither-kit-rs sendiri berbasis [Boring-Software-Inc/dither-kit](https://github.com/Boring-Software-Inc/dither-kit)
-  (versi React; `package.json`-nya menyatakan MIT). Kode di repo ini diadaptasi dari versi Rust.
-- Lisensi: upstream menawarkan "MIT OR Apache-2.0" (lihat `Cargo.toml`). Repo ini memakai opsi MIT
-  (`LICENSE-MIT` upstream), teksnya di bawah.
+- Adapted parts: the dither engine in `dither-data-viz/scripts/dither.js` and its copy
+  `dither-data-viz/design-options/dither.js`. This is a JavaScript port (adapted, not a copy):
+  the 2/4/8 Bayer matrices, the 4x4 halftone matrix, hash-based noise, and the component ideas
+  (area chart, pie, radar, button, avatar, gradient, background, meter, sparkline) follow
+  the upstream `crates/dither-core`. The card code, templates, and export script are original.
+- Original copyright: `Copyright (c) 2026 Deepanshu Mishra`
+- Note: dither-kit-rs itself is based on [Boring-Software-Inc/dither-kit](https://github.com/Boring-Software-Inc/dither-kit)
+  (the React version; its `package.json` states MIT). The code in this repo is adapted from the Rust version.
+- License: upstream offers "MIT OR Apache-2.0" (see `Cargo.toml`). This repo uses the MIT option
+  (upstream `LICENSE-MIT`); its text is below.
 
 ```text
 MIT License
@@ -126,46 +126,46 @@ SOFTWARE.
 
 ---
 
-## 4. Artificial Analysis (sumber data harga)
+## 4. Artificial Analysis (price data source)
 
-Ini **sumber data**, bukan kode yang diadaptasi, dan berbeda dari entri 1-3: tidak ada teks lisensi
-open source yang bisa disalin.
+This is a **data source**, not adapted code, and differs from entries 1-3: there is no open-source license text
+that could be copied.
 
-- Sumber: Artificial Analysis, <https://artificialanalysis.ai/>
+- Source: Artificial Analysis, <https://artificialanalysis.ai/>
 - Skill: `omarchy-agent-usage`
-- Pemakaian: `omarchy-agent-usage/scripts/cost.py` memanggil Data API gratis Artificial Analysis
-  (`https://artificialanalysis.ai/api/v2/language/models/free`) memakai kunci API milik pengguna, yang
-  hanya dibaca dari env var `ARTIFICIAL_ANALYSIS_API_KEY`, untuk mendapat harga token per 1 juta token
-  (input, output, cache). Hasilnya disimpan di cache lokal pengguna dan dipanggil jarang (cache 24 jam).
-  Tanpa kunci tidak ada panggilan jaringan. Repo ini tidak menyertakan salinan data harga mereka.
-  Lihat `omarchy-agent-usage/references/pricing-sources.md`.
-- Hak cipta dan hak atas data: milik Artificial Analysis. Repo ini tidak mengklaim memilikinya.
-- Atribusi: dokumentasi API (<https://artificialanalysis.ai/data-api/docs>, <https://artificialanalysis.ai/api-reference>)
-  menyatakan atribusi ke Artificial Analysis wajib untuk pemakaian API. Sesuai Data Platform Terms v1.1
-  (<https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf>, §5), laporan biaya skill ini
-  mencantumkan persis "Source: Artificial Analysis (artificialanalysis.ai)" dengan tautan ke
-  <https://artificialanalysis.ai/>; untuk angka turunan (biaya hasil hitung dari harga AA) ditambah
-  "Based on data from Artificial Analysis" dan pernyataan "Created by <nama skill>, not by Artificial
+- Usage: `omarchy-agent-usage/scripts/cost.py` calls the free Artificial Analysis Data API
+  (`https://artificialanalysis.ai/api/v2/language/models/free`) with the user's own API key, which is
+  read only from the env var `ARTIFICIAL_ANALYSIS_API_KEY`, to get token prices per 1 million tokens
+  (input, output, cache). The result is kept in the user's local cache and called rarely (24-hour cache).
+  Without a key there are no network calls. This repo includes no copy of their price data.
+  See `omarchy-agent-usage/references/pricing-sources.md`.
+- Copyright and rights in the data: belong to Artificial Analysis. This repo does not claim to own them.
+- Attribution: the API documentation (<https://artificialanalysis.ai/data-api/docs>, <https://artificialanalysis.ai/api-reference>)
+  states that attribution to Artificial Analysis is required for API use. In line with Data Platform Terms v1.1
+  (<https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf>, §5), this skill's cost reports
+  state exactly "Source: Artificial Analysis (artificialanalysis.ai)" with a link to
+  <https://artificialanalysis.ai/>; for derived numbers (costs computed from AA prices) it adds
+  "Based on data from Artificial Analysis" and the statement "Created by <skill name>, not by Artificial
   Analysis. Artificial Analysis does not endorse
-  this report/tool". Kartu atau grafik yang dibagikan ke publik juga harus menampilkan logo Artificial
-  Analysis (logo tidak disertakan di repo). README skill memuat kreditnya.
-- Syarat: pemakaian API tunduk pada Terms of Use dan Data Platform Terms v1.1 Artificial Analysis. Syarat itu bisa
-  berubah dan penafsirannya bukan wewenang repo ini; periksa versi terbaru sebelum membagikan atau memakai
-  data harga secara komersial. Ini bukan nasihat hukum.
+  this report/tool". Cards or charts shared publicly must also show the Artificial
+  Analysis logo (the logo is not included in the repo). The skill README carries the credit.
+- Terms: API use is subject to the Artificial Analysis Terms of Use and Data Platform Terms v1.1. Those terms can
+  change, and interpreting them is not this repo's call; check the latest version before sharing or using
+  the price data commercially. This is not legal advice.
 
 ---
 
 ## 5. Omarchy
 
-- Proyek: Omarchy, <https://github.com/omacom/omarchy>
+- Project: Omarchy, <https://github.com/omacom/omarchy>
 - Skill: `omarchy-agent-usage`
-- Bagian yang diadaptasi: potongan kecil di `omarchy-agent-usage/scripts/collect.py` (tiga regex
-  `*_PI_PATTERN` dan beberapa predikat satu baris seperti `claude_billed`, `codex_pi_billed`) yang
-  disalin dari wrapper `omarchy-agent-usage-claude` / `-codex` upstream; selebihnya ditulis sendiri.
-  `omarchy-agent-usage/references/collector-internals.md` menjelaskan antarmuka wrapper tersebut.
-- Hak cipta asli: `Copyright (c) David Heinemeier Hansson`
-- Lisensi: MIT, teksnya di bawah.
-- Skill ini tidak berafiliasi dengan atau didukung oleh Omarchy/Basecamp.
+- Adapted parts: small pieces in `omarchy-agent-usage/scripts/collect.py` (three
+  `*_PI_PATTERN` regexes and a few one-line predicates such as `claude_billed`, `codex_pi_billed`)
+  copied from the upstream `omarchy-agent-usage-claude` / `-codex` wrappers; the rest is original.
+  `omarchy-agent-usage/references/collector-internals.md` describes those wrappers' interface.
+- Original copyright: `Copyright (c) David Heinemeier Hansson`
+- License: MIT; its text is below.
+- This skill is not affiliated with or endorsed by Omarchy/Basecamp.
 
 ```text
 Copyright (c) David Heinemeier Hansson

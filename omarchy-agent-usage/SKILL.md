@@ -13,21 +13,20 @@ metadata:
 
 # Omarchy Agent Usage Skill
 
-Baca ini sebelum menjawab pertanyaan tentang pemakaian token, kuota, atau
-biaya agent AI di mesin ini, atau sebelum membangun riwayat usage.
+Read this before answering questions about AI agent token usage, quota, or cost on this machine, or before building a usage history.
 
 ## When to Use
 
-- "cek penggunaan token", "berapa token yang sudah dipakai", "kuota habis?"
-- "simpan data penggunaan token selama N hari", "track usage per hari"
-- "agent mana yang paling boros", "kenapa limit cepat habis"
-- "simulasi biaya token", "kalau dibayar per token berapa", "biaya pay-as-you-go"
-- "metrik dashboard", "cache hit ratio", "token per prompt", "cost per task"
-- "laporan minggu ini", pecahan per hari × per model.
+Indonesian trigger phrases are kept because users type them; the English equivalents work too.
 
-**Don't use for:** membuat plugin Omarchy yang menampilkan usage (lihat
-`omarchy-plugin-authoring`), atau dashboard billing cloud provider. Skill ini
-membaca store LOKAL agent dan record Omarchy.
+- "cek penggunaan token", "berapa token yang sudah dipakai", "kuota habis?" (check token usage, how many tokens used, quota exhausted?)
+- "simpan data penggunaan token selama N hari", "track usage per hari" (keep token usage data for N days, track usage per day)
+- "agent mana yang paling boros", "kenapa limit cepat habis" (which agent is the most wasteful, why does the limit run out fast)
+- "simulasi biaya token", "kalau dibayar per token berapa", "biaya pay-as-you-go" (token cost simulation, what would it cost per token, pay-as-you-go cost)
+- "metrik dashboard", "cache hit ratio", "token per prompt", "cost per task"
+- "laporan minggu ini" (this week's report), a per-day × per-model breakdown.
+
+**Don't use for:** building an Omarchy plugin that shows usage (see `omarchy-plugin-authoring`), or a cloud provider billing dashboard. This skill reads the agents' LOCAL stores and Omarchy records.
 
 ## Prerequisites / Config
 
@@ -52,317 +51,215 @@ rs_get OMARCHY_PATH /usr/share/omarchy
 
 The scripts resolve these themselves in the same order (`scripts/common.py`); the API key is read from the env var only (`scripts/cost.py`).
 
-## Quick snapshot (satu agent)
+## Quick snapshot (one agent)
 
 ```bash
-omarchy-agent-usage-claude      # atau hermes, codex, opencode, grok, ... -> satu JSON record di stdout
-ls "$(rs_get OMARCHY_PATH /usr/share/omarchy)"/bin/omarchy-agent-usage-* | grep -v -- '-update$'   # daftar agent
+omarchy-agent-usage-claude      # or hermes, codex, opencode, grok, ... -> one JSON record on stdout
+ls "$(rs_get OMARCHY_PATH /usr/share/omarchy)"/bin/omarchy-agent-usage-* | grep -v -- '-update$'   # list of agents
 ```
 
-- Wrapper per agent tidak mengubah state, tapi sebagian memanggil API limit
-  provider (network).
-- **JANGAN jalankan `omarchy-agent-usage-update`** kecuali user memintanya
-  eksplisit. Itu bukan "refresh read-only":
-  - ia menulis ulang semua `~/.local/state/omarchy/agents/usage/<agent>.json`;
-  - me-refresh registry akun;
-  - menjalankan `omarchy-agent-account-state autoswitch` untuk claude/codex/grok,
-    yang **bisa mengganti akun yang sedang login**;
-  - stdout-nya kosong (bukan JSON).
+- A per-agent wrapper does not change state, but some call the provider's limit API (network).
+- **DO NOT run `omarchy-agent-usage-update`** unless the user explicitly asks. It is not a "read-only refresh":
+  - it rewrites every `~/.local/state/omarchy/agents/usage/<agent>.json`;
+  - it refreshes the account registry;
+  - it runs `omarchy-agent-account-state autoswitch` for claude/codex/grok, which **can switch the account that is logged in**;
+  - its stdout is empty (not JSON).
 
-  Kalau user memintanya, peringatkan dulu soal auto-switch.
+  If the user asks for it, warn them about the auto-switch first.
 
-### Field record
+### Record fields
 
-| Field | Arti |
+| Field | Meaning |
 |---|---|
-| `todayTotalTokens` | Total token hari ini. |
-| `todayTokensByModel` | `{model: tokens}` hari ini. |
-| `todayPrompts` / `todaySessions` | Jumlah prompt dan sesi hari ini. |
-| `recentDays` | 7 hari terakhir: `{date, messageCount}`. **`messageCount` ISINYA TOKEN**, bukan jumlah pesan. |
-| `modelUsage` | Total seumur hidup per model (`inputTokens`, `outputTokens`, `cacheReadInputTokens`, `cacheCreationInputTokens`). |
-| `limits[]` | `{label, percent, resetsAt}`. **`percent` = pecahan 0–1** (0.95 = 95% terpakai, BUKAN 0.95%). `resetsAt` = waktu ISO UTC dan bisa sudah lewat; bandingkan dengan sekarang sebelum bilang "reset nanti". |
-| `totalPrompts` / `totalSessions` / `activeDays` | Total seumur hidup. |
+| `todayTotalTokens` | Total tokens today. |
+| `todayTokensByModel` | `{model: tokens}` for today. |
+| `todayPrompts` / `todaySessions` | Number of prompts and sessions today. |
+| `recentDays` | Last 7 days: `{date, messageCount}`. **`messageCount` HOLDS TOKENS**, not a message count. |
+| `modelUsage` | Lifetime total per model (`inputTokens`, `outputTokens`, `cacheReadInputTokens`, `cacheCreationInputTokens`). |
+| `limits[]` | `{label, percent, resetsAt}`. **`percent` = a 0–1 fraction** (0.95 = 95% used, NOT 0.95%). `resetsAt` = ISO UTC time and may already be past; compare it with now before saying "resets later". |
+| `totalPrompts` / `totalSessions` / `activeDays` | Lifetime totals. |
 
-### Aturan membaca angka
+### Rules for reading the numbers
 
-- **`cacheReadInputTokens` bukan token baru.** Total token bisa 10–100x input
-  segar. Saat melapor, pisahkan dan pakai **token non-cache** (input + output)
-  sebagai pemakaian aktual. Jangan bilang "boros 600 juta token" kalau 600 juta
-  itu cache read.
-- **`recentDays` hanya 7 hari, total saja.** Untuk pecahan per hari × per model,
-  pakai pipeline di bawah.
-- **Agent tanpa baris lokal** (agy, grok, copilot, openrouter, ...) hanya punya
-  total per hari dari `recentDays`. Jangan mengarang pecahan model.
-- **Baris `(unknown)`** = baris tanpa token dan tanpa nama model; isinya hanya
-  prompt/sesi:
-  - **Hermes:** SEMUA prompt Hermes ada di sini. Wrapper mencatat prompt
-    terpisah dari token, jadi baris model Hermes selalu `prompts=0`.
-  - **Claude:** prompt yang belum dibalas + baris penanda sesi aktif.
-  - **Codex / OpenCode:** jarang; prompt tanpa token.
+- **`cacheReadInputTokens` are not new tokens.** Total tokens can be 10–100x the fresh input. When reporting, separate them and use **non-cache tokens** (input + output) as the actual usage. Don't say "wasted 600 million tokens" if the 600 million is cache read.
+- **`recentDays` covers only 7 days, totals only.** For a per-day × per-model breakdown, use the pipeline below.
+- **Agents without local rows** (agy, grok, copilot, openrouter, ...) only have per-day totals from `recentDays`. Never invent a model breakdown.
+- **The `(unknown)` row** = a row with no tokens and no model name; it holds only prompts/sessions:
+  - **Hermes:** ALL Hermes prompts are here. The wrapper records prompts separately from tokens, so Hermes model rows always have `prompts=0`.
+  - **Claude:** prompts not yet answered + the marker row of the active session.
+  - **Codex / OpenCode:** rare; prompts without tokens.
 
-  Karena itu token per prompt dihitung per **agent** (Σ token ÷ Σ prompt SEMUA
-  baris, termasuk `(unknown)`). Token per prompt per model Hermes tidak bermakna.
-- **`sessions` di `daily_by_model.csv` = sesi unik per model — jangan
-  dijumlahkan** (satu sesi memakai beberapa model). Sesi unik per hari ada di
-  `daily.csv`.
+  That is why tokens per prompt is computed per **agent** (Σ tokens ÷ Σ prompts over ALL rows, including `(unknown)`). Tokens per prompt per Hermes model is meaningless.
+- **`sessions` in `daily_by_model.csv` = unique sessions per model — do not add them up** (one session uses several models). Unique sessions per day are in `daily.csv`.
 
 ## Data dir & pipeline
 
-Semua output ada di **data dir**, bukan di folder skill (folder skill boleh
-di-sync/ditimpa; data jangan ikut):
+All output lives in the **data dir**, not in the skill folder (the skill folder may be synced/overwritten; the data must not go with it):
 
 ```
 <OMARCHY_USAGE_DATA>/            (resolved; see Prerequisites / Config)
-  snapshots/<tanggal>.json     snapshots/archive/ (tidak dibaca)   archive/ (data lama)
+  snapshots/<date>.json        snapshots/archive/ (not read)   archive/ (old data)
   daily.csv  daily_by_model.csv  report.md
   cost_daily.csv  cost_by_model.csv  cost_report.md
   metrics_daily.csv  metrics_by_agent.csv  metrics_report.md
   weekly.csv  report_week.md  cron.log
 ```
 
-Env (nilai dan default: tabel di Prerequisites / Config):
+Env (values and defaults: the table in Prerequisites / Config):
 - `OMARCHY_USAGE_DATA` — data dir.
-- `OMARCHY_USAGE_PRICING_CACHE` — cache harga runtime.
-- `OMARCHY_USAGE_PRICING_SEED` — seed harga lokal opsional, read-only (default `references/pricing.json`, gitignored; boleh tidak ada).
-- `ARTIFICIAL_ANALYSIS_API_KEY` — kunci Data API gratis Artificial Analysis. **Hanya dari env var**; jangan tulis ke file, jangan minta user menempelkannya di chat. Tanpa kunci: tidak ada panggilan jaringan (pakai cache/seed) dan satu baris petunjuk dicetak. Kunci gratis: https://artificialanalysis.ai/api-key-management-redirect
+- `OMARCHY_USAGE_PRICING_CACHE` — runtime price cache.
+- `OMARCHY_USAGE_PRICING_SEED` — optional read-only local price seed (default `references/pricing.json`, gitignored; may be absent).
+- `ARTIFICIAL_ANALYSIS_API_KEY` — free Artificial Analysis Data API key. **From the env var only**; never write it to a file, never ask the user to paste it in chat. Without a key: no network calls (cache/seed are used) and one hint line is printed. Free key: https://artificialanalysis.ai/api-key-management-redirect
 - `OMARCHY_TASKS_FILE` — task signal file.
-- `OMARCHY_PATH` — install Omarchy.
+- `OMARCHY_PATH` — Omarchy install.
 
-**Tes: arahkan semuanya ke dir temp.**
+**For tests: point everything at a temp dir.**
 
-Urutan pipeline (tiap tahap membaca output tahap sebelumnya):
-
-```bash
-S=<folder-skill>/scripts     # mis. $HOME/.hermes/skills/omarchy-agent-usage/scripts
-python3 $S/collect.py                       # 1. scan + snapshot hari ini + daily*.csv + report.md
-python3 $S/cost.py --report                 # 2. biaya (fetch harga live; --offline = cache/seed)
-python3 $S/metrics.py --report --offline    # 3. metrik (pakai harga dari tahap 2)
-python3 $S/weekly.py                        # 4. ringkasan minggu
-python3 $S/collect.py --all                 # 1->4 sekaligus (tambah --offline: tanpa fetch harga)
-python3 $S/collect.py --report --all --offline   # bangun ulang semuanya dari snapshot: tanpa scan, tanpa network
-```
-
-**Sebelum mengutip angka**, cek stempel di kepala laporan: `Snapshot terbaru`,
-mtime `daily_by_model.csv`, dan `fetched_at` harga.
-- Kalau snapshot terbaru lebih tua dari kemarin, atau laporan lebih tua dari
-  `daily_by_model.csv`, jalankan ulang pipeline atau sebut tanggalnya.
-- Kalau laporan bertanda `INCOMPLETE`, jangan sajikan totalnya sebagai biaya
-  lengkap.
-
-## Membangun riwayat (`collect.py`)
-
-1. **Snapshot harian.** Menjalankan semua wrapper
-   `$OMARCHY_PATH/bin/omarchy-agent-usage-*` secara paralel (daftar agent dari
-   folder itu, tanpa `update`), lalu scanner internal untuk
-   Hermes/Claude/Codex/OpenCode, dan menulis `snapshots/<hari ini>.json`.
-   - **Efek samping network:** beberapa wrapper memanggil API limit provider.
-   - Tidak ada fetch harga di tahap ini.
-2. **Kedalaman backfill tergantung sumber.**
-   - Hermes/Claude/OpenCode: seluruh riwayat lokal yang masih ada.
-   - **Codex: hanya 30 hari terakhir** (jendela rollout upstream).
-   - Snapshot lama tetap menyimpan hari yang sudah tak terlihat. **Jangan hapus
-     snapshot lama.**
-3. **Penggabungan.** Snapshot terbaru menang per (hari, agent), kecuali scan
-   tidak lengkap (`complete: false`) tidak pernah menimpa scan lengkap.
-4. **Cek paritas.**
-   - Total baris tiap agent lokal dibandingkan dengan `recentDays` record-nya
-     (7 hari). Selisih dicatat (`! parity …`) dan ditulis di `report.md`.
-   - Selisih di luar hari berjalan = komposisi scan skill drift dari wrapper
-     upstream. Laporkan, dan jangan percaya pecahan per model untuk hari itu.
-5. **Idempoten.** Dua kali di hari yang sama menimpa snapshot yang sama.
-6. **Opsi.** `--report` membangun ulang CSV + report dari snapshot tanpa scan.
-   `--days N` mengubah rentang `report.md` (default 7).
-
-## Jadwal harian (opsional)
-
-Riwayat hanya terisi di hari skill dijalankan, jadi untuk tracking harian
-pasang job terjadwal **tanpa LLM** yang menjalankan `collect.py --all`
-(mis. tiap hari 23:45). Skill tidak membuat job sendiri; tanyakan user dulu.
-
-- Perintah job: `python3 <folder-skill>/scripts/collect.py --all`. Boleh dibungkus
-  script shell kecil yang mengarahkan stdout/stderr ke `<data dir>/cron.log`.
-- Pemicu: cron, systemd timer, atau scheduler agent (mis. `hermes cron`)
-  dengan mode tanpa agent/LLM. Stdout kosong saat sukses.
-- **Jangan batasi jumlah pengulangan** (mis. `--repeat N`): sebagian scheduler
-  berhenti diam-diam setelah N kali, sehingga riwayat harian bolong.
-- Setelah dipasang, cek `<data dir>/cron.log` dan stempel `Snapshot terbaru`
-  di `report.md` esok harinya.
-
-### Simulasi biaya (`cost.py`)
-
-Mengubah `daily_by_model.csv` menjadi estimasi biaya pakai harga **Artificial
-Analysis** (Data API gratis). Laporan wajib memuat atribusi
-"Source: Artificial Analysis (artificialanalysis.ai)" dengan tautan
-<https://artificialanalysis.ai/>, plus "Based on data from Artificial Analysis"
-dan "Created by omarchy-agent-usage, not by Artificial Analysis. Artificial Analysis does not endorse this report/tool" untuk angka turunan
-(sudah otomatis di `cost`/`metrics`; sertakan juga bila Anda menyajikan angka
-harga di tempat lain). **Kartu/grafik yang dibagikan ke publik juga wajib
-menampilkan logo Artificial Analysis** (syarat Data Platform Terms); logo tidak
-disertakan di repo ini, ambil dari situs mereka. Hanya simulasi: Claude Code / Codex / OpenCode sebenarnya
-langganan, bukan meteran.
-
-**Format biaya = tepat 2 angka desimal** (`$168.23`, `$0.00`, `$1.70`), bukan
-4 atau 6 desimal, dan jangan buang trailing zero. Berlaku di `cost_report.md`,
-`cost_daily.csv`, `cost_by_model.csv`, stdout CLI, dan kolom biaya di `metrics.py`
-(`costUSD`, `costPerTask`, total, proxy). Pakai `cost.fmt()` untuk angka USD.
-Rasio (cache-hit, output share) dan token **tidak** ikut aturan ini.
+Pipeline order (each stage reads the output of the previous one):
 
 ```bash
-python3 scripts/cost.py 2026-01-01          # pecahan per model untuk 1 tanggal
-python3 scripts/cost.py                     # rekap per hari (partial ditandai)
-python3 scripts/cost.py --report            # tulis cost_daily.csv + cost_by_model.csv + cost_report.md
-python3 scripts/cost.py --offline           # tanpa API (cache, lalu seed)
-python3 scripts/cost.py --report --strict   # exit 3 bila INCOMPLETE
+S=<skill-folder>/scripts     # e.g. $HOME/.hermes/skills/omarchy-agent-usage/scripts
+python3 $S/collect.py                       # 1. scan + today's snapshot + daily*.csv + report.md
+python3 $S/cost.py --report                 # 2. cost (fetches live prices; --offline = cache/seed)
+python3 $S/metrics.py --report --offline    # 3. metrics (uses prices from stage 2)
+python3 $S/weekly.py                        # 4. weekly summary
+python3 $S/collect.py --all                 # 1->4 in one go (add --offline: no price fetch)
+python3 $S/collect.py --report --all --offline   # rebuild everything from snapshots: no scan, no network
 ```
 
-- **Urutan harga:** seed lokal opsional (`OMARCHY_USAGE_PRICING_SEED`) ← cache
-  `~/.cache/omarchy-agent-usage/pricing.json` ← Data API AA.
-  - API hanya dipanggil bila `ARTIFICIAL_ANALYSIS_API_KEY` di-set, bukan
-    `--offline`, dan cache API lebih tua dari 24 jam (tier gratis: 100 request
-    per 24 jam; 1 fetch = 1-2 request).
-  - Fetch hanya menimpa slug yang ada di hasil fetch.
-  - Slug yang hilang tetap memakai harga terakhirnya, ditandai `stale` +
-    `last_seen`.
-  - File seed tidak pernah ditulis.
-- `cacheReadInputTokens` → **cacheHitPrice**; cache write → cacheWritePrice.
-  Kalau AA tidak punya harga cache: cacheHit = input, cacheWrite = 1.25 × input
-  (dicatat di laporan).
-- Model `:free`/`-free` → `$0`, diperiksa SEBELUM `MODEL_MAP`. Padanan
-  berbayarnya tampil di seksi **"Model free — estimasi proxy"**, bukan bagian
-  total.
-- **Model berbayar tanpa harga** → di luar total, tapi **dicantumkan** di seksi
-  **"Tidak terhitung"** (token + alasan), dan hari yang memuatnya ditandai
-  `partial`.
-  - Kalau > 1% token berbayar tak terharga → banner **`INCOMPLETE`** (stdout +
-    laporan).
-  - Baris tanpa token (prompt saja) bukan "tak terharga".
-- Model yang dipatok ke slug **successor** (slug aslinya hilang dari AA)
-  dicantumkan di laporan. Saat ini: `gpt-6.1-sol → gpt-6-2-sol` (harga sama)
-  dan `gpt-6-astra → gpt-6-2-astra` (successor lebih murah dari harga lama; lihat
-  `references/pricing-sources.md`).
-- Jangan campur cache read ke "token aktual"; laporkan terpisah.
-- **AA hanya punya harga saat ini, bukan historis.** Laporan biaya = revaluasi
-  pemakaian historis ke harga tanggal fetch. Selalu sebut `fetched_at`.
-  - Pertanyaan "model X minggu ini lebih murah dari minggu lalu?" tidak bisa
-    dijawab dari AA; butuh snapshot Wayback dari halaman harga provider sendiri (bukan Artificial Analysis) / newsroom provider.
+**Before quoting numbers**, check the stamps at the head of the report: `Snapshot terbaru` (latest snapshot), the mtime of `daily_by_model.csv`, and the price `fetched_at`.
+- If the latest snapshot is older than yesterday, or the report is older than `daily_by_model.csv`, re-run the pipeline or state the date.
+- If the report is marked `INCOMPLETE`, do not present its total as a complete cost.
 
-## Metrik dashboard (`metrics.py`, Lapisan A)
+## Building the history (`collect.py`)
 
-Analitik offline dari `daily_by_model.csv` + harga + `tasks.jsonl`. Plugin QML
-`omarchy-ai-usage` terpisah: kontraknya cuma kuota.
+1. **Daily snapshot.** Runs all `$OMARCHY_PATH/bin/omarchy-agent-usage-*` wrappers in parallel (agent list from that folder, without `update`), then the internal scanner for Hermes/Claude/Codex/OpenCode, and writes `snapshots/<today>.json`.
+   - **Network side effect:** some wrappers call the provider's limit API.
+   - There is no price fetch in this stage.
+2. **Backfill depth depends on the source.**
+   - Hermes/Claude/OpenCode: all the local history that still exists.
+   - **Codex: only the last 30 days** (the upstream rollout window).
+   - Old snapshots keep the days that are no longer visible. **Do not delete old snapshots.**
+3. **Merging.** The newest snapshot wins per (day, agent), except that an incomplete scan (`complete: false`) never overwrites a complete one.
+4. **Parity check.**
+   - The row total of each local agent is compared with the `recentDays` of its record (7 days). Differences are logged (`! parity …`) and written to `report.md`.
+   - A difference outside the current day = the skill's scan composition has drifted from the upstream wrapper. Report it, and don't trust the per-model breakdown for that day.
+5. **Idempotent.** Running twice on the same day overwrites the same snapshot.
+6. **Options.** `--report` rebuilds the CSVs + report from snapshots without scanning. `--days N` changes the `report.md` range (default 7).
+
+## Daily schedule (optional)
+
+The history only fills on days the skill runs, so for daily tracking install a scheduled job **without an LLM** that runs `collect.py --all` (e.g. every day at 23:45). The skill does not create the job itself; ask the user first.
+
+- Job command: `python3 <skill-folder>/scripts/collect.py --all`. It may be wrapped in a small shell script that sends stdout/stderr to `<data dir>/cron.log`.
+- Trigger: cron, a systemd timer, or the agent's scheduler (e.g. `hermes cron`) in a no-agent/no-LLM mode. Stdout is empty on success.
+- **Do not limit the number of repeats** (e.g. `--repeat N`): some schedulers stop silently after N runs, leaving holes in the daily history.
+- After installing, check `<data dir>/cron.log` and the `Snapshot terbaru` stamp in `report.md` the next day.
+
+### Cost simulation (`cost.py`)
+
+Turns `daily_by_model.csv` into a cost estimate using **Artificial Analysis** prices (free Data API). The report must carry the attribution "Source: Artificial Analysis (artificialanalysis.ai)" with a link to <https://artificialanalysis.ai/>, plus "Based on data from Artificial Analysis" and "Created by omarchy-agent-usage, not by Artificial Analysis. Artificial Analysis does not endorse this report/tool" for derived numbers (already automatic in `cost`/`metrics`; include them too if you present price figures elsewhere). **Cards/charts shared publicly must also show the Artificial Analysis logo** (a Data Platform Terms requirement); the logo is not included in this repo, take it from their site. This is only a simulation: Claude Code / Codex / OpenCode are actually subscriptions, not metered.
+
+**Cost format = exactly 2 decimal places** (`$168.23`, `$0.00`, `$1.70`), not 4 or 6 decimals, and don't drop trailing zeros. This applies to `cost_report.md`, `cost_daily.csv`, `cost_by_model.csv`, CLI stdout, and the cost columns in `metrics.py` (`costUSD`, `costPerTask`, totals, proxy). Use `cost.fmt()` for USD amounts. Ratios (cache-hit, output share) and tokens do **not** follow this rule.
+
+```bash
+python3 scripts/cost.py 2026-01-01          # per-model breakdown for one date
+python3 scripts/cost.py                     # per-day summary (partial days flagged)
+python3 scripts/cost.py --report            # write cost_daily.csv + cost_by_model.csv + cost_report.md
+python3 scripts/cost.py --offline           # no API (cache, then seed)
+python3 scripts/cost.py --report --strict   # exit 3 if INCOMPLETE
+```
+
+- **Price order:** optional local seed (`OMARCHY_USAGE_PRICING_SEED`) ← cache `~/.cache/omarchy-agent-usage/pricing.json` ← AA Data API.
+  - The API is called only if `ARTIFICIAL_ANALYSIS_API_KEY` is set, not `--offline`, and the API cache is older than 24 hours (free tier: 100 requests per 24 hours; 1 fetch = 1-2 requests).
+  - A fetch only overwrites slugs present in the fetch result.
+  - Slugs that disappear keep their last price, marked `stale` + `last_seen`.
+  - The seed file is never written.
+- `cacheReadInputTokens` → **cacheHitPrice**; cache write → cacheWritePrice. If AA has no cache price: cacheHit = input, cacheWrite = 1.25 × input (noted in the report).
+- `:free`/`-free` models → `$0`, checked BEFORE `MODEL_MAP`. Their paid equivalent appears in the section **"Model free — estimasi proxy"** (free models — proxy estimate), not in the total.
+- **Paid models without a price** → left out of the total, but **listed** in the section **"Tidak terhitung"** (not counted: tokens + reason), and the day that contains them is marked `partial`.
+  - If > 1% of paid tokens are unpriced → an **`INCOMPLETE`** banner (stdout + report).
+  - A row without tokens (prompts only) is not "unpriced".
+- Models pinned to a **successor** slug (their original slug vanished from AA) are listed in the report. Currently: `gpt-6.1-sol → gpt-6-2-sol` (same price) and `gpt-6-astra → gpt-6-2-astra` (the successor is cheaper than the old price; see `references/pricing-sources.md`).
+- Do not mix cache read into "actual tokens"; report it separately.
+- **AA only has current prices, not historical ones.** A cost report = a revaluation of historical usage at the prices of the fetch date. Always state `fetched_at`.
+  - The question "is model X cheaper this week than last week?" cannot be answered from AA; it needs a Wayback snapshot of the provider's own price page (not Artificial Analysis) / the provider's newsroom.
+
+## Dashboard metrics (`metrics.py`, Layer A)
+
+Offline analytics from `daily_by_model.csv` + prices + `tasks.jsonl`. The separate `omarchy-ai-usage` QML plugin's contract is quota only.
 
 ```bash
 python3 scripts/metrics.py [YYYY-MM-DD] [--report] [--offline] [--strict]
 ```
 
-| Metrik | Rumus | Catatan |
+| Metric | Formula | Notes |
 |---|---|---|
-| Cost per agent | Σ biaya per agent per hari | free = $0 *diketahui*; `partial` (+?) kalau ada token tak terharga |
-| Cache hit ratio | `cacheRead / (input + cacheRead + cacheWrite)` | porsi input sisi-prompt dari cache; output tidak ikut |
-| Token per prompt | non-cache: `(input + output) / prompts`; total: semua token / prompts | prompts = SEMUA baris agent-hari, termasuk `(unknown)` |
-| Cost per task | biaya agent ÷ bobot task agent (`ok`=1, `partial`=0.5, `fail`=0) | task = sesi unik di `tasks.jsonl`; agregat tanggal/periode = Σ biaya ÷ Σ bobot **hanya** atas agent-hari yang punya baris task |
-| Output token | `outputTokens` + % dari total | |
-| Daily trend | delta vs hari **kalender** sebelumnya; avg7d kalender (hari nol ikut) | avg7d muncul setelah 7 hari sejak pemakaian pertama agent |
+| Cost per agent | Σ cost per agent per day | free = $0 *known*; `partial` (+?) if some tokens are unpriced |
+| Cache hit ratio | `cacheRead / (input + cacheRead + cacheWrite)` | the share of prompt-side input served from cache; output is not included |
+| Token per prompt | non-cache: `(input + output) / prompts`; total: all tokens / prompts | prompts = ALL agent-day rows, including `(unknown)` |
+| Cost per task | agent cost ÷ the agent's task weight (`ok`=1, `partial`=0.5, `fail`=0) | task = unique session in `tasks.jsonl`; a date/period aggregate = Σ cost ÷ Σ weight **only** over agent-days that have task rows |
+| Output token | `outputTokens` + % of total | |
+| Daily trend | delta vs the previous **calendar** day; calendar avg7d (zero days count) | avg7d appears 7 days after the agent's first usage |
 
 Output: `metrics_daily.csv`, `metrics_by_agent.csv`, `metrics_report.md`.
 
-- Catatan `costPerTask`:
+- `costPerTask` notes:
   - `n/a (no tasks)`
   - `n/a (all tasks failed, weight 0)`
-  - `n/a (no usage data)`: task ada tapi snapshot belum memuat hari itu
+  - `n/a (no usage data)`: tasks exist but the snapshot does not yet cover that day
   - `n/a (unpriced tokens)`
-  - `x.xxxx (free)`: semua pemakaian gratis
-- **Hanya agent yang punya hook penulis yang punya task rows** (mis. OpenCode setelah plugin
-  diperbaiki). Cost per task Claude/Codex = `n/a (no tasks)`. Jangan pernah
-  menyebut satu angka "cost per task semua agent".
-- **Token/cost ≠ produktivitas.** Laporan wajib menyebut ini: agent dinilai
-  dari pekerjaan yang berhasil diselesaikan, bukan token atau biaya.
-- **Cost per task jangan diganti "cost per prompt"** tanpa label jelas.
+  - `x.xxxx (free)`: all usage is free
+- **Only agents with a writer hook have task rows** (e.g. OpenCode after the plugin was fixed). Claude/Codex cost per task = `n/a (no tasks)`. Never quote a single "cost per task for all agents" number.
+- **Tokens/cost ≠ productivity.** The report must say this: agents are judged by the work they complete successfully, not by tokens or cost.
+- **Do not replace cost per task with "cost per prompt"** without a clear label.
 
 ## Task signal
 
-`OMARCHY_TASKS_FILE` (default `~/.local/state/omarchy/agents/tasks.jsonl`; append-only). Tulis dengan
-`omarchy-tasklog record --agent <a> --status ok|partial|fail [--session ID]`
-(shim di `~/.local/bin`, memanggil `scripts/tasklog.py`).
-`tasklog.py summary` menampilkan jumlah task per hari setelah dedupe sesi; tidak
-menghitung biaya.
+`OMARCHY_TASKS_FILE` (default `~/.local/state/omarchy/agents/tasks.jsonl`; append-only). Write with `omarchy-tasklog record --agent <a> --status ok|partial|fail [--session ID]` (a shim in `~/.local/bin` that calls `scripts/tasklog.py`). `tasklog.py summary` shows the number of tasks per day after session dedupe; it does not compute cost.
 
-Status hook: tiap mesin berbeda. Contoh generik ada di
-`references/task-signal.md`. **Kalau `references/task-signal.local.md` ada,
-baca juga**: itu catatan hook mesin ini (gitignored). Yang berlaku umum:
-- Hook akhir-giliran (mis. `on_session_end`, `Stop`, `session.idle`) fire
-  **per giliran**, jadi satu sesi bisa menulis puluhan baris; pembaca
-  men-dedupe per (agent, sesi).
-- Pastikan ada baris `"agent": "<nama>"` di `tasks.jsonl` sebelum mengandalkan
-  task rows agent itu. Tanpa hook, agent tersebut tidak punya task rows.
+Hook status: every machine differs. A generic example is in `references/task-signal.md`. **If `references/task-signal.local.md` exists, read it too**: it holds this machine's hook notes (gitignored). What applies generally:
+- An end-of-turn hook (e.g. `on_session_end`, `Stop`, `session.idle`) fires **per turn**, so one session can write dozens of rows; the reader dedupes per (agent, session).
+- Make sure a row with `"agent": "<name>"` exists in `tasks.jsonl` before relying on that agent's task rows. Without a hook, that agent has no task rows.
 
-Detail skema & semantik: `references/task-signal.md`. Saat tes, set
-`OMARCHY_TASKS_FILE` ke file temp.
+Schema & semantics detail: `references/task-signal.md`. When testing, set `OMARCHY_TASKS_FILE` to a temp file.
 
-## Laporan minggu (`weekly.py`)
+## Weekly report (`weekly.py`)
 
-`python3 scripts/weekly.py [--week-start YYYY-MM-DD]`. Hanya membaca snapshot
-(tanpa scan ulang).
-- Jendela = 7 hari kalender mulai `--week-start` (default: Senin minggu
-  snapshot terbaru), dipotong di tanggal snapshot terbaru. Minggu berjalan
-  → < 7 hari, dan judul menandai "belum lengkap".
-- Start setelah snapshot terbaru → exit 2.
+`python3 scripts/weekly.py [--week-start YYYY-MM-DD]`. Reads snapshots only (no re-scan).
+- Window = 7 calendar days starting at `--week-start` (default: the Monday of the week of the latest snapshot), clipped at the latest snapshot date. The current week → fewer than 7 days, and the title marks it "belum lengkap" (incomplete).
+- A start after the latest snapshot → exit 2.
 
-## Grafik / video
+## Charts / video
 
-Gaya bawaan kartu/grafik ada di `references/visual-preferences.md`. Biaya per
-agent untuk grafik **selalu diambil dari `cost_by_model.csv` / `cost_daily.csv`**
-(hasil `cost.py`, harga input/output/cache terpisah). Jangan hitung ulang
-"token × harga" di kode grafik, karena angkanya akan berbeda dari laporan.
+The default style for cards/charts is in `references/visual-preferences.md`. Cost per agent for charts is **always taken from `cost_by_model.csv` / `cost_daily.csv`** (the result of `cost.py`, with separate input/output/cache prices). Never recompute "tokens × price" in chart code, because the numbers would differ from the report.
 
 ## Pitfalls
 
-- **`spec_from_file_location` gagal untuk wrapper `omarchy-agent-usage-*`.**
-  File-nya tanpa ekstensi `.py`, jadi `spec.loader` bernilai `None`. Pakai
-  `importlib.machinery.SourceFileLoader` + `spec_from_loader`
-  (`common.load_collector`).
-- **`scan_codex_routed("codex")` mengembalikan 0 baris** saat
-  `codex_provider_urls()` kosong. Rollout native dibaca lewat
-  `codex_rollouts(..., native=True)` lalu disaring provider/owner seperti wrapper.
-- **Baris di-bucket per tanggal lokal** (`local_day`), jadi sesi yang melewati
-  tengah malam terpecah di dua hari.
-- **Cache scan.** `collect.py` memanggil scanner langsung; `cached_scan` (cache
-  per hari) hanya dipakai wrapper. Tetapi `claude_code_usage` dan
-  `codex_rollouts` menulis index/cache bersama di `~/.cache/omarchy/agent-usage/`,
-  jadi jalan kedua tetap lebih cepat.
-- **Angka satu hari berubah setelah kolektor dijalankan ulang.** Jangan anggap
-  biaya/token satu hari final sebelum hari itu lewat; sebutkan tanggal snapshot
-  saat melapor.
-- **Slug AA drift.** Kalau sebuah model muncul di "Tidak terhitung" dengan
-  alasan "slug … tidak ada di harga", atau ada peringatan `! slug AA … stale`,
-  slug AA-nya berubah.
-  - Cari slug penggantinya di cache harga, lalu perbarui `MODEL_MAP` (+
-    `SUCCESSOR_OF` bila penerus) dan tabel di `references/pricing-sources.md`.
-  - **Jangan laporkan total sebagai lengkap sebelum itu.**
-- **Fetch API gagal / kunci tidak ada.** `cost.py` memakai cache (lalu seed) dan
-  mencetak peringatan. Jangan menebak harga, jangan scrape halaman AA.
-- **Model `:free`/`-free` harus diperiksa SEBELUM `MODEL_MAP`.** Jangan pernah
-  memasukkan model free ke `MODEL_MAP`; letakkan padanannya di `PROXY`.
-- **Menambah metrik:** tambahkan ke `aggregate_by_day_agent` → `metric_values`
-  → `COLUMNS`/`CSV_FIELDS` di `metrics.py`. Semua presenter (CLI, CSV, report)
-  memakai builder yang sama.
-- **`cost per task` = biaya per sesi, bukan per tugas semantik.**
-- **Jangan menulis data ke folder skill.** Semua script menulis ke data dir;
-  seed harga (`references/pricing.json`, lokal) tidak pernah ditulis.
+- **`spec_from_file_location` fails for the `omarchy-agent-usage-*` wrappers.** The files have no `.py` extension, so `spec.loader` is `None`. Use `importlib.machinery.SourceFileLoader` + `spec_from_loader` (`common.load_collector`).
+- **`scan_codex_routed("codex")` returns 0 rows** when `codex_provider_urls()` is empty. Native rollouts are read via `codex_rollouts(..., native=True)` and then filtered by provider/owner like the wrapper does.
+- **Rows are bucketed by local date** (`local_day`), so a session that crosses midnight is split across two days.
+- **Scan cache.** `collect.py` calls the scanners directly; `cached_scan` (a per-day cache) is used only by the wrappers. But `claude_code_usage` and `codex_rollouts` write a shared index/cache in `~/.cache/omarchy/agent-usage/`, so a second run is still faster.
+- **One day's numbers change after the collector re-runs.** Don't treat a day's cost/tokens as final before that day has passed; state the snapshot date when reporting.
+- **AA slug drift.** If a model shows up in "Tidak terhitung" with the reason "slug … tidak ada di harga" (slug … not in the prices), or there is a `! slug AA … stale` warning, the AA slug has changed.
+  - Find the replacement slug in the price cache, then update `MODEL_MAP` (+ `SUCCESSOR_OF` for a successor) and the table in `references/pricing-sources.md`.
+  - **Don't report the total as complete before that.**
+- **API fetch fails / no key.** `cost.py` uses the cache (then the seed) and prints a warning. Don't guess prices, and don't scrape AA pages.
+- **`:free`/`-free` models must be checked BEFORE `MODEL_MAP`.** Never put a free model in `MODEL_MAP`; put its equivalent in `PROXY`.
+- **Adding a metric:** add it to `aggregate_by_day_agent` → `metric_values` → `COLUMNS`/`CSV_FIELDS` in `metrics.py`. All presenters (CLI, CSV, report) use the same builder.
+- **`cost per task` = cost per session, not per semantic task.**
+- **Never write data into the skill folder.** All scripts write to the data dir; the price seed (`references/pricing.json`, local) is never written.
 
 ## Support files
 
-- `references/collector-internals.md`: signature scanner, cara memuat
-  kolektor, komposisi scan per agent, resolusi owner.
-- `references/pricing-sources.md`: Data API AA, pemetaan harga, successor,
-  footnote proxy, cache harga.
-- `references/task-signal.md`: skema `tasks.jsonl`, dedupe, semantik, contoh hook
-  generik. `references/task-signal.local.md` (gitignored, bila ada): hook mesin ini.
-- `references/visual-preferences.md`: gaya bawaan grafik/video usage (kartu 9:16, aturan angka biaya).
-- `scripts/common.py`: path, IO atomik, merge snapshot, pembaca task.
-- `scripts/collect.py`: kolektor (snapshot + CSV + report + cek paritas; `--all`).
-- `scripts/cost.py`: simulasi biaya pay-as-you-go.
-- `scripts/metrics.py`: metrik dashboard (Lapisan A).
-- `scripts/weekly.py`: ringkasan mingguan dari snapshot.
-- `scripts/tasklog.py`: tulis/baca `tasks.jsonl` (`record`, `summary`, `validate`).
-- `tests/`: tes fixture (`python3 -m unittest discover -s tests -v`).
+- `references/collector-internals.md`: scanner signatures, how to load the collector, scan composition per agent, owner resolution.
+- `references/pricing-sources.md`: the AA Data API, price mapping, successors, proxy footnotes, the price cache.
+- `references/task-signal.md`: the `tasks.jsonl` schema, dedupe, semantics, a generic hook example. `references/task-signal.local.md` (gitignored, if present): this machine's hooks.
+- `references/visual-preferences.md`: default style for usage charts/video (9:16 cards, cost number rules).
+- `scripts/common.py`: paths, atomic IO, snapshot merge, task reader.
+- `scripts/collect.py`: the collector (snapshot + CSV + report + parity check; `--all`).
+- `scripts/cost.py`: pay-as-you-go cost simulation.
+- `scripts/metrics.py`: dashboard metrics (Layer A).
+- `scripts/weekly.py`: weekly summary from snapshots.
+- `scripts/tasklog.py`: write/read `tasks.jsonl` (`record`, `summary`, `validate`).
+- `tests/`: fixture tests (`python3 -m unittest discover -s tests -v`).

@@ -1,93 +1,67 @@
-# Sumber harga token
+# Token price sources
 
-Dipakai oleh `scripts/cost.py`.
+Used by `scripts/cost.py`.
 
-## File harga
+## Price files
 
-| File | Peran |
+| File | Role |
 |---|---|
-| `references/pricing.json` | **Seed lokal opsional**, gitignored (tidak ada di repo), tidak pernah ditulis kode. Bisa dibuat dari cache runtime. Bila tidak ada, dilewati. |
-| `~/.cache/omarchy-agent-usage/pricing.json` (`OMARCHY_USAGE_PRICING_CACHE`) | Cache runtime. Hasil merge seed ← cache lama ← fetch API. |
+| `references/pricing.json` | **Optional local seed**, gitignored (not in the repo), never written by code. Can be created from the runtime cache. Skipped if absent. |
+| `~/.cache/omarchy-agent-usage/pricing.json` (`OMARCHY_USAGE_PRICING_CACHE`) | Runtime cache. The merge of seed ← old cache ← API fetch. |
 
-Urutan muat:
-1. seed (bila ada);
-2. ditimpa cache;
-3. ditimpa fetch API (hanya bila ada kunci, bukan `--offline`, cache API > 24 jam).
+Load order:
+1. the seed (if present);
+2. overwritten by the cache;
+3. overwritten by the API fetch (only if there is a key, not `--offline`, and the API cache is > 24 hours old).
 
-Fetch **menimpa per slug**: slug yang tidak ada di fetch terbaru tetap memakai
-harga terakhir dengan `stale: true` dan `last_seen`.
+A fetch **overwrites per slug**: a slug missing from the latest fetch keeps its last price with `stale: true` and `last_seen`.
 
-## Sumber: Artificial Analysis Data API (tier gratis)
+## Source: Artificial Analysis Data API (free tier)
 
-- Dokumentasi: https://artificialanalysis.ai/data-api/docs ·
-  https://artificialanalysis.ai/api-reference
-- Endpoint: `GET https://artificialanalysis.ai/api/v2/language/models/free`
-  (query `page`, mulai 1; respons `pagination.has_more`).
-  Jalur `/api/v2/language/models` khusus Pro+.
-- Auth: header `x-api-key`, nilainya dari env `ARTIFICIAL_ANALYSIS_API_KEY`.
-- Rate limit tier gratis: 100 request per jendela 24 jam (dimulai dari request
-  pertama); 429 membawa `Retry-After`. Cache 24 jam menjaga pemakaian jauh di
-  bawah itu.
-- Atribusi wajib: "Source: Artificial Analysis (artificialanalysis.ai)" dengan
-  tautan ke https://artificialanalysis.ai/. Angka turunan (biaya hasil hitung):
-  "Based on data from Artificial Analysis" + "Artificial Analysis does not
-  endorse this report/tool". Kartu/grafik yang dibagikan publik wajib memuat
-  logo AA.
-- Satuan: USD per **1 juta token**. Field model: `slug`, `name`,
-  `pricing.price_1m_input_tokens`, `pricing.price_1m_output_tokens`,
-  `pricing.price_1m_cache_hit_tokens`, `pricing.price_1m_cache_write_tokens`
-  (cache bisa `null`/tidak ada, tidak dijamin di tier gratis).
-- `cost.parse_api_models()` memetakan ke format internal
-  `{input, output, cacheHit, cacheWrite}`; `slug` dipakai sebagai kunci
-  (`MODEL_MAP` memetakan model lokal ke slug itu).
-- Tanpa kunci: tidak ada panggilan jaringan. Tidak ada fallback scraping.
+- Documentation: https://artificialanalysis.ai/data-api/docs · https://artificialanalysis.ai/api-reference
+- Endpoint: `GET https://artificialanalysis.ai/api/v2/language/models/free` (query `page`, starting at 1; response `pagination.has_more`). The `/api/v2/language/models` path is Pro+ only.
+- Auth: the `x-api-key` header, its value from the env var `ARTIFICIAL_ANALYSIS_API_KEY`.
+- Free-tier rate limit: 100 requests per 24-hour window (starting from the first request); a 429 carries `Retry-After`. The 24-hour cache keeps usage far below that.
+- Required attribution: "Source: Artificial Analysis (artificialanalysis.ai)" with a link to https://artificialanalysis.ai/. Derived numbers (computed costs): "Based on data from Artificial Analysis" + "Artificial Analysis does not endorse this report/tool". Cards/charts shared publicly must carry the AA logo.
+- Unit: USD per **1 million tokens**. Model fields: `slug`, `name`, `pricing.price_1m_input_tokens`, `pricing.price_1m_output_tokens`, `pricing.price_1m_cache_hit_tokens`, `pricing.price_1m_cache_write_tokens` (the cache prices can be `null`/absent, not guaranteed on the free tier).
+- `cost.parse_api_models()` maps them to the internal format `{input, output, cacheHit, cacheWrite}`; `slug` is the key (`MODEL_MAP` maps local models to that slug).
+- Without a key: no network calls. No scraping fallback.
 
-Harga cache yang tidak tersedia: cacheHit = harga input, cacheWrite = 1.25 ×
-harga input. Asumsi ini dicantumkan di laporan.
+Unavailable cache prices: cacheHit = the input price, cacheWrite = 1.25 × the input price. This assumption is stated in the report.
 
-## Pemetaan model lokal → slug AA (`MODEL_MAP`)
+## Local model → AA slug mapping (`MODEL_MAP`)
 
-| Model lokal | Slug AA | Catatan |
+| Local model | AA slug | Note |
 |---|---|---|
 | `claude-opus-5-5` | `claude-opus-5-5` | |
 | `claude-sonnet-5-5` | `claude-sonnet-5-5` | |
 | `claude-fable-5-2` | `claude-fable-5-2` | |
 | `claude-haiku-5-5` | `claude-haiku-5-5` | |
 | `gpt-6-luna` | `gpt-6-luna` | |
-| `gpt-6.1-sol` | `gpt-6-2-sol` | **successor**; slug asli `gpt-6-1-sol` hilang dari AA (fetch 2026-11-19) |
+| `gpt-6.1-sol` | `gpt-6-2-sol` | **successor**; the original slug `gpt-6-1-sol` vanished from AA (fetch 2026-11-19) |
 | `gpt-6.1-terra` | `gpt-6-1-terra` | |
-| `gpt-6-astra` | `gpt-6-2-astra` | **successor**; slug asli `gpt-6-astra` hilang dari AA (fetch 2026-11-19) |
+| `gpt-6-astra` | `gpt-6-2-astra` | **successor**; the original slug `gpt-6-astra` vanished from AA (fetch 2026-11-19) |
 
-Model successor tercantum di `SUCCESSOR_OF` di `cost.py` dan di setiap laporan
-("Dipatok ke harga slug successor").
+Successor models are listed in `SUCCESSOR_OF` in `cost.py` and in every report (the report line "Dipatok ke harga slug successor", i.e. pinned to the successor slug's price).
 
-**Model `:free`/`-free` TIDAK boleh ada di tabel ini.** Aturannya $0; padanannya
-dipakai sebagai proxy (tabel bawah). `cost.py` memeriksa `is_free` sebelum
-`MODEL_MAP`. Kalau urutannya dibalik, model free yang punya padanan akan keliru
-ditagih.
+**`:free`/`-free` models must NOT be in this table.** Their rule is $0; their equivalent is used as a proxy (the table below). `cost.py` checks `is_free` before `MODEL_MAP`. If the order were reversed, a free model that has an equivalent would be billed by mistake.
 
-## Model tanpa harga
+## Models without a price
 
-Model berbayar yang tidak ada di `MODEL_MAP`, atau yang slug-nya tidak ada di
-harga:
-- dikeluarkan dari total, tapi **dicantumkan** di seksi "Tidak terhitung"
-  (`cost_report.md`, `metrics_report.md`) beserta jumlah token dan alasannya;
-- hari yang memuatnya ditandai `partial`;
-- lebih dari 1% token berbayar tak terharga → banner `INCOMPLETE`
-  (`--strict` → exit 3).
+A paid model that is not in `MODEL_MAP`, or whose slug is not in the prices:
+- is left out of the total, but **listed** in the "Tidak terhitung" section (not counted; `cost_report.md`, `metrics_report.md`) with its token count and the reason;
+- the day that contains it is marked `partial`;
+- more than 1% of paid tokens unpriced → an `INCOMPLETE` banner (`--strict` → exit 3).
 
-Baris tanpa token (`(unknown)`, prompt saja) tidak dihitung "tak terharga".
+A row without tokens (`(unknown)`, prompts only) does not count as "unpriced".
 
-**Kalau slug drift:** cari slug penggantinya di cache harga, lalu perbarui
-`MODEL_MAP` (+ `SUCCESSOR_OF`) dan tabel ini.
+**If a slug drifts:** find the replacement slug in the price cache, then update `MODEL_MAP` (+ `SUCCESSOR_OF`) and this table.
 
-## Footnote proxy untuk model free
+## Proxy footnote for free models
 
-Model free = $0. Supaya tetap informatif, laporan memuat seksi "Model free —
-estimasi proxy" (seandainya dipatok harga padanannya), hanya kalau AA punya
-model sejenis:
+A free model = $0. To stay informative, the report has a section "Model free — estimasi proxy" (free models, proxy estimate: as if pinned to the equivalent's price), only when AA has a similar model:
 
-| Model free | Proxy |
+| Free model | Proxy |
 |---|---|
 | `meituan/longcat-2.5:free`, `meituan/longcat-2.5-preview:free`, `meituan/longcat-2.0:free` | `longcat-2-0` |
 | `tencent/hy4-flash:free` | `tencent-hy4` |
@@ -98,13 +72,10 @@ model sejenis:
 | `upstage/solar-mini4:free` | `solar-mini4` |
 | `reflection/beam-1.0-501b-a23b:free` | `reflection-beam` |
 
-Tanpa proxy (tidak ada padanan): `stepfun/*`, `poolside/*`, `stealth/*`,
-`muse-spark-*`, `beam-free`, `big-pickle`, `nemotron-*`.
+No proxy (no equivalent): `stepfun/*`, `poolside/*`, `stealth/*`, `muse-spark-*`, `beam-free`, `big-pickle`, `nemotron-*`.
 
-## Penting: harga bisa naik/turun
+## Important: prices can go up or down
 
-- AA menampilkan harga **saat ini**, bukan historis. Simulasi ini berarti
-  "seandainya pemakaian historis dipatok harga hari ini".
-- Setiap laporan mencantumkan `fetched_at` + `mode` (live/cache/seed).
-- **AA tidak menyediakan historis.** Untuk membandingkan harga antar-minggu,
-  pakai snapshot Wayback Machine dari halaman harga milik provider sendiri (bukan Artificial Analysis) atau newsroom provider.
+- AA shows **current** prices, not historical ones. This simulation means "as if historical usage were priced at today's prices".
+- Every report states `fetched_at` + `mode` (live/cache/seed).
+- **AA does not provide history.** To compare prices between weeks, use Wayback Machine snapshots of the provider's own price page (not Artificial Analysis) or the provider's newsroom.
