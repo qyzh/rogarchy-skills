@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0b0c">
+<title>{{TITLE}}</title>
+<style>
+  :root {
+    --bg: #0b0b0c;
+    --fg: #ededee;
+    --muted: #8b8b92;
+    --line: #1d1d20;
+    --surface: #101012;
+    --plot: #0c0c0e;
+    --sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+    --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--fg);
+  }
+  body {
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding:
+      max(28px, env(safe-area-inset-top))
+      max(28px, env(safe-area-inset-right))
+      max(40px, env(safe-area-inset-bottom))
+      max(28px, env(safe-area-inset-left));
+    overscroll-behavior: contain;
+  }
+  :focus-visible {
+    outline: 2px solid var(--muted);
+    outline-offset: 3px;
+  }
+  .skip {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    z-index: 2;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--fg);
+    text-decoration: none;
+    transform: translateY(-200%);
+  }
+  .skip:focus { transform: none; }
+  main { width: min(920px, 100%); margin: 0 auto; }
+  header { margin-bottom: 22px; min-width: 0; }
+  h1 {
+    margin: 0;
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+  .sub {
+    margin: 10px 0 0;
+    max-width: 62ch;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  #charts { display: grid; gap: 22px; }
+  .chart-card {
+    margin: 0;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    min-width: 0;
+  }
+  .chart-title {
+    margin: 0 0 10px;
+    color: var(--muted);
+    font: 500 11px/1.2 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 12px;
+    min-width: 0;
+  }
+  .legend:empty,
+  .xlabels:empty { display: none; }
+  .legend button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    font: 400 12px/1.2 var(--sans);
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .legend button[aria-pressed="true"] { color: var(--fg); }
+  .legend button[aria-pressed="false"] { opacity: 0.6; }
+  .sw {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
+    flex: none;
+  }
+  .plot {
+    position: relative;
+    width: 100%;
+    height: min(52vh, 420px);
+    min-height: 220px;
+    background: var(--plot);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .chart,
+  #chart {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+  .xlabels {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 10px;
+    min-width: 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+  .xlabels span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#charts">Skip to charts</a>
+<main>
+  <header>
+    <h1>{{TITLE}}</h1>
+    <p class="sub">{{SUB}}</p>
+  </header>
+  <div id="charts" tabindex="-1"></div>
+  <noscript><p class="sub">Charts require JavaScript.</p></noscript>
+</main>
+<script src="./dither.js"></script>
+<!-- Set window.CHARTS (array) or window.CHART (single object) here, before the boot script. -->
+<script>
+(() => {
+  const host = document.getElementById('charts');
+  if (!host) return;
+
+  function showError(message) {
+    window.__DITHER_ERROR__ = message;
+    const p = document.createElement('p');
+    p.className = 'sub';
+    p.setAttribute('role', 'alert');
+    p.textContent = message;
+    host.textContent = '';
+    host.appendChild(p);
+  }
+
+  if (typeof Dither === 'undefined') {
+    showError('Dither is undefined (dither.js failed to load)');
+    return;
+  }
+
+  const specs = Array.isArray(window.CHARTS) ? window.CHARTS : (window.CHART ? [window.CHART] : []);
+  if (!specs.length) {
+    showError('Set window.CHARTS or window.CHART before the boot script');
+    return;
+  }
+
+  const PX = 3;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const slug = (value, fallback) => {
+    const s = String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    return s || fallback;
+  };
+
+  const cards = specs.map((spec, index) => {
+    const card = { spec, index, raf: 0, ready: false };
+
+    card.figure = document.createElement('figure');
+    card.figure.className = 'chart-card';
+
+    if (spec.title) {
+      const heading = document.createElement('h2');
+      heading.className = 'chart-title';
+      heading.textContent = spec.title;
+      card.figure.appendChild(heading);
+    }
+
+    card.legend = document.createElement('div');
+    card.legend.className = 'legend';
+    card.legend.setAttribute('role', 'group');
+    card.legend.setAttribute('aria-label', 'Legend');
+
+    card.plot = document.createElement('div');
+    card.plot.className = 'plot';
+
+    card.canvas = document.createElement('canvas');
+    card.canvas.className = 'chart';
+    card.canvas.setAttribute('role', 'img');
+    card.canvas.setAttribute('aria-label', spec.title || spec.name || 'Chart ' + (index + 1));
+    card.canvas.dataset.export = slug(spec.name, specs.length > 1 ? 'chart-' + (index + 1) : 'chart');
+    card.plot.appendChild(card.canvas);
+
+    card.xlabels = document.createElement('div');
+    card.xlabels.className = 'xlabels';
+
+    card.figure.append(card.legend, card.plot, card.xlabels);
+    host.appendChild(card.figure);
+    return card;
+  });
+  window.__DITHER_COUNT__ = cards.length;
+
+  function grid(spec, w, h, progress) {
+    const type = spec.type || 'area';
+    if (type === 'pie') {
+      return Dither.pie(w, h, spec.slices, {
+        progress,
+        inner: spec.inner ?? 0.58,
+        hover: spec.hover ?? (spec.selected >= 0 ? spec.selected : undefined),
+      });
+    }
+    if (type === 'radar') {
+      return Dither.radar(w, h, spec.series, { progress, selected: spec.selected });
+    }
+    if (type === 'spark' || type === 'sparkline') {
+      return Dither.sparkline(w, h, spec.values, {
+        progress, tone: spec.tone, bloom: spec.bloom, yMax: spec.yMax,
+      });
+    }
+    if (type === 'meter') {
+      return Dither.meter(w, h, spec.value, spec.tone || 'green', spec.fill || 'gradient');
+    }
+    return Dither.areaChart(w, h, spec.series, {
+      progress, selected: spec.selected, yMax: spec.yMax,
+      bloom: spec.bloom, grid: spec.grid, hover: spec.hover,
+    });
+  }
+
+  function paintCard(card, progress) {
+    const [w, h] = Dither.fit(card.canvas, PX);
+    if (w < 2 || h < 2) return false;
+    Dither.paint(card.canvas, grid(card.spec, w, h, progress), PX);
+    return true;
+  }
+
+  function markReady(card) {
+    if (card.ready) return;
+    card.ready = true;
+    if (cards.every(c => c.ready)) {
+      window.__DITHER_READY__ = true;
+      document.documentElement.dataset.chartsReady = 'true';
+    }
+  }
+
+  function settle(card) {
+    if (paintCard(card, 1)) markReady(card);
+  }
+
+  function reveal(card) {
+    cancelAnimationFrame(card.raf);
+    if (reduce) { settle(card); return; }
+    const t0 = performance.now();
+    const tick = (now) => {
+      const p = Math.min(1, (now - t0) / 800);
+      if (paintCard(card, p)) markReady(card);
+      if (p < 1) card.raf = requestAnimationFrame(tick);
+    };
+    card.raf = requestAnimationFrame(tick);
+  }
+
+  function sync(card) {
+    const selected = card.spec.selected;
+    [...card.legend.querySelectorAll('button')].forEach((btn, i) => {
+      const pressed = selected == null || selected < 0 || selected === i;
+      btn.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+    });
+  }
+
+  function bind(card) {
+    const { spec, legend, xlabels, canvas } = card;
+    const items = Array.isArray(spec.series) ? spec.series : Array.isArray(spec.slices) ? spec.slices : null;
+
+    if (items) {
+      items.forEach((s, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('aria-pressed', 'true');
+
+        const sw = document.createElement('span');
+        sw.className = 'sw';
+        sw.setAttribute('aria-hidden', 'true');
+        sw.style.background = Dither.color(s.tone, 0.7, 1);
+
+        btn.append(sw, document.createTextNode(s.name || 'Series ' + (i + 1)));
+        btn.addEventListener('click', () => {
+          spec.selected = spec.selected === i ? -1 : i;
+          sync(card);
+          paintCard(card, 1);
+        });
+        legend.appendChild(btn);
+      });
+    }
+
+    if (Array.isArray(spec.labels)) {
+      spec.labels.forEach((label) => {
+        const span = document.createElement('span');
+        span.textContent = label;
+        xlabels.appendChild(span);
+      });
+    }
+
+    new ResizeObserver(() => {
+      if (card.ready || reduce) settle(card);
+    }).observe(canvas);
+  }
+
+  cards.forEach((card) => {
+    bind(card);
+    sync(card);
+  });
+
+  const start = () => cards.forEach(reveal);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(start).catch(start);
+  else start();
+})();
+</script>
+</body>
+</html>

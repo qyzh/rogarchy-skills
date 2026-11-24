@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=1080">
+<title>Opsi E — Dashboard Padat</title>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#0b0b0c;--fg:#ededee;--muted:#a3a3ab;--line:#1d1d20;--surface:#101012;--plot:#0c0c0e;
+--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"DejaVu Sans Mono","Liberation Mono","SF Mono",Menlo,Consolas,"Courier New",monospace;color-scheme:dark}
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:var(--bg);color:var(--fg);font-family:var(--sans);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.4}
+body{display:flex;flex-direction:column}
+.plot{position:relative;background:var(--plot);overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated}
+.sw{display:inline-block;width:11px;height:11px;border-radius:2px;flex:none;box-shadow:inset 0 0 0 1px rgb(255 255 255/.16)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.mono{font-family:var(--mono)}.mut{color:var(--muted)}
+.chip{font:500 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+:root{--g:14px}
+body{padding:40px 40px 32px;gap:var(--g)}
+.hd{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:14px}
+h1{margin:0;font:600 34px/1 var(--mono);letter-spacing:-.04em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--g);flex:none}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0;display:flex;flex-direction:column}
+.card h2{margin:0 0 10px;font:500 11px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.card .plot{border:1px solid var(--line);border-radius:6px}
+.big{height:470px}.kpis{display:grid;grid-template-columns:1fr 1fr;gap:var(--g)}
+.kpi b{display:block;font:600 40px/1.05 var(--mono);letter-spacing:-.04em}.kpi span{font-size:12px;color:var(--muted)}
+.mini{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--g)}
+.sp .plot{height:88px}.sp .t{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}.sp .t b{font:600 18px var(--sans);text-transform:capitalize}.sp .t span{font:500 13px var(--mono);color:var(--muted)}
+.dl{display:flex;justify-content:space-between;margin-top:6px;font:500 11px var(--mono);color:var(--muted)}
+.top5 .row{display:grid;grid-template-columns:1fr 60px;gap:2px 10px;margin-bottom:10px;align-items:center}.top5 .row .n{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.top5 .row em{font:600 13px var(--mono);font-style:normal;text-align:right}
+.top5 .bar{grid-column:1/3;height:16px;position:relative}.top5 .bar .plot{position:absolute;inset:0;border-radius:3px;border:0}
+.leg{display:grid;grid-template-columns:1fr;gap:5px;font-size:12.5px}.leg div{display:flex;gap:7px;align-items:center}.leg em{margin-left:auto;font:500 12px var(--mono);font-style:normal;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}th{font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:4px 5px;border-bottom:1px solid var(--line)}td{padding:2.5px 5px;border-bottom:1px solid #151517}th.num,td.num{text-align:right}tr.sum td{border-top:1px solid var(--line);border-bottom:0;font-weight:600}
+.foot{margin:auto 0 0;font-size:11.5px;color:var(--muted)}
+</style></head>
+<body>
+
+<div class="hd"><h1>USAGE / MODEL</h1><span class="chip" id="rg"></span></div>
+<div class="kpis"><div class="card kpi"><b id="k1"></b><span>token non-​cache</span></div><div class="card kpi"><b id="k2"></b><span>total biaya · data contoh (fiktif)</span></div></div>
+<div class="grid" style="grid-template-columns:1.15fr 1fr">
+ <div class="card"><h2>Porsi token / model</h2><div class="plot big"><canvas id="c" class="chart" data-export="model-donut" role="img" aria-label="Donut porsi token per model"></canvas></div></div>
+ <div class="card"><h2>Legenda · model · agent</h2><div class="leg" id="leg"></div></div></div>
+<div class="grid"><div class="card"><h2>Token non-​cache / hari per agent</h2><div class="plot" style="height:230px"><canvas id="ta" class="chart" data-export="daily-tokens-agent" role="img" aria-label="Area token harian per agent"></canvas></div><div class="dl" id="dl1"></div></div>
+ <div class="card"><h2>Biaya / hari (USD)</h2><div class="plot" style="height:230px"><canvas id="cd" class="chart" data-export="daily-cost" role="img" aria-label="Area biaya harian"></canvas></div><div class="dl" id="dl2"></div></div></div>
+<div class="mini" id="sp"></div>
+<div class="grid"><div class="card top5"><h2>Top 5 model · porsi</h2><div id="t5"></div></div>
+ <div class="card"><h2>Rincian biaya</h2><table><thead><tr><th>Model</th><th class="num">Porsi</th><th class="num">Biaya</th></tr></thead><tbody id="tb"></tbody></table></div></div>
+<p class="foot">Token non-​cache = input non-​cache + output; cache read tidak dihitung. Biaya = revaluasi historis ke harga saat fetch (simulasi pay-as-you-go), bukan tagihan langganan. Sumber: omarchy-agent-usage. Pada kartu asli: <a href="https://artificialanalysis.ai/">Source: Artificial Analysis (artificialanalysis.ai)</a>. Based on data from Artificial Analysis. Created by dither-data-viz, not by Artificial Analysis. Artificial Analysis does not endorse this report/tool.</p>
+<script src="./dither.js"></script>
+<script>
+const D={"start": "2026-01-01", "end": "2026-01-06", "days": ["01", "02", "03", "04", "05", "06"], "items": [{"name": "model-a", "agents": ["hermes"], "nc": 3000000, "cost": 0.0, "pct": 28.8, "tone": "green"}, {"name": "model-b", "agents": ["claude"], "nc": 2000000, "cost": 20.0, "pct": 19.2, "tone": "blue"}, {"name": "model-c", "agents": ["claude"], "nc": 1500000, "cost": 60.0, "pct": 14.4, "tone": "purple"}, {"name": "model-d", "agents": ["hermes"], "nc": 1000000, "cost": 0.0, "pct": 9.6, "tone": "orange"}, {"name": "model-e", "agents": ["opencode"], "nc": 800000, "cost": 0.0, "pct": 7.7, "tone": "pink"}, {"name": "model-f", "agents": ["claude", "opencode"], "nc": 600000, "cost": 1.0, "pct": 5.8, "tone": "red"}, {"name": "model-g", "agents": ["claude"], "nc": 500000, "cost": 19.0, "pct": 4.8, "tone": "grey"}, {"name": "model-h", "agents": ["opencode"], "nc": 400000, "cost": 0.0, "pct": 3.8, "tone": "green"}, {"name": "model-i", "agents": ["hermes"], "nc": 300000, "cost": 0.0, "pct": 2.9, "tone": "blue"}, {"name": "model-j", "agents": ["codex"], "nc": 200000, "cost": 0.1, "pct": 1.9, "tone": "purple"}, {"name": "Lainnya (4 model)", "agents": ["hermes", "opencode"], "nc": 100000, "cost": 0.0, "pct": 1.0, "tone": "grey"}], "agents": [{"name": "hermes", "nc": 4350000, "cost": 0.0, "prompts": 100, "models": [["model-a", 3000000], ["model-d", 1000000], ["model-i", 300000]]}, {"name": "claude", "nc": 4400000, "cost": 100.0, "prompts": 120, "models": [["model-b", 2000000], ["model-c", 1500000], ["model-g", 500000]]}, {"name": "opencode", "nc": 1450000, "cost": 0.0, "prompts": 40, "models": [["model-e", 800000], ["model-h", 400000], ["model-f", 200000]]}, {"name": "codex", "nc": 200000, "cost": 0.1, "prompts": 10, "models": [["model-j", 200000]]}], "total_nc": 10400000, "total_cost": 100.1, "daily_nc": {"hermes": [500000, 1500000, 900000, 700000, 500000, 250000], "claude": [800000, 600000, 500000, 700000, 1100000, 700000], "opencode": [200000, 300000, 350000, 300000, 150000, 150000], "codex": [0, 0, 0, 200000, 0, 0]}, "daily_cost": [15.0, 10.0, 15.1, 20.0, 25.0, 15.0], "fetched_at": "data contoh (fiktif)"};
+const usd=x=>'$'+x.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const int=x=>x.toLocaleString('en-US');
+const mil=x=>(x/1e6).toFixed(2)+' jt';
+const col=(t,l=.7)=>Dither.color(t,l,1);
+const PX=3,jobs=[];
+function mount(id,build){jobs.push([id,build])}
+function paintAll(){try{
+  for(const [id,b] of jobs){const c=document.getElementById(id);const [w,h]=Dither.fit(c,PX);
+    if(w<2||h<2)throw new Error('canvas '+id+' has no layout box');Dither.paint(c,b(w,h),PX);}
+  window.__DITHER_COUNT__=3;window.__DITHER_READY__=true;document.documentElement.dataset.chartsReady='true';
+}catch(e){window.__DITHER_ERROR__=String(e&&e.message||e);document.body.insertAdjacentHTML('beforeend','<p role="alert">'+window.__DITHER_ERROR__+'</p>')}}
+function boot(){if(typeof Dither==='undefined'){window.__DITHER_ERROR__='Dither is undefined (dither.js failed to load)';return}
+  render();paintAll()}
+window.addEventListener('load',boot);
+const slices=(items,key='nc')=>items.map(i=>({name:i.name,tone:i.tone,fill:'gradient',value:i[key]}));
+
+
+function render(){
+ rg.textContent=D.start+' s/d '+D.end;k1.textContent=mil(D.total_nc);k2.textContent=usd(D.total_cost);
+ leg.innerHTML=D.items.map(i=>`<div><span class="sw" style="background:${col(i.tone)}"></span>${i.name}<br><span class="mut">${i.agents.join(', ')}</span><em>${i.pct.toFixed(1)}%</em></div>`).join('').replace(/<br>/g,' · ');
+ const tone={hermes:'green',claude:'purple',opencode:'blue',codex:'orange'};
+ dl1.innerHTML=D.days.map(d=>`<span>${d}</span>`).join('');dl2.innerHTML=D.daily_cost.map((c,k)=>`<span>${D.days[k]}<br>${usd(c)}</span>`).join('');
+ sp.innerHTML=D.agents.map(a=>`<div class="card sp"><div class="t"><b>${a.name}</b><span>${int(a.nc)} · ${usd(a.cost)}</span></div><div class="plot"><canvas id="s_${a.name}"></canvas></div></div>`).join('');
+ const t5=D.items.slice(0,5);
+ document.getElementById('t5').innerHTML=t5.map((i,k)=>`<div class="row"><span class="n"><span class="sw" style="background:${col(i.tone)};margin-right:7px"></span>${i.name}</span><em>${i.pct.toFixed(1)}%</em><div class="bar"><div class="plot"><canvas id="m${k}"></canvas></div></div></div>`).join('');
+ tb.innerHTML=D.items.map(i=>`<tr><td>${i.name}</td><td class="num">${i.pct.toFixed(1)}%</td><td class="num">${usd(i.cost)}</td></tr>`).join('')+`<tr class="sum"><td>TOTAL</td><td class="num">100.0%</td><td class="num">${usd(D.total_cost)}</td></tr>`;
+ mount('c',(w,h)=>Dither.pie(w,h,slices(D.items),{inner:.58}));
+ mount('ta',(w,h)=>Dither.areaChart(w,h,D.agents.map(a=>({name:a.name,tone:tone[a.name],fill:'gradient',values:D.daily_nc[a.name]})),{grid:true}));
+ mount('cd',(w,h)=>Dither.areaChart(w,h,[{name:'Biaya',tone:'orange',fill:'gradient',values:D.daily_cost}],{yMax:45,grid:true}));
+ D.agents.forEach(a=>mount('s_'+a.name,(w,h)=>Dither.sparkline(w,h,D.daily_nc[a.name],{tone:tone[a.name]})));
+ t5.forEach((i,k)=>mount('m'+k,(w,h)=>Dither.meter(w,h,i.nc/t5[0].nc,i.tone,'gradient')));
+}
+</script></body></html>

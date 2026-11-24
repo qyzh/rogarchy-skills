@@ -1,0 +1,7 @@
+{"meta": {"fetched_at": "2026-11-01T00:00:00+07:00", "source": "fixture: MADE-UP numbers, not real prices", "mode": "live"},
+ "prices": {
+  "claude-opus-5-5": {"input": 1.5, "output": 7, "cacheHit": 0.25, "cacheWrite": 1.9},
+  "gpt-6-2-sol": {"input": 0.75, "output": 3, "cacheHit": 0.05, "cacheWrite": 0.9},
+  "glm-5-3-flash": {"input": 0.15, "output": 0.5, "cacheHit": 0.03, "cacheWrite": 0},
+  "no-cache-slug": {"input": 1, "output": 2, "cacheHit": null, "cacheWrite": null}
+ }}

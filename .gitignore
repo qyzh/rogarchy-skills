@@ -1,0 +1,15 @@
+.DS_Store
+*.swp
+*.swo
+*~
+.tmp/
+__pycache__/
+*.pyc
+node_modules/
+
+# omarchy-agent-usage: local-only files
+omarchy-agent-usage/references/pricing.json
+omarchy-agent-usage/references/task-signal.local.md
+
+# personal setup (the repo ships generic versions; skills read these if present)
+*.local.md

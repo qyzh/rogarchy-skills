@@ -1,0 +1,8 @@
+{"ts": "2026-11-10T10:00:00+07:00", "agent": "hermes", "status": "ok", "session": "h1", "label": "t"}
+{"ts": "2026-11-10T10:05:00+07:00", "agent": "hermes", "status": "ok", "session": "h1", "label": "t"}
+{"ts": "2026-11-10T11:00:00+07:00", "agent": "hermes", "status": "partial", "session": "h2"}
+{"ts": "2026-11-11T20:00:00Z", "agent": "hermes", "status": "ok", "session": "h4"}
+{"ts": "2026-11-10T12:00:00+07:00", "agent": "hermes", "status": "ok"}
+this is not json
+{"ts": "2026-11-10T12:00:00+07:00", "agent": "nobody", "status": "ok"}
+{"ts": "2026-11-10T13:00:00+07:00", "agent": "codex", "status": "fail", "session": "c1"}

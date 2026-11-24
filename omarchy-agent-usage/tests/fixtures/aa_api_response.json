@@ -1,0 +1,87 @@
+{
+ "_note": "MADE-UP fixture in the shape of the AA free Data API; not real prices",
+ "pages": [
+  {
+   "tier": "free",
+   "pagination": {
+    "page": 1,
+    "page_size": 2,
+    "total_pages": 2,
+    "has_more": true
+   },
+   "data": [
+    {
+     "id": "00000000-0000-0000-0000-000000000000",
+     "name": "Fixture claude-opus-5-5",
+     "slug": "claude-opus-5-5",
+     "model_creator": {
+      "id": "x",
+      "name": "Fixture Lab"
+     },
+     "pricing": {
+      "price_1m_input_tokens": 1.5,
+      "price_1m_output_tokens": 7,
+      "price_1m_cache_hit_tokens": 0.25,
+      "price_1m_cache_write_tokens": 1.9
+     }
+    },
+    {
+     "id": "00000000-0000-0000-0000-000000000000",
+     "name": "Fixture no-price-model",
+     "slug": "no-price-model",
+     "model_creator": {
+      "id": "x",
+      "name": "Fixture Lab"
+     },
+     "pricing": {
+      "price_1m_input_tokens": null,
+      "price_1m_output_tokens": null,
+      "price_1m_cache_hit_tokens": null,
+      "price_1m_cache_write_tokens": null
+     }
+    }
+   ]
+  },
+  {
+   "tier": "free",
+   "pagination": {
+    "page": 2,
+    "page_size": 2,
+    "total_pages": 2,
+    "has_more": false
+   },
+   "data": [
+    {
+     "id": "00000000-0000-0000-0000-000000000000",
+     "name": "Fixture gpt-6-2-sol",
+     "slug": "gpt-6-2-sol",
+     "model_creator": {
+      "id": "x",
+      "name": "Fixture Lab"
+     },
+     "pricing": {
+      "price_1m_input_tokens": 0.75,
+      "price_1m_output_tokens": 3,
+      "price_1m_cache_hit_tokens": null,
+      "price_1m_cache_write_tokens": null
+     }
+    },
+    {
+     "id": "00000000-0000-0000-0000-000000000000",
+     "name": "Fixture claude-opus-5-5",
+     "slug": "claude-opus-5-5",
+     "model_creator": {
+      "id": "x",
+      "name": "Fixture Lab"
+     },
+     "pricing": {
+      "price_1m_input_tokens": 9,
+      "price_1m_output_tokens": 9,
+      "price_1m_cache_hit_tokens": null,
+      "price_1m_cache_write_tokens": null
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,7 @@
+date,agent,model,tokens,inputTokens,outputTokens,cacheReadInputTokens,cacheCreationInputTokens,prompts,sessions
+2026-11-10,claude,claude-opus-5-5,1110000,100000,10000,1000000,0,5,1
+2026-11-10,codex,gpt-6.1-sol,220000,200000,20000,0,0,2,1
+2026-11-10,hermes,GLM-5.3-flash-free,55000,50000,5000,0,0,0,1
+2026-11-10,hermes,(unknown),0,0,0,0,0,4,2
+2026-11-10,hermes,mystery-model,2000,1000,1000,0,0,0,1
+2026-11-12,claude,claude-opus-5-5,55000,50000,5000,0,0,1,1

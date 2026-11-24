@@ -1,0 +1,19 @@
+{"schemaVersion": 2, "collectedAt": "2026-11-11T23:45:00+07:00", "today": "2026-11-11",
+ "agents": {
+  "hermes": {"name": "Hermes", "complete": true,
+   "record": {"recentDays": [{"date": "2026-11-10", "messageCount": 35}, {"date": "2026-11-11", "messageCount": 0}]},
+   "rows": [
+    {"day": "2026-11-10", "model": "m1", "input": 15, "output": 5, "cacheRead": 0, "cacheWrite": 0, "prompts": 0, "session": "s1"},
+    {"day": "2026-11-10", "model": "m2", "input": 10, "output": 5, "cacheRead": 0, "cacheWrite": 0, "prompts": 0, "session": "s1"},
+    {"day": "2026-11-10", "model": "(unknown)", "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0, "prompts": 3, "session": "s1"},
+    {"day": "2026-11-10", "model": "(unknown)", "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0, "prompts": 1, "session": "s2"}],
+   "sessionsByDay": {"2026-11-10": 2},
+   "byDayByModel": {"2026-11-10": {
+    "m1": {"tokens": 20, "inputTokens": 15, "outputTokens": 5, "cacheReadInputTokens": 0, "cacheCreationInputTokens": 0, "prompts": 0, "sessions": 1},
+    "m2": {"tokens": 15, "inputTokens": 10, "outputTokens": 5, "cacheReadInputTokens": 0, "cacheCreationInputTokens": 0, "prompts": 0, "sessions": 1},
+    "(unknown)": {"tokens": 0, "inputTokens": 0, "outputTokens": 0, "cacheReadInputTokens": 0, "cacheCreationInputTokens": 0, "prompts": 4, "sessions": 2}}}},
+  "codex": {"name": "Codex", "complete": false, "record": {},
+   "rows": [{"day": "2026-11-09", "model": "gpt-6-luna", "input": 40, "output": 0, "cacheRead": 0, "cacheWrite": 0, "prompts": 1, "session": "c1"}],
+   "sessionsByDay": {"2026-11-09": 1},
+   "byDayByModel": {"2026-11-09": {"gpt-6-luna": {"tokens": 40, "inputTokens": 40, "outputTokens": 0, "cacheReadInputTokens": 0, "cacheCreationInputTokens": 0, "prompts": 1, "sessions": 1}}}}
+ }}

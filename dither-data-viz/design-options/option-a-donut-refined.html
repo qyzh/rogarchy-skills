@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=1080">
+<title>Opsi A — Donut Refined</title>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#0b0b0c;--fg:#ededee;--muted:#a3a3ab;--line:#1d1d20;--surface:#101012;--plot:#0c0c0e;
+--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"DejaVu Sans Mono","Liberation Mono","SF Mono",Menlo,Consolas,"Courier New",monospace;color-scheme:dark}
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:var(--bg);color:var(--fg);font-family:var(--sans);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.4}
+body{display:flex;flex-direction:column}
+.plot{position:relative;background:var(--plot);overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated}
+.sw{display:inline-block;width:11px;height:11px;border-radius:2px;flex:none;box-shadow:inset 0 0 0 1px rgb(255 255 255/.16)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.mono{font-family:var(--mono)}.mut{color:var(--muted)}
+.chip{font:500 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+body{padding:56px 56px 40px;gap:0}
+.k{display:flex;justify-content:space-between;align-items:baseline}
+h1{margin:14px 0 0;font:500 64px/1 var(--sans);letter-spacing:-.05em}
+.sub{margin:14px 0 0;font-size:20px;color:var(--muted)}
+.hero{position:relative;margin:22px auto 0;width:820px;height:820px;flex:none}
+.hero .plot{position:absolute;inset:0;background:transparent}
+.ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.ctr b{font:600 76px/1 var(--mono);letter-spacing:-.04em}.ctr span{margin-top:10px;font:500 14px/1 var(--mono);letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:8px 28px;margin-top:22px}
+.legend div{display:flex;align-items:center;gap:10px;font-size:15px;min-width:0}
+.legend em{font-style:normal;margin-left:auto;font:500 14px var(--mono);color:var(--muted)}
+.legend span.t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:18px}
+th{font:500 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;padding:5px 6px;border-bottom:1px solid var(--line)}
+td{padding:2.5px 6px;border-bottom:1px solid #151517}th.num,td.num{text-align:right}
+tr.sum td{border-top:1px solid var(--line);border-bottom:0;font-weight:600;padding-top:6px}
+.banner{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;padding:16px 20px;background:#141416;border:1px solid var(--line);border-radius:10px}
+.banner b{font:600 40px/1 var(--mono)}.banner small{color:var(--muted);font-size:13px;text-align:right}
+.foot{margin:12px 0 0;font-size:12px;color:var(--muted)}
+</style></head>
+<body>
+
+<div class="k"><span class="chip">Dither Data Viz · A</span><span class="chip" id="range"></span></div>
+<h1>Token per Model</h1>
+<p class="sub">Porsi token non-​cache per model beserta agent asalnya.</p>
+<div class="hero"><div class="plot"><canvas id="c" class="chart" data-export="model-donut" role="img" aria-label="Donut porsi token non-​cache per model"></canvas></div>
+<div class="ctr"><b id="tot"></b><span>token non-​cache</span></div></div>
+<div class="legend" id="legend"></div>
+<table><thead><tr><th>Model</th><th>Agent</th><th class="num">Token non-​cache</th><th class="num">Porsi</th><th class="num">Biaya</th></tr></thead><tbody id="tb"></tbody></table>
+<div class="banner"><div><div class="chip">Total biaya</div><b id="cost"></b></div><small id="fa"></small></div>
+<p class="foot">Token non-​cache = input non-​cache + output; cache read tidak dihitung. Biaya = revaluasi historis ke harga saat fetch (simulasi pay-as-you-go), bukan tagihan langganan. Sumber: omarchy-agent-usage. Pada kartu asli: <a href="https://artificialanalysis.ai/">Source: Artificial Analysis (artificialanalysis.ai)</a>. Based on data from Artificial Analysis. Created by dither-data-viz, not by Artificial Analysis. Artificial Analysis does not endorse this report/tool.</p>
+<script src="./dither.js"></script>
+<script>
+const D={"start": "2026-01-01", "end": "2026-01-06", "days": ["01", "02", "03", "04", "05", "06"], "items": [{"name": "model-a", "agents": ["hermes"], "nc": 3000000, "cost": 0.0, "pct": 28.8, "tone": "green"}, {"name": "model-b", "agents": ["claude"], "nc": 2000000, "cost": 20.0, "pct": 19.2, "tone": "blue"}, {"name": "model-c", "agents": ["claude"], "nc": 1500000, "cost": 60.0, "pct": 14.4, "tone": "purple"}, {"name": "model-d", "agents": ["hermes"], "nc": 1000000, "cost": 0.0, "pct": 9.6, "tone": "orange"}, {"name": "model-e", "agents": ["opencode"], "nc": 800000, "cost": 0.0, "pct": 7.7, "tone": "pink"}, {"name": "model-f", "agents": ["claude", "opencode"], "nc": 600000, "cost": 1.0, "pct": 5.8, "tone": "red"}, {"name": "model-g", "agents": ["claude"], "nc": 500000, "cost": 19.0, "pct": 4.8, "tone": "grey"}, {"name": "model-h", "agents": ["opencode"], "nc": 400000, "cost": 0.0, "pct": 3.8, "tone": "green"}, {"name": "model-i", "agents": ["hermes"], "nc": 300000, "cost": 0.0, "pct": 2.9, "tone": "blue"}, {"name": "model-j", "agents": ["codex"], "nc": 200000, "cost": 0.1, "pct": 1.9, "tone": "purple"}, {"name": "Lainnya (4 model)", "agents": ["hermes", "opencode"], "nc": 100000, "cost": 0.0, "pct": 1.0, "tone": "grey"}], "agents": [{"name": "hermes", "nc": 4350000, "cost": 0.0, "prompts": 100, "models": [["model-a", 3000000], ["model-d", 1000000], ["model-i", 300000]]}, {"name": "claude", "nc": 4400000, "cost": 100.0, "prompts": 120, "models": [["model-b", 2000000], ["model-c", 1500000], ["model-g", 500000]]}, {"name": "opencode", "nc": 1450000, "cost": 0.0, "prompts": 40, "models": [["model-e", 800000], ["model-h", 400000], ["model-f", 200000]]}, {"name": "codex", "nc": 200000, "cost": 0.1, "prompts": 10, "models": [["model-j", 200000]]}], "total_nc": 10400000, "total_cost": 100.1, "daily_nc": {"hermes": [500000, 1500000, 900000, 700000, 500000, 250000], "claude": [800000, 600000, 500000, 700000, 1100000, 700000], "opencode": [200000, 300000, 350000, 300000, 150000, 150000], "codex": [0, 0, 0, 200000, 0, 0]}, "daily_cost": [15.0, 10.0, 15.1, 20.0, 25.0, 15.0], "fetched_at": "data contoh (fiktif)"};
+const usd=x=>'$'+x.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const int=x=>x.toLocaleString('en-US');
+const mil=x=>(x/1e6).toFixed(2)+' jt';
+const col=(t,l=.7)=>Dither.color(t,l,1);
+const PX=3,jobs=[];
+function mount(id,build){jobs.push([id,build])}
+function paintAll(){try{
+  for(const [id,b] of jobs){const c=document.getElementById(id);const [w,h]=Dither.fit(c,PX);
+    if(w<2||h<2)throw new Error('canvas '+id+' has no layout box');Dither.paint(c,b(w,h),PX);}
+  window.__DITHER_COUNT__=1;window.__DITHER_READY__=true;document.documentElement.dataset.chartsReady='true';
+}catch(e){window.__DITHER_ERROR__=String(e&&e.message||e);document.body.insertAdjacentHTML('beforeend','<p role="alert">'+window.__DITHER_ERROR__+'</p>')}}
+function boot(){if(typeof Dither==='undefined'){window.__DITHER_ERROR__='Dither is undefined (dither.js failed to load)';return}
+  render();paintAll()}
+window.addEventListener('load',boot);
+const slices=(items,key='nc')=>items.map(i=>({name:i.name,tone:i.tone,fill:'gradient',value:i[key]}));
+
+
+function render(){
+ range.textContent=D.start+' s/d '+D.end; tot.textContent=mil(D.total_nc); cost.textContent=usd(D.total_cost);
+ fa.innerHTML='fetched_at '+D.fetched_at+'<br>simulasi pay-as-you-go';
+ legend.innerHTML=D.items.map(i=>`<div><span class="sw" style="background:${col(i.tone)}"></span><span class="t">${i.name} · ${i.agents.join(', ')}</span><em>${i.pct.toFixed(1)}%</em></div>`).join('');
+ tb.innerHTML=D.items.map(i=>`<tr><td>${i.name}</td><td>${i.agents.join(', ')}</td><td class="num">${int(i.nc)}</td><td class="num">${i.pct.toFixed(1)}%</td><td class="num">${usd(i.cost)}</td></tr>`).join('')
+  +`<tr class="sum"><td colspan="2">TOTAL</td><td class="num">${int(D.total_nc)}</td><td class="num">100.0%</td><td class="num">${usd(D.total_cost)}</td></tr>`;
+ mount('c',(w,h)=>Dither.pie(w,h,slices(D.items),{inner:.6}));
+}
+</script></body></html>
