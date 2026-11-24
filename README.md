@@ -12,6 +12,7 @@ Koleksi pribadi skill agent dalam format `SKILL.md`. Satu repo, satu folder per 
 | [`blog-post`](blog-post/README.md) | Menulis satu blog post bersitasi: riset dulu, draf kedua, penilaian ketiga. | 0.2.0 | `references/`, `templates/` |
 | [`bmlink`](bmlink/README.md) | Menyimpan URL sebagai satu baris di tabel Markdown bookmark. Tanpa catatan per link. | 1.0.0 | - |
 | [`dither-data-viz`](dither-data-viz/README.md) | Membuat grafik ber-dither (Bayer) di canvas dengan label HTML asli. Keluarannya `index.html` dan satu PNG per canvas. Ada 5 desain kartu (A–E), default B. | 0.4.0 | `scripts/`, `templates/`, `design-options/` |
+| [`kamus`](kamus/README.md) | Menyimpan satu istilah sebagai satu note definisi di folder kamus, dengan arti yang diverifikasi ke KBBI/Wiktionary. | 1.0.0 | `references/` (opsional, lokal) |
 | [`note-to-quote`](note-to-quote/README.md) | Memilih satu gagasan dari note atau rangkuman menjadi quote singkat, lengkap dengan konteks dan atribusi. | 1.0.0 | `references/` |
 | [`omarchy-agent-usage`](omarchy-agent-usage/README.md) | Riwayat dan laporan pemakaian token agent AI lokal di Omarchy: per hari × per model, kuota, simulasi biaya, metrik. Hanya Linux/Omarchy. | 0.3.0 | `references/`, `scripts/`, `tests/` |
 | [`ytsum`](ytsum/README.md) | Mengubah satu URL YouTube menjadi satu file rangkuman Markdown yang setia pada isi video. | 3.0.0 | `scripts/` |
@@ -21,10 +22,11 @@ Kebutuhan runtime:
 - `dither-data-viz`: Node.js, Python 3, dan Chrome/Chromium (diatur lewat `CHROME_BIN` bila tidak ada di `PATH`) untuk ekspor PNG.
 - `omarchy-agent-usage`: Linux dengan Omarchy (wrapper `omarchy-agent-usage-*`) dan Python 3 (pustaka standar). Internet opsional (harga dari Data API gratis Artificial Analysis, perlu `ARTIFICIAL_ANALYSIS_API_KEY`; tanpa kunci tidak ada panggilan jaringan; `--offline` memakai cache/seed).
 - `ytsum`: `yt-dlp`, Python 3, dan skill `youtube-content` (untuk mengambil transkrip).
-- `bmlink`, `blog-post`, `note-to-quote`: tidak ada skrip. Sebagian skill menyebut skill lain di `related_skills`; skill itu opsional dan tidak disertakan di repo ini.
+- `bmlink`, `blog-post`, `note-to-quote`, `kamus`: tidak ada skrip. Sebagian skill menyebut skill lain di `related_skills`; skill itu opsional dan tidak disertakan di repo ini.
 - Lokasi keluaran bisa diatur lewat environment variable (default dipakai bila tidak diset):
   - `bmlink`: `BMLINK_FILE` (default `$HOME/bookmarks/linksaved.md`), `BMLINK_TZ` (default zona waktu sistem).
   - `ytsum`: `YTSUM_OUTPUT_DIR` (default `$HOME/ytsum`), `YTSUM_SCRATCH_DIR` (default `${TMPDIR:-/tmp}/ytsum-scratch`).
+  - `kamus`: `KAMUS_DIR` (default `$HOME/kamus`).
   - `blog-post`: `OUT` (default `$HOME/blog-posts`).
   - `omarchy-agent-usage`: `OMARCHY_USAGE_DATA` (default `~/.local/state/omarchy/agents/usage-history`), `ARTIFICIAL_ANALYSIS_API_KEY`, `OMARCHY_USAGE_PRICING_CACHE`, `OMARCHY_USAGE_PRICING_SEED`, `OMARCHY_TASKS_FILE`, `OMARCHY_PATH`.
 - Semua skill memakai author `qyzh, Hermes Agent`.
