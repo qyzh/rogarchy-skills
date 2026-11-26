@@ -1,14 +1,14 @@
 ---
 name: bmlink
 description: "Save a URL as a row in the bookmark links table."
-version: 1.0.2
+version: 1.0.3
 author: qyzh, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [bookmark, link, table, save]
-    related_skills: [bookmark-link, discord-link-save, web-article-to-vault]
+    related_skills: [web-article-to-vault]
 ---
 
 # bmlink
@@ -40,7 +40,7 @@ If the user names another file in the request, use that. Create the file and its
 - If no URL is included, ask them to send the link.
 - Optional extras after the URL: `#tags` and a note after `--`, e.g. `/bmlink <url> #ai #tools -- read later`.
 
-Do not use for: per-link bookmark notes (use `bookmark-link`), saving a link with its content or categorized routing (use `discord-link-save`), or full article archiving (use `web-article-to-vault`). `bmlink` only appends a row to the single table.
+Do not use for: per-link bookmark notes, or saving a link together with its content or with categorized routing (out of scope: tell the user so), or full article archiving (use `web-article-to-vault`). `bmlink` only appends a row to the single table.
 
 ## Procedure
 

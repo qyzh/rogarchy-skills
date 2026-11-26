@@ -13,14 +13,13 @@ Use it when:
 
 Don't use it for:
 
-- Per-link bookmark notes (`bookmark-link`).
-- Saving a link together with its content or with categorized routing (`discord-link-save`).
+- Per-link bookmark notes, or saving a link together with its content or with categorized routing (out of scope; the agent says so).
 - Archiving full articles (`web-article-to-vault`).
 
 ## Requirements
 
 - Runtime tools: no scripts. The agent uses `date` and write access to files.
-- Skills outside this repo: none required. `bookmark-link`, `discord-link-save`, and `web-article-to-vault` are only named as handoff targets (route only) and listed in `related_skills`.
+- Skills outside this repo: none required. `web-article-to-vault` is only named as a handoff target (route only) and listed in `related_skills`.
 
 ## Configuration
 
@@ -64,4 +63,4 @@ bmlink/
 
 ---
 
-Version 1.0.2 · MIT License · [Repo README](../README.md) · 1.0.2: escapes `|` in cells as `\|` (one backslash)
+Version 1.0.3 · MIT License · [Repo README](../README.md) · 1.0.3: drops references to the renamed `bookmark-link` and the deleted `discord-link-save`
