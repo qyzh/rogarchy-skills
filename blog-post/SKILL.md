@@ -1,7 +1,7 @@
 ---
 name: blog-post
-description: Use when writing a cited blog post. Research, draft, score.
-version: 0.3.0
+description: "Use when writing one sourced blog post or article to publish, with citations: research first, then draft, then score. Writes in Indonesian by default and pauses after the research for approval unless told 'tulis sampai selesai'. Indonesian triggers - bikin tulisan soal, tulis artikel, buat blog post. Not for academic papers, YouTube notes, or short captions."
+version: 0.3.1
 author: qyzh, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -23,6 +23,8 @@ use `grounded-citations`. Prose cleanup uses `humanizer`.
 
 - User asks to write a blog post, article, or sourced explainer for publishing.
 - User wants current statistics, competitor gaps, then a draft they can edit.
+- Indonesian requests: "bikin tulisan soal …", "tulis artikel …", "buat blog post …", when the user wants a
+  post or article to publish, not a caption or a short note.
 
 Do not use for: academic papers (`academic-research-writer`), YouTube notes
 (`ytsum` / `youtube-content`), saving an existing URL into a vault

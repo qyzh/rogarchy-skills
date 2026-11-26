@@ -79,4 +79,4 @@ Adapted from [AgriciDaniel/claude-blog](https://github.com/AgriciDaniel/claude-b
 
 ---
 
-Version 0.3.0 · MIT License · [Repo README](../README.md) · 0.3.0: setting renamed `OUT` → `BLOG_POST_DIR`; rename it in `config.env` if you set it
+Version 0.3.1 · MIT License · [Repo README](../README.md) · 0.3.1: Indonesian trigger phrases in the description; 0.3.0 renamed the setting `OUT` → `BLOG_POST_DIR` (rename it in `config.env` if you set it)
