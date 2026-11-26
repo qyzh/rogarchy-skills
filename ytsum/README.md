@@ -65,4 +65,4 @@ ytsum/
 
 ---
 
-Version 3.0.1 · MIT License · [Repo README](../README.md) · 3.0.1: reads settings from config.env too
+Version 3.0.2 · MIT License · [Repo README](../README.md) · 3.0.2: calls `python3`

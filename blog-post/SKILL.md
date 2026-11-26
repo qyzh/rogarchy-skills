@@ -1,7 +1,7 @@
 ---
 name: blog-post
 description: Use when writing a cited blog post. Research, draft, score.
-version: 0.2.1
+version: 0.2.2
 author: qyzh, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -31,7 +31,7 @@ Do not load this merely because the word "blog" appears in a coding task.
 
 ## Prerequisites / Config
 
-Requires: skills `grounded-citations`, `humanizer`.
+Requires: commands `python3`; skills `grounded-citations`, `humanizer`.
 Local files: `references/voice-personal.local.md` (template `references/voice-personal.example.md`).
 
 | Variable | Meaning | Default | Kind |
@@ -196,10 +196,10 @@ OUT="$(rs_get OUT "$HOME/blog-posts")"   # rs_get: see Prerequisites / Config
 S="<grounded-citations-dir>/scripts/sources.py"   # folder of the grounded-citations skill
 L="$OUT/.sources-<slug>-<date>.json"     # per-post ledger, created by add
 D="$OUT/<slug>_<date>.md"
-python "$S" --ledger "$L" add '<url>' --title '<title>'
-python "$S" --ledger "$L" list
-python "$S" --ledger "$L" render --replace-in "$D"
-python "$S" --ledger "$L" verify --strict --require-all-cited "$D"
+python3 "$S" --ledger "$L" add '<url>' --title '<title>'
+python3 "$S" --ledger "$L" list
+python3 "$S" --ledger "$L" render --replace-in "$D"
+python3 "$S" --ledger "$L" verify --strict --require-all-cited "$D"
 ```
 
 Fetch a page (if it is blocked, skip the source and note it):

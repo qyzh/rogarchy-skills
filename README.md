@@ -9,21 +9,22 @@ A personal collection of agent skills in `SKILL.md` format. One repo, one folder
 
 | Skill | Description | Version | Extra folders |
 |---|---|---|---|
-| [`blog-post`](blog-post/README.md) | Writes one cited blog post: research first, draft second, score third. | 0.2.1 | `references/`, `templates/` |
+| [`blog-post`](blog-post/README.md) | Writes one cited blog post: research first, draft second, score third. | 0.2.2 | `references/`, `templates/` |
 | [`bmlink`](bmlink/README.md) | Saves a URL as one row in a Markdown bookmark table. No per-link notes. | 1.0.1 | - |
 | [`dither-data-viz`](dither-data-viz/README.md) | Makes dithered (Bayer) charts on canvas with real HTML labels. Outputs `index.html` and one PNG per canvas. 5 card designs (A–E), default B. | 0.4.1 | `scripts/`, `templates/`, `design-options/` |
 | [`kamus`](kamus/README.md) | Saves one term as one definition note in a kamus (dictionary) folder, with the meaning verified against KBBI/Wiktionary. | 1.0.1 | `references/` (optional, local) |
 | [`note-to-quote`](note-to-quote/README.md) | Picks one idea from a note or summary and turns it into a short quote, with context and attribution. | 1.0.1 | `references/` |
 | [`omarchy-agent-usage`](omarchy-agent-usage/README.md) | History and reports of local AI agent token usage on Omarchy: per day × per model, quota, cost simulation, metrics. Linux/Omarchy only. | 0.3.1 | `references/`, `scripts/`, `tests/` |
 | [`rogarchy-setup`](rogarchy-setup/README.md) | Sets up or checks the skills in this repo: symlinks into agents, the `config.env` settings file, a report of missing requirements. Runs only when asked. | 0.1.0 | - |
-| [`ytsum`](ytsum/README.md) | Turns one YouTube URL into one Markdown summary file that stays faithful to the video. | 3.0.1 | `scripts/` |
+| [`ytsum`](ytsum/README.md) | Turns one YouTube URL into one Markdown summary file that stays faithful to the video. | 3.0.2 | `scripts/` |
 
 Runtime requirements:
 
 - `dither-data-viz`: Node.js, Python 3, and Chrome/Chromium (set via `CHROME_BIN` if not on `PATH`) for PNG export.
 - `omarchy-agent-usage`: Linux with Omarchy (the `omarchy-agent-usage-*` wrappers) and Python 3 (standard library). Internet is optional (prices from the free Artificial Analysis Data API, needs `ARTIFICIAL_ANALYSIS_API_KEY`; without a key there are no network calls; `--offline` uses the cache/seed).
 - `ytsum`: `yt-dlp`, Python 3, and the `youtube-content` skill (to fetch transcripts).
-- `bmlink`, `blog-post`, `note-to-quote`, `kamus`, `rogarchy-setup`: no scripts. Some skills name other skills in `related_skills`; those are optional and not included in this repo.
+- `blog-post`: Python 3, to run the `sources.py` script of the `grounded-citations` skill.
+- `bmlink`, `note-to-quote`, `kamus`, `rogarchy-setup`: no scripts. Some skills name other skills in `related_skills`; those are optional and not included in this repo.
 - Output locations can be set through environment variables or the settings file `~/.config/rogarchy-skills/config.env` (see [Setup](#setup); the env var wins, and the default is used when neither is set):
   - `bmlink`: `BMLINK_FILE` (default `$HOME/bookmarks/linksaved.md`), `BMLINK_TZ` (default: system timezone).
   - `ytsum`: `YTSUM_OUTPUT_DIR` (default `$HOME/ytsum`), `YTSUM_SCRATCH_DIR` (default `${TMPDIR:-/tmp}/ytsum-scratch`).

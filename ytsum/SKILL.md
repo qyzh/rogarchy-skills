@@ -1,7 +1,7 @@
 ---
 name: ytsum
 description: "Use when given a YouTube URL to save as a summary file."
-version: 3.0.1
+version: 3.0.2
 author: qyzh, Hermes Agent
 license: MIT
 platforms: [linux, macos]
@@ -45,7 +45,7 @@ Below, `$OUT` means the resolved `YTSUM_OUTPUT_DIR` and `$SCRATCH` the resolved 
 3. **Duplicate check.** Run `grep -l 'video_id: "<video_id>"' "$OUT"/*.md`, and check whether the target filename from step 6 already exists. If either matches, report the existing file and stop.
 4. **Transcript.** Fetch with the `youtube-content` helper:
    ```bash
-   mkdir -p "$SCRATCH" && python <youtube-content-dir>/scripts/fetch_transcript.py "<URL>" --text-only --timestamps --language <chain> > $SCRATCH/<video_id>.txt
+   mkdir -p "$SCRATCH" && python3 <youtube-content-dir>/scripts/fetch_transcript.py "<URL>" --text-only --timestamps --language <chain> > $SCRATCH/<video_id>.txt
    ```
    Pick a language chain that fits the video (`id,en,ms` for Indonesian). Done when the file is non-empty, holds no `{"error": ...}` object and is in the video's language. Retries follow `youtube-content` Error Handling, fetched plainly without proxies or cookies. If captions are disabled or retries run out, report and stop. For a video over 30 minutes, split it into 5-minute chunks with real time ranges, redirecting to a scratch file because `transcript_chapters.py` writes its `## start–end` chunks to stdout: `python3 <skill-dir>/scripts/transcript_chapters.py $SCRATCH/<video_id>.txt --minutes 5 > $SCRATCH/<video_id>.chunks.txt`. Always redirect, even when you intend to read the chunks yourself, so a long transcript does not flood the main context. Pitfall: `transcript_chapters.py` collapses each segment into ONE very long line, and `read_file` truncates long lines — reading `.chunks.txt` silently loses the middle of every chunk. Use the chunks file only as a timestamp map; read the raw timestamped `<video_id>.txt` in line ranges (roughly 400–500 lines per call) for full-fidelity coverage.
 5. **Summarize.** Read the whole transcript, chunk by chunk. Write the body in the video's language:

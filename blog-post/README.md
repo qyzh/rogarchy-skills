@@ -21,6 +21,8 @@ Don't use it for:
 
 ## Requirements
 
+Commands: `python3` (runs `grounded-citations`' `sources.py`).
+
 Skills outside this repo (install separately):
 
 | Skill | Status | Purpose |
@@ -77,4 +79,4 @@ Adapted from [AgriciDaniel/claude-blog](https://github.com/AgriciDaniel/claude-b
 
 ---
 
-Version 0.2.1 · MIT License · [Repo README](../README.md) · 0.2.1: reads `OUT` from config.env too
+Version 0.2.2 · MIT License · [Repo README](../README.md) · 0.2.2: calls `python3` and declares it
