@@ -40,9 +40,9 @@ Runtime tools: Python (for the `sources.py` of `grounded-citations`), `curl`, an
 
 | Variable | Meaning | Default |
 |---|---|---|
-| `OUT` | Output folder for drafts, research packets, and source ledgers | `$HOME/blog-posts` |
+| `BLOG_POST_DIR` | Output folder for drafts, research packets, and source ledgers | `$HOME/blog-posts` |
 
-An absolute path the user names in the request takes priority over `OUT`. The skill does not write into a notes vault unless the user names that vault.
+An absolute path the user names in the request takes priority over `BLOG_POST_DIR`. The skill does not write into a notes vault unless the user names that vault; a vault path set as `BLOG_POST_DIR` counts as named.
 
 The values above can also be stored in the settings file `${XDG_CONFIG_HOME:-~/.config}/rogarchy-skills/config.env` (via [`rogarchy-setup`](../rogarchy-setup/README.md)); the env var still wins, then that file, then the default.
 
@@ -79,4 +79,4 @@ Adapted from [AgriciDaniel/claude-blog](https://github.com/AgriciDaniel/claude-b
 
 ---
 
-Version 0.2.2 · MIT License · [Repo README](../README.md) · 0.2.2: calls `python3` and declares it
+Version 0.3.0 · MIT License · [Repo README](../README.md) · 0.3.0: setting renamed `OUT` → `BLOG_POST_DIR`; rename it in `config.env` if you set it

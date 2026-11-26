@@ -9,7 +9,7 @@ A personal collection of agent skills in `SKILL.md` format. One repo, one folder
 
 | Skill | Description | Version | Extra folders |
 |---|---|---|---|
-| [`blog-post`](blog-post/README.md) | Writes one cited blog post: research first, draft second, score third. | 0.2.2 | `references/`, `templates/` |
+| [`blog-post`](blog-post/README.md) | Writes one cited blog post: research first, draft second, score third. | 0.3.0 | `references/`, `templates/` |
 | [`bmlink`](bmlink/README.md) | Saves a URL as one row in a Markdown bookmark table. No per-link notes. | 1.0.2 | - |
 | [`dither-data-viz`](dither-data-viz/README.md) | Makes dithered (Bayer) charts on canvas with real HTML labels. Outputs `index.html` and one PNG per canvas. 5 card designs (A–E), default B. | 0.4.1 | `scripts/`, `templates/`, `design-options/` |
 | [`kamus`](kamus/README.md) | Saves one term as one definition note in a kamus (dictionary) folder, with the meaning verified against KBBI/Wiktionary. | 1.0.1 | `references/` (optional, local) |
@@ -29,7 +29,7 @@ Runtime requirements:
   - `bmlink`: `BMLINK_FILE` (default `$HOME/bookmarks/linksaved.md`), `BMLINK_TZ` (default: system timezone).
   - `ytsum`: `YTSUM_OUTPUT_DIR` (default `$HOME/ytsum`), `YTSUM_SCRATCH_DIR` (default `${TMPDIR:-/tmp}/ytsum-scratch`).
   - `kamus`: `KAMUS_DIR` (default `$HOME/kamus`).
-  - `blog-post`: `OUT` (default `$HOME/blog-posts`).
+  - `blog-post`: `BLOG_POST_DIR` (default `$HOME/blog-posts`).
   - `omarchy-agent-usage`: `OMARCHY_USAGE_DATA` (default `${XDG_STATE_HOME:-~/.local/state}/omarchy/agents/usage-history`), `ARTIFICIAL_ANALYSIS_API_KEY`, `OMARCHY_USAGE_PRICING_CACHE`, `OMARCHY_USAGE_PRICING_SEED`, `OMARCHY_TASKS_FILE`, `OMARCHY_PATH`.
 - All skills use the author `qyzh, Hermes Agent`.
 
