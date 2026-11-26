@@ -70,6 +70,8 @@ The result is a dark 1080×1920 card: a ledger table of the top 10 plus "Lainnya
 ```
 dither-data-viz/
 ├── SKILL.md                          # instructions for the agent
+├── references/
+│   └── usage-cards.md                # usage cards only: designs A–E, ledger card (B), extra checks
 ├── scripts/
 │   ├── dither.js                     # dither engine (globalThis.Dither): area, pie, radar, spark, meter
 │   ├── export.mjs                    # exports each canvas as PNG via headless Chromium
@@ -96,4 +98,4 @@ The dither engine (`scripts/dither.js`, `design-options/dither.js`) is adapted f
 
 ---
 
-Version 0.4.1 · MIT License · [Repo README](../README.md) · 0.4.1: reads settings from config.env too; default data dir honors `XDG_STATE_HOME`
+Version 0.5.0 · MIT License · [Repo README](../README.md) · 0.5.0: usage-card rules moved to `references/usage-cards.md`; other charts no longer get the A–E design question
