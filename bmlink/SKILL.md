@@ -1,7 +1,7 @@
 ---
 name: bmlink
 description: "Save a URL as a row in the bookmark links table."
-version: 1.0.1
+version: 1.0.2
 author: qyzh, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -59,8 +59,8 @@ Do not use for: per-link bookmark notes (use `bookmark-link`), saving a link wit
 
 If the existing header is the old 4-column one (`Title | Link | Domain | Saved on`), upgrade it to this format and rewrite each existing row with empty `Tags` and `Note` cells before the `Saved on` value.
 
-5. Append one row, preserving existing content and table formatting. Escape `|` in cell values (including the note) as `\\|`; keep each row on one line. Use an append-only write (e.g. a terminal Python append or a patch matching a unique anchor) — never rewrite the whole file from memory, and never match a non-unique last row as the patch anchor.
-6. Read the file back and verify the new row cell-by-cell before reporting: Title, Link exactly as provided, Domain equal to the hostname verbatim (no abbreviation or truncation), Tags/Note empty unless supplied, and Saved on equal to the date command output. If any cell is garbled or truncated, fix that row in place first — a truncated Domain breaks duplicate normalization on the next save.
+5. Append one row, preserving existing content and table formatting. Escape `|` in cell values (including the note) as `\|`, one backslash in the file (`x | y` → `x \| y`; in a Python string literal that is `'\\|'` or `r'\|'`); keep each row on one line. Use an append-only write (e.g. a terminal Python append or a patch matching a unique anchor) — never rewrite the whole file from memory, and never match a non-unique last row as the patch anchor.
+6. Read the file back and verify the new row cell-by-cell before reporting: Title, Link exactly as provided, Domain equal to the hostname verbatim (no abbreviation or truncation), Tags/Note empty unless supplied, Saved on equal to the date command output, every `|` inside a cell written as `\|` (never `\\|`), and exactly 6 cells in the row. If any cell is garbled or truncated, fix that row in place first — a truncated Domain breaks duplicate normalization on the next save.
 
 ## Pitfalls
 

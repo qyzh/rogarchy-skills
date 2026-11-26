@@ -64,4 +64,4 @@ bmlink/
 
 ---
 
-Version 1.0.1 · MIT License · [Repo README](../README.md) · 1.0.1: reads settings from config.env too
+Version 1.0.2 · MIT License · [Repo README](../README.md) · 1.0.2: escapes `|` in cells as `\|` (one backslash)

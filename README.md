@@ -10,7 +10,7 @@ A personal collection of agent skills in `SKILL.md` format. One repo, one folder
 | Skill | Description | Version | Extra folders |
 |---|---|---|---|
 | [`blog-post`](blog-post/README.md) | Writes one cited blog post: research first, draft second, score third. | 0.2.2 | `references/`, `templates/` |
-| [`bmlink`](bmlink/README.md) | Saves a URL as one row in a Markdown bookmark table. No per-link notes. | 1.0.1 | - |
+| [`bmlink`](bmlink/README.md) | Saves a URL as one row in a Markdown bookmark table. No per-link notes. | 1.0.2 | - |
 | [`dither-data-viz`](dither-data-viz/README.md) | Makes dithered (Bayer) charts on canvas with real HTML labels. Outputs `index.html` and one PNG per canvas. 5 card designs (A–E), default B. | 0.4.1 | `scripts/`, `templates/`, `design-options/` |
 | [`kamus`](kamus/README.md) | Saves one term as one definition note in a kamus (dictionary) folder, with the meaning verified against KBBI/Wiktionary. | 1.0.1 | `references/` (optional, local) |
 | [`note-to-quote`](note-to-quote/README.md) | Picks one idea from a note or summary and turns it into a short quote, with context and attribution. | 1.0.1 | `references/` |
