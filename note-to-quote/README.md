@@ -2,26 +2,25 @@
 
 ## What it is
 
-A skill for picking one idea from a single note or summary and turning it into one short quote that can stand on its own, with context and attribution. The skill distinguishes three kinds of text: an editorial rewording, a candidate quote, and a quote checked against the original source. The output is text; image design and publishing are out of scope.
+A skill for finding the lines that hit in one note or summary. It returns 3–5 quotable lines, best first, in the note's own words, lightly tightened. Each one comes with a one-line reason, where it sits in the note, a source credit ("Diolah dari catatan …") and a short caption for posting. The output is text; image design and publishing are out of scope.
 
 ## When to use / not use
 
 Use it when:
 
-- You want a quote card, Instagram Stories text, or a choice of speaker quotes from a note or summary.
-- You need to know whether a sentence is an editorial rewording, a candidate quote, or a verified quote.
+- You want quote card or Instagram Story text from a note or summary.
+- You want a few strong lines to choose from instead of rereading the whole note.
 
 Don't use it for:
 
 - Making images or designing frames (use an image design skill in your agent).
 - Publishing or posting.
-- Finding a common thread across many notes; one note produces one separate output, and multiple notes are processed only when asked.
+- Finding a common thread across many notes; each note gets its own list, and multiple notes are processed only when asked.
 
 ## Requirements
 
 - Runtime tools: none. This skill has no scripts.
-- Skills outside this repo: none. `related_skills` is empty. For Story visuals, SKILL.md only suggests your agent's own image design skill (not required).
-- For an original quote, the agent needs source material that is actually available (a recording with its location, a reliable transcript, or the original text with page/paragraph). Without it, the result stays a candidate quote.
+- Skills outside this repo: none. `related_skills` is empty.
 
 ## Configuration
 
@@ -29,25 +28,19 @@ None. The default language is Indonesian and the default audience is general rea
 
 ## Usage examples
 
-The skill targets Indonesian content, so the example prompts below stay in Indonesian (an English gloss follows each one).
-
 ```text
-Baca note-to-quote/SKILL.md dan gunakan untuk note ini.
-Pilih satu quote terkuat, jelaskan alasan pemilihannya,
-dan sertakan konteks serta sumbernya.
+/note-to-quote <path to note>
 ```
 
-("Read note-to-quote/SKILL.md and use it for this note. Pick the single strongest quote, explain why you chose it, and include its context and source.")
-
-Result: one main quote (editorial by default, labeled "Diolah dari catatan …", "Adapted from notes …"), a short comparison of candidates scored 0–2 per criterion, the reason for the choice, context, public credit, a caption or companion text, and an internal source map. If the note is not complete enough, the result is `perlu-lengkapi` ("needs completing") with the missing material listed.
-
 ```text
-Saya mau kutipan asli pembicaranya, bukan rumusan ulang.
+jadikan quote dari note ini: <path to note>
 ```
 
-("I want the speaker's original quote, not a rewording.")
+("make quotes from this note: …")
 
-The agent uses the verification flow against the original source. If it can't be verified yet, the sentence is shown as a candidate quote labeled "Belum diverifikasi" ("Not yet verified"), not silently replaced with an editorial rewording.
+Result: 3–5 quotes, best first. Each has **Kenapa** (why it hits), **Di note** (where it comes from), **Kredit** (source credit) and **Caption** (1–2 sentences for posting). Pick 1 is the recommended one. A thin note gives fewer picks, with a note on what is missing; the skill never invents a line.
+
+Guardrails: every pick comes from the note, tightening keeps the meaning (negations, conditions and hedges stay), and a tightened line is credited "Diolah dari catatan …", never put in quotation marks under a speaker's name.
 
 ## Folder contents
 
@@ -55,12 +48,11 @@ The agent uses the verification flow against the original source. If it can't be
 note-to-quote/
 ├── SKILL.md                       # instructions for the agent
 └── references/
-    ├── output-template.md         # output template (sections A–D: selection, card text, caption, source map)
+    ├── examples.md                # examples: a full note, a third-party quote, a thin note
     ├── vault-rules.example.md     # vault rules template (copy to vault-rules.local.md)
-    ├── vault-rules.local.md       # your personal vault rules (optional, gitignored)
-    └── examples.md                # examples: editorial quote, candidate quote, chained quote, rejecting incomplete material
+    └── vault-rules.local.md       # your personal vault rules (optional, gitignored)
 ```
 
 ---
 
-Version 1.0.1 · MIT License · [Repo README](../README.md) · 1.0.1: config section for rogarchy-setup; vault-rules template
+Version 2.0.0 · MIT License · [Repo README](../README.md) · 2.0.0: rebuilt as a hit-finder: 3–5 picks with reason, location, credit and caption; the verification flow, text types and score table are gone

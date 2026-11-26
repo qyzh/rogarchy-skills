@@ -1,87 +1,56 @@
 # Contoh Note → Quote
 
-Contoh di bawah diadaptasi dari note lokal; sumber video belum diperiksa. Dua contoh pertama merupakan rumusan editorial, bukan kutipan asli narasumber. Skor merupakan pertimbangan editorial.
+Contoh di bawah diadaptasi dari note lokal; video aslinya belum diperiksa. Semua quote adalah rumusan dari catatan, bukan ucapan verbatim narasumber.
 
-## 1. Empati — quote editorial
+## 1. Note lengkap — tiga pilihan
 
-**Note:** `note/contoh-1.md`
+**Note:** `note/contoh-1.md` (Reading Chamber bersama Cania Cita dan Bang Radit, https://www.youtube.com/watch?v=sD5TqyFOt0Y)
 
-**Sumber:** Reading Chamber bersama Cania Cita dan Bang Radit. https://www.youtube.com/watch?v=sD5TqyFOt0Y
+```markdown
+## Quote dari: Reading Chamber — Cania Cita & Bang Radit
 
-**Jenis/status:** editorial / draft. **Audiens:** pembaca awam berbahasa Indonesia.
+### 1. Kita bisa sama-sama menyukai sebuah film, tetapi punya alasan yang sangat berbeda untuk menyukainya.
+- **Kenapa:** konkret, langsung dipahami tanpa menonton videonya, dan membedakan sepakat dari saling mengerti.
+- **Di note:** Definisi › "ngobrol ≠ ngerti orang", contoh dua orang menyukai film yang sama.
+- **Kredit:** Diolah dari catatan Reading Chamber (Cania Cita & Bang Radit)
+- **Caption:** Sepakat bahwa sesuatu bagus belum berarti sepakat soal alasannya. Dari obrolan Reading Chamber tentang empati dan cara memahami orang lain.
 
-| Kandidat | Dasar dalam note | Skor /10 | Keputusan |
-|---|---|---|---|
-| Kesamaan penilaian belum tentu kesamaan alasan | Definisi “ngobrol ≠ ngerti orang”; contoh dua orang menyukai film dengan alasan berbeda | 10 | Pilih: konkret, mudah dipahami, dan utuh dalam satu kalimat |
-| Fiksi sebagai ruang mencoba sudut pandang | Definisi cognitive empathy dan bagian “Fiksi & empati” | 9 | Simpan: perlu berhati-hati agar menjadi cara memahami, bukan janji dampak ilmiah |
-| Format bacaan dapat membantu akses pembaca | Definisi adaptive reading dan bagian “Malaka Books & budaya baca” | 8 | Simpan: perlu konteks tentang gagasan penerbit |
+### 2. Membaca fiksi bisa menjadi ruang untuk mencoba melihat dari sudut pandang orang lain.
+- **Kenapa:** satu gagasan jelas tentang fungsi fiksi, tanpa menjanjikan hasil.
+- **Di note:** Definisi cognitive empathy › bagian "Fiksi & empati".
+- **Kredit:** Diolah dari catatan Reading Chamber (Cania Cita & Bang Radit)
+- **Caption:** Fiksi sebagai latihan memahami, bukan jaminan jadi lebih empatik. Dari obrolan Reading Chamber.
 
-**Teks card:**
+### 3. Format bacaan yang pas bisa membuka jalan bagi lebih banyak pembaca.
+- **Kenapa:** praktis dan relevan bagi siapa pun yang mengajak orang lain membaca.
+- **Di note:** Definisi adaptive reading › bagian "Malaka Books & budaya baca".
+- **Kredit:** Diolah dari catatan Reading Chamber (Cania Cita & Bang Radit)
+- **Caption:** Gagasan dari obrolan tentang Malaka Books: cara buku disajikan ikut menentukan siapa yang bisa menikmatinya.
+```
 
-Kita bisa sama-sama menyukai sebuah film, tetapi punya alasan yang sangat berbeda untuk menyukainya.
+Kenapa begini: kata "bisa" dipertahankan di ketiga quote, sehingga tidak ada yang berubah menjadi klaim pasti. Pilihan 2 sengaja tidak menyebut fiksi "membuat" orang lebih empatik, karena note tidak menyatakannya.
 
-**Kredit publik:** Diolah dari catatan Reading Chamber bersama Cania Cita dan Bang Radit.
+## 2. Kutipan orang ketiga — kredit ke pengucap asal
 
-**Caption:** Contoh dalam obrolan ini membedakan kesamaan penilaian dari kesamaan cara memandang sesuatu. Kalimat pada card dirumuskan ulang dari catatan, bukan ucapan verbatim Cania atau Radit.
+**Note:** `note/contoh-2.md` (video esai Odysseus tentang riset mandiri). Bagian manajemen waktu memuat kalimat yang Odysseus kutip dari James Clear.
 
-Sumber: https://www.youtube.com/watch?v=sD5TqyFOt0Y. Adaptasi berdasarkan note; video asli belum diperiksa.
+Jika kalimat itu terpilih, kreditnya menyebut pengucap asal, misalnya:
 
-**Jejak sumber:** bagian definisi “ngobrol ≠ ngerti orang” menyebut dua orang dapat sepakat bahwa film bagus, sementara alasannya berbeda bahkan berseberangan. Quote mempertahankan kata “bisa”; tidak menyatakan bahwa orang yang sepakat pasti tidak saling memahami. Tidak dibutuhkan baris konteks tambahan karena film dan perbedaannya sudah disebut.
+- **Kredit:** Diolah dari catatan video Odysseus; gagasan asli dari James Clear
 
-## 2. Riset — quote editorial
+Jangan menulis kalimat itu sebagai ucapan Odysseus, dan jangan memberi tanda kutip dengan nama James Clear kecuali user sudah memeriksa kalimat aslinya.
 
-**Note:** `note/contoh-2.md`
+## 3. Note tipis — lebih sedikit pilihan, tanpa mengarang
 
-**Sumber tercatat di note:** video esai Odysseus tentang riset mandiri. https://youtu.be/maDmHC_NIKY
+**Note:** `note/contoh-4.md` (paper tentang kognisi sosial dan kesehatan mental). Bagian hasil masih kosong; yang ada hanya definisi.
 
-**Jenis/status:** editorial / draft. **Audiens:** pembaca awam berbahasa Indonesia.
+```markdown
+## Quote dari: Kognisi sosial dan kesehatan mental
 
-| Kandidat | Dasar dalam note | Skor /10 | Keputusan |
-|---|---|---|---|
-| Topik muncul setelah membaca | “Apa itu top-down vs bottom-up research?”; topik dapat muncul dari penelusuran bottom-up | 10 | Pilih: relevan bagi orang yang belum punya fokus dan tetap spesifik |
-| Manfaat menyimpan sumber bersama catatan | “Apa itu reference manager?”; melacak asal informasi | 9 | Simpan: praktis, tetapi lebih umum |
-| Output membantu menata ide | “Apa itu output sebagai langkah terakhir?”; merapikan gagasan untuk pembaca | 9 | Simpan: kuat sebagai quote berikutnya, bukan dicampur ke pilihan utama |
+### 1. <satu quote dari bagian definisi, tetap sebagai definisi>
+- …
 
-**Teks card:**
+Hanya satu pilihan: bagian hasil penelitian di note masih kosong. Lengkapi hasil dan batas penelitiannya jika ingin quote tentang temuan paper.
+```
 
-Topik riset tidak selalu harus ditentukan sebelum membaca. Kadang, fokusnya justru muncul dari hal-hal yang kita temukan selama membaca.
-
-**Kredit publik:** Diolah dari catatan video riset mandiri Odysseus.
-
-**Caption:** Dalam pendekatan bottom-up yang dibahas kreator, penelusuran awal dapat membantu menemukan fokus. Ini salah satu pendekatan; note juga membahas top-down untuk orang yang sudah punya tujuan. Kalimat pada card merupakan adaptasi editorial berbahasa Indonesia.
-
-Sumber: https://youtu.be/maDmHC_NIKY. Adaptasi berdasarkan note; video asli belum diperiksa.
-
-**Jejak sumber:** heading “Apa itu top-down vs bottom-up research?” menjelaskan kedua pendekatan, termasuk peralihan dari eksplorasi ke fokus. Kata “tidak selalu” dan “kadang” menjaga agar quote tidak menyatakan semua riset harus dimulai tanpa topik. Teks ini bukan terjemahan kutipan asli.
-
-## 3. Proses kreatif — calon kutipan asli
-
-**Note:** `note/contoh-3.md`
-
-**Sumber:** Malaka Podcast bersama Kamila Andini. https://www.youtube.com/watch?v=oNLxbW-Ut2U
-
-**Permintaan contoh:** ambil kutipan asli Kamila tentang proses kreatif.
-
-**Jenis/status:** calon-kutipan / belum-diverifikasi. **Belum dibuat card publik.**
-
-**Kalimat yang tercatat di note:** “Terbaiknya bukan di hasilnya, tapi di prosesnya.”
-
-**Jejak sumber:** heading “Apa itu block saat membuat karya?” menempatkan kalimat tersebut dalam penjelasan Kamila tentang memastikan proses yang ia jalani sebaik mungkin. Konteksnya proses kreatif; kalimat ini bukan penolakan terhadap kualitas hasil.
-
-**Yang diperlukan:** periksa bagian rekaman atau materi asli yang relevan untuk memastikan wording, pengucap, dan konteks; catat lokasi sebenarnya bila tersedia. Timestamp belum tersedia dalam note. Setelah diperiksa, baris konteks “Tentang memberikan yang terbaik dalam proses kreatif” dapat menemani kutipan agar maksudnya tetap jelas.
-
-Jika user mengizinkan versi editorial, buat kalimat baru dengan label adaptasi. Jangan menempelkan nama Kamila sebagai pengucap kalimat baru tersebut.
-
-## 4. Kutipan orang ketiga — pertahankan rantai atribusi
-
-Note `contoh-2.md` memuat kutipan yang diatribusikan kepada James Clear pada bagian manajemen waktu. Odysseus adalah pembicara yang mengulangnya, bukan otomatis pengucap asal.
-
-Jika diminta mengambil kalimat itu sebagai kutipan asli, catat sumber antara dari note, cari bukti dari sumber asal James Clear, dan pertahankan status calon selama bukti belum cukup. Ingatan model tentang quote populer bukan verifikasi.
-
-## 5. Note belum lengkap — jangan membuat kesimpulan
-
-**Note:** `note/contoh-4.md`
-
-**Status:** perlu-lengkapi untuk permintaan quote tentang hasil hubungan kognisi sosial dan kesehatan mental.
-
-Bagian hasil masih kosong. Jangan membuat kalimat seolah paper membuktikan bahwa empati menyembuhkan gangguan tertentu. Minta atau periksa hasil serta batas penelitian jika user menginginkan temuan paper. Jika user hanya meminta quote definisi, nilai definisinya secara terpisah dan jangan memperluasnya menjadi kesimpulan klinis.
+Jangan membuat kalimat seolah paper membuktikan bahwa empati menyembuhkan gangguan tertentu.
