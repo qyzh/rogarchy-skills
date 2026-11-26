@@ -32,7 +32,7 @@ Platforms: Linux and macOS (per the frontmatter).
 | Variable | Meaning | Default |
 |---|---|---|
 | `YTSUM_OUTPUT_DIR` | Folder where summaries are written | `$HOME/ytsum` |
-| `YTSUM_SCRATCH_DIR` | Temporary folder for transcripts and chunks | `${TMPDIR:-/tmp}/ytsum-scratch` |
+| `YTSUM_SCRATCH_DIR` | Temporary folder for transcripts and block indexes | `${TMPDIR:-/tmp}/ytsum-scratch` |
 
 An output folder named in the request takes priority. Temporary files are deleted at the end of the run.
 
@@ -49,10 +49,10 @@ Result: one file `<creator> - <title>_<upload date>.md` in the output folder, wi
 Checking a long video's transcript by hand (optional):
 
 ```bash
-python3 ytsum/scripts/transcript_chapters.py transcript.txt --minutes 5 > chunks.txt
+python3 ytsum/scripts/transcript_chapters.py transcript.txt --minutes 5 --index > index.txt
 ```
 
-The script reads a timestamped transcript (`M:SS` or `H:MM:SS` per line) and prints `## start–end` blocks. The `--index` and `--json` options are available. Always redirect its output to a file.
+The script reads a timestamped transcript (`M:SS` or `H:MM:SS` per line) and splits it into N-minute blocks. `--index` prints one short line per block with its time range and the transcript lines it covers, e.g. `- 5:06–9:58  L54–111  first words…`; the agent uses it on videos over 30 minutes to read the transcript block by block. Without options it prints `## start–end` blocks with their full text on one line each, and `--json` prints a JSON array. Always redirect its output to a file.
 
 ## Folder contents
 
@@ -65,4 +65,4 @@ ytsum/
 
 ---
 
-Version 3.0.2 · MIT License · [Repo README](../README.md) · 3.0.2: calls `python3`
+Version 3.1.0 · MIT License · [Repo README](../README.md) · 3.1.0: `--index` with line ranges replaces the chunks file for long videos

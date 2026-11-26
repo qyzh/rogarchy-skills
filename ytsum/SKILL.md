@@ -1,7 +1,7 @@
 ---
 name: ytsum
 description: "Use when given a YouTube URL to save as a summary file."
-version: 3.0.2
+version: 3.1.0
 author: qyzh, Hermes Agent
 license: MIT
 platforms: [linux, macos]
@@ -23,7 +23,7 @@ Local files: none.
 | Variable | Meaning | Default | Kind |
 |---|---|---|---|
 | `YTSUM_OUTPUT_DIR` | Where summary files are written | `$HOME/ytsum` | setting |
-| `YTSUM_SCRATCH_DIR` | Temporary transcripts and chunks | `${TMPDIR:-/tmp}/ytsum-scratch` | advanced |
+| `YTSUM_SCRATCH_DIR` | Temporary transcripts and block indexes | `${TMPDIR:-/tmp}/ytsum-scratch` | advanced |
 
 Resolve each variable once, before the first step that needs it: the env var if set and non-empty; else its `KEY=value` line in `${XDG_CONFIG_HOME:-$HOME/.config}/rogarchy-skills/config.env` (written by `rogarchy-setup`; read it as data, never `source` it; the last matching line wins); else the default. A missing file or line means the default. Kind: `setting` = setup asks for it; `advanced` = setup keeps the default unless the user asks; `secret` = env var only, never in `config.env` or chat. In a shell, `rs_get` does the same lookup:
 
@@ -47,14 +47,21 @@ Below, `$OUT` means the resolved `YTSUM_OUTPUT_DIR` and `$SCRATCH` the resolved 
    ```bash
    mkdir -p "$SCRATCH" && python3 <youtube-content-dir>/scripts/fetch_transcript.py "<URL>" --text-only --timestamps --language <chain> > $SCRATCH/<video_id>.txt
    ```
-   Pick a language chain that fits the video (`id,en,ms` for Indonesian). Done when the file is non-empty, holds no `{"error": ...}` object and is in the video's language. Retries follow `youtube-content` Error Handling, fetched plainly without proxies or cookies. If captions are disabled or retries run out, report and stop. For a video over 30 minutes, split it into 5-minute chunks with real time ranges, redirecting to a scratch file because `transcript_chapters.py` writes its `## start–end` chunks to stdout: `python3 <skill-dir>/scripts/transcript_chapters.py $SCRATCH/<video_id>.txt --minutes 5 > $SCRATCH/<video_id>.chunks.txt`. Always redirect, even when you intend to read the chunks yourself, so a long transcript does not flood the main context. Pitfall: `transcript_chapters.py` collapses each segment into ONE very long line, and `read_file` truncates long lines — reading `.chunks.txt` silently loses the middle of every chunk. Use the chunks file only as a timestamp map; read the raw timestamped `<video_id>.txt` in line ranges (roughly 400–500 lines per call) for full-fidelity coverage.
-5. **Summarize.** Read the whole transcript, chunk by chunk. Write the body in the video's language:
+   - **Language:** pick a chain that fits the video (`id,en,ms` for Indonesian).
+   - **Done when** the file is non-empty, holds no `{"error": ...}` object and is in the video's language.
+   - **Retries** follow `youtube-content` Error Handling, fetched plainly without proxies or cookies. If captions are disabled or retries run out, report and stop.
+   - **Videos over 30 minutes:** build a block index of the transcript:
+     ```bash
+     python3 <skill-dir>/scripts/transcript_chapters.py "$SCRATCH/<video_id>.txt" --minutes 5 --index > "$SCRATCH/<video_id>.index.txt"
+     ```
+     Each index line is short and safe to read: `- 5:06–9:58  L54–111  first words…`, a 5-minute block with its time range and the lines it covers in `<video_id>.txt`. The ranges cover the whole file in order. Read the raw transcript block by block with those line ranges, several blocks per read call up to about 500 lines. Do not read the script's default output (one long line per block): file readers truncate long lines and silently lose the middle of each block.
+5. **Summarize.** Read the whole transcript, block by block. Write the body in the video's language:
    - an opening paragraph with the exact title, channel, runtime, language and speakers;
    - term definitions, each as `What is **X** means?` followed by a tab and the explanation;
    - thematic `##` sections;
    - concise takeaways.
 
-   Stay with what the speakers say, keep their claims apart from verified facts, and keep their stated uncertainty. You may delegate the draft to a subagent that reads the scratch transcript — for long videos, point it at the raw timestamped transcript in line ranges, not the `.chunks.txt` file, whose single-line segments get truncated on read. Review its draft before writing: subagent drafts can garble names, numbers, and term definitions, so spot-check the term lines and every quoted figure against the transcript before committing them to the file. Auto-captions garble proper names — a guest addressed by one name in the transcript may be billed as someone else — so confirm the speaker identities against the uploader's video description (`yt-dlp --no-playlist --skip-download --print '%(description)s' "<URL>"`) before writing the opening paragraph. Done when every part above is present and every chunk is covered.
+   Stay with what the speakers say, keep their claims apart from verified facts, and keep their stated uncertainty. You may delegate the draft to a subagent that reads the scratch transcript — for long videos, give it the `.index.txt` file and have it read `<video_id>.txt` by the index's line ranges. Review its draft before writing: subagent drafts can garble names, numbers, and term definitions, so spot-check the term lines and every quoted figure against the transcript before committing them to the file. Auto-captions garble proper names — a guest addressed by one name in the transcript may be billed as someone else — so confirm the speaker identities against the uploader's video description (`yt-dlp --no-playlist --skip-download --print '%(description)s' "<URL>"`) before writing the opening paragraph. Done when every part above is present and every block (every index line range, for a long video) is covered.
 6. **Write.** Create `$OUT` if it is missing, then write one file named exactly `<creator> - <title>_<upload date>.md`, e.g. `Creator Name - Example Video Title_2026-03-02.md`. In creator and title, replace each of `/ \ : * ? " < > |` and control characters with `-`, collapse repeated spaces, and trim trailing dots and spaces. Start the file with this frontmatter, every value in double quotes with inner `"` and `\` backslash-escaped:
    ```yaml
    ---

@@ -16,7 +16,7 @@ A personal collection of agent skills in `SKILL.md` format. One repo, one folder
 | [`note-to-quote`](note-to-quote/README.md) | Picks one idea from a note or summary and turns it into a short quote, with context and attribution. | 1.0.1 | `references/` |
 | [`omarchy-agent-usage`](omarchy-agent-usage/README.md) | History and reports of local AI agent token usage on Omarchy: per day × per model, quota, cost simulation, metrics. Linux/Omarchy only. | 0.3.1 | `references/`, `scripts/`, `tests/` |
 | [`rogarchy-setup`](rogarchy-setup/README.md) | Sets up or checks the skills in this repo: symlinks into agents, the `config.env` settings file, a report of missing requirements. Runs only when asked. | 0.1.0 | - |
-| [`ytsum`](ytsum/README.md) | Turns one YouTube URL into one Markdown summary file that stays faithful to the video. | 3.0.2 | `scripts/` |
+| [`ytsum`](ytsum/README.md) | Turns one YouTube URL into one Markdown summary file that stays faithful to the video. | 3.1.0 | `scripts/` |
 
 Runtime requirements:
 
